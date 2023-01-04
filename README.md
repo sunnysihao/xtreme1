@@ -1,1 +1,1 @@
-# sdk_project
+# sdk-project
