@@ -1,5 +1,5 @@
 import os
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 import requests
 
@@ -79,7 +79,8 @@ class Client:
     def query_dataset(
             self,
             dataset_id: Optional[str] = None,
-            chunk_size: int = 1,
+            page_no: int = 1,
+            page_size: int = 1,
             dataset_name: Optional[str] = None,
             create_start_time: Optional[str] = None,
             create_end_time: Optional[str] = None,
@@ -91,8 +92,8 @@ class Client:
             dataset_name = self._query_a_single_dataset(dataset_id)['name']
 
         return self._query_the_list_of_datasets(
-            page_no=1,
-            page_size=chunk_size,
+            page_no=page_no,
+            page_size=page_size,
             name=dataset_name,
             create_start_time=create_start_time,
             create_end_time=create_end_time,
@@ -101,16 +102,30 @@ class Client:
             dataset_type=dataset_type
         )
 
-    def query_data_under_dataset(self, dataset_id: str, page_no: int, page_size: int, **kwargs) -> Dict:
+    def query_data_under_dataset(
+            self,
+            dataset_id: str,
+            page_no: int,
+            page_size: int,
+            name: Optional[str] = None,
+            create_start_time: Optional[str] = None,
+            create_end_time: Optional[str] = None,
+            sort_by: Optional[str] = None,
+            ascending: Optional[bool] = True,
+            annotation_status: Optional[str] = None
+    ) -> Dict:
         endpoint = 'data/findByPage'
 
         params = {
             'datasetId': dataset_id,
             'pageNo': page_no,
             'pageSize': page_size,
-            'name': kwargs.get('name'),
-            'createStartTime': kwargs.get('createStartTime'),
-            'createEndTime': kwargs.get('createEndTime'),
+            'name': name,
+            'createStartTime': create_start_time,
+            'createEndTime': create_end_time,
+            'sortField': sort_by,
+            'ascOrDesc': 'ASC' if ascending else 'DESC',
+            'annotationStatus': annotation_status
         }
 
         resp = self.api.get_request(endpoint=endpoint, params=params)
@@ -128,17 +143,13 @@ class Client:
 
         return 'success'
 
-    def query_data(self, data_id: str) -> Dict:
-        endpoint = f'data/info/{data_id}'
-        resp = self.api.get_request(endpoint=endpoint, params=None)
-
-        return resp
-
-    def query_multiple_data(self, data_ids: str) -> Dict:
+    def query_data(self, data_id: Union[str, List[str]]) -> Dict:
         endpoint = 'data/listByIds'
 
+        if type(data_id) == str:
+            data_id = [data_id]
         params = {
-            'dataIds': data_ids
+            'dataIds': data_id
         }
 
         resp = self.api.get_request(endpoint=endpoint, params=params)
@@ -182,8 +193,11 @@ class Client:
 
         return resp
 
-    # 存疑函数
-    def get_data_and_result_info(self, dataset_id: Optional[str] = None, data_ids: Optional[List[str]] = None) -> Dict:
+    def _get_data_and_result_info(
+            self,
+            dataset_id: Optional[str] = None,
+            data_ids: Optional[List[str]] = None
+    ) -> Dict:
         endpoint = 'data/getDataAndResult'
 
         params = {
@@ -194,6 +208,14 @@ class Client:
         resp = self.api.get_request(endpoint=endpoint, params=params)
 
         return resp
+
+    def query_result(
+            self,
+            dataset_id: Optional[str] = None,
+            data_ids: Optional[List[str]] = None
+    ):
+        return self._get_data_and_result_info(dataset_id, data_ids)['results']
+
 
     @staticmethod
     def as_table(data_list):
