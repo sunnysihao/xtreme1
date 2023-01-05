@@ -36,7 +36,10 @@ class Client:
 
         return 'Success!'
 
-    def delete_dataset(self, dataset_id: str) -> str:
+    def delete_dataset(self, dataset_id: str, is_sure: bool = False) -> str:
+        if not is_sure:
+            return 'Unsure!'
+
         endpoint = f'dataset/delete/{dataset_id}'
         self.api.post_request(endpoint=endpoint, payload=None)
 
@@ -132,7 +135,10 @@ class Client:
 
         return resp
 
-    def delete_multiple_data(self, ids: List[str]) -> str:
+    def delete_multiple_data(self, ids: List[str], is_sure: bool = False) -> str:
+        if not is_sure:
+            return 'Unsure'
+
         endpoint = 'data/deleteBatch'
 
         payload = {
@@ -215,7 +221,6 @@ class Client:
             data_ids: Optional[List[str]] = None
     ):
         return self._get_data_and_result_info(dataset_id, data_ids)['results']
-
 
     @staticmethod
     def as_table(data_list):
