@@ -3,8 +3,11 @@ from typing import List, Dict, Optional, Union
 
 import requests
 
+from rich import box
+from rich.table import Table
+
 from .api import Api
-from .dataset import DatasetType, Dataset
+from .dataset import Dataset
 from .exceptions import SDKException
 
 
@@ -13,11 +16,11 @@ class Client:
     def __init__(self, access_token: str, base_url: str):
         self.api = Api(access_token=access_token, base_url=base_url)
 
-    def create_dataset(self, name: str, annotation_type: DatasetType, description: str = None) -> Dataset:
+    def create_dataset(self, name: str, annotation_type: str, description: str = None) -> Dataset:
         endpoint = 'dataset/create'
         payload = {
             'name': name,
-            'type': annotation_type.value,
+            'type': annotation_type,
             'description': description
         }
 
@@ -36,7 +39,10 @@ class Client:
 
         return 'Success!'
 
-    def delete_dataset(self, dataset_id: str) -> str:
+    def delete_dataset(self, dataset_id: str, is_sure: bool = False) -> str:
+        if not is_sure:
+            return 'Unsure!'
+
         endpoint = f'dataset/delete/{dataset_id}'
         self.api.post_request(endpoint=endpoint, payload=None)
 
@@ -57,7 +63,7 @@ class Client:
             create_end_time: Optional[str] = None,
             sort_by: Optional[str] = None,
             ascending: Optional[bool] = True,
-            dataset_type: Optional[DatasetType] = None
+            dataset_type: Optional[str] = None
     ) -> Dict:
         endpoint = 'dataset/findByPage'
 
@@ -86,12 +92,12 @@ class Client:
             create_end_time: Optional[str] = None,
             sort_by: Optional[str] = 'CREATED_AT',
             ascending: Optional[bool] = True,
-            dataset_type: Optional[DatasetType] = None
-    ) -> Dict:
+            dataset_type: Optional[str] = None
+    ) -> List:
         if dataset_id:
             dataset_name = self._query_a_single_dataset(dataset_id)['name']
 
-        return self._query_the_list_of_datasets(
+        resp = self._query_the_list_of_datasets(
             page_no=page_no,
             page_size=page_size,
             name=dataset_name,
@@ -101,6 +107,10 @@ class Client:
             ascending=ascending,
             dataset_type=dataset_type
         )
+
+        datasets = [Dataset(d, self) for d in resp['list']]
+
+        return datasets
 
     def query_data_under_dataset(
             self,
@@ -132,7 +142,10 @@ class Client:
 
         return resp
 
-    def delete_multiple_data(self, ids: List[str]) -> str:
+    def delete_multiple_data(self, ids: List[str], is_sure: bool = False) -> str:
+        if not is_sure:
+            return 'Unsure'
+
         endpoint = 'data/deleteBatch'
 
         payload = {
@@ -216,7 +229,14 @@ class Client:
     ):
         return self._get_data_and_result_info(dataset_id, data_ids)['results']
 
-
     @staticmethod
-    def as_table(data_list):
-        pass
+    def as_table(target_list, blocks=None):
+        if blocks is None:
+            blocks = ['data', '_client']
+        total = [{k: v for k, v in x.__dict__.items() if k not in blocks} for x in target_list]
+        tb = Table(*total[0].keys(), box=box.SIMPLE_HEAD)
+
+        for data in total:
+            tb.add_row(*map(str, data.values()))
+
+        return tb
