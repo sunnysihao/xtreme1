@@ -3,9 +3,6 @@ from typing import List, Dict, Optional, Union
 
 import requests
 
-from rich import box
-from rich.table import Table
-
 from .api import Api
 from .dataset import Dataset
 from .exceptions import SDKException
@@ -206,6 +203,17 @@ class Client:
 
         return resp
 
+    def query_upload_status(self, serial_numbers: Union[str, List[str]]):
+        endpoint = 'data/findUploadRecordBySerialNumbers'
+
+        params = {
+            'serialNumbers': serial_numbers
+        }
+
+        resp = self.api.get_request(endpoint=endpoint, params=params)
+
+        return resp
+
     def _get_data_and_result_info(
             self,
             dataset_id: Optional[str] = None,
@@ -228,15 +236,3 @@ class Client:
             data_ids: Optional[List[str]] = None
     ):
         return self._get_data_and_result_info(dataset_id, data_ids)['results']
-
-    @staticmethod
-    def as_table(target_list, blocks=None):
-        if blocks is None:
-            blocks = ['data', '_client']
-        total = [{k: v for k, v in x.__dict__.items() if k not in blocks} for x in target_list]
-        tb = Table(*total[0].keys(), box=box.SIMPLE_HEAD)
-
-        for data in total:
-            tb.add_row(*map(str, data.values()))
-
-        return tb
