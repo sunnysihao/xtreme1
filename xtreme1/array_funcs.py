@@ -1,7 +1,9 @@
-from .dataset import Dataset
+from typing import Union, List, Dict, Optional
 
 from rich.table import Table
 from rich import box
+
+from .dataset import Dataset
 
 
 def _get_value_by_key(json_info, key):
