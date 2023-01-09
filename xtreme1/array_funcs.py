@@ -6,37 +6,45 @@ from rich import box
 from .dataset import Dataset
 
 
-def _get_value_by_key(json_info, key):
+def _get_value_by_key(json_info, key, nth=-1, cur_cnt=0):
     if type(json_info) == list:
-        if ':' in key:
-            key, n = key.split(':')
-            return _get_value_by_key(json_info[int(n)], key)
-
-        else:
-            result = []
-            for j in json_info:
-                single_result = _get_value_by_key(j, key)
-                if single_result:
-                    result.append(single_result)
-            return result
+        result = []
+        for j in json_info:
+            single_result, cur_cnt = _get_value_by_key(j, key, nth, cur_cnt)
+            if single_result:
+                if cur_cnt == nth:
+                    return single_result, cur_cnt
+                result.append(single_result)
+        return result, cur_cnt
 
     elif type(json_info) == dict:
         value = json_info.get(key)
         if value:
-            return value
+            cur_cnt += 1
+            return value, cur_cnt
 
         for k, v in json_info.items():
             if type(v) in [dict, list]:
-                result = _get_value_by_key(v, key)
+                result, cur_cnt = _get_value_by_key(v, key, nth, cur_cnt)
                 if result:
-                    return result
+                    return result, cur_cnt
+
+    return None, cur_cnt
+
+
+def _find_nth(key_param):
+    loc = key_param.find(':')
+    if loc == -1:
+        return key_param, 0
+    return key_param[:loc], int(key_param[loc + 1:])
 
 
 def _get_value_by_keys(json_info, keys):
     result = json_info
 
     for k in keys:
-        result = _get_value_by_key(result, k)
+        key, n = _find_nth(k)
+        result, _ = _get_value_by_key(result, key, n)
 
     return result
 
@@ -53,7 +61,8 @@ def get_values(json_info, needed_keys):
             if type(k) in [tuple, list]:
                 result.append(_get_value_by_keys(json_info, k))
             else:
-                result.append(_get_value_by_key(json_info, k))
+                key, n = _find_nth(k)
+                result.append(_get_value_by_key(json_info, key, n)[0])
 
     return result
 
