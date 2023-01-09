@@ -1,28 +1,32 @@
-from typing import Dict
-from enum import Enum
-
-
-class DatasetType(Enum):
-    LidarFusion = 'LIDAR_FUSION'
-    LidarBasic = 'LIDAR_BASIC'
-    Image = 'IMAGE'
+from typing import Dict, Optional
 
 
 class Dataset:
-    def __init__(self, data, client):
-        for k, v in data.items():
-            self.__setattr__(k, v)
-        self._client = client
-        self._data = {k: v for k, v in self.__dict__.items() if '_' not in k}
 
-    def __str__(self):
-        result = []
-        for k, v in self._data.items():
-            result.append(f'{k}={v}')
-        return ', '.join(result)
+    def __init__(
+            self,
+            org_json,
+            client
+    ):
+        self.id = org_json.get('id')
+        self.name = org_json.get('name')
+        self.type = org_json.get('type')
+        self.description = org_json.get('description')
+        self.annotated_count = org_json.get('annotatedCount')
+        self.unannotated_count = org_json.get('notAnnotatedCount')
+        self.invalid_count = org_json.get('invalidCount')
+        self.item_count = org_json.get('itemCount')
+        self.data = org_json.get('datas')
+        self._client = client
 
     def __repr__(self):
-        return f"BFDataset({self._data})"
+        return f"BFDataset(id={self.id}, name={self.name})"
+
+    def show_attrs(self, blocks=None):
+        if blocks is None:
+            blocks = ['_client']
+
+        return {k: v for k, v in self.__dict__.items() if k not in blocks}
 
     def edit(self, new_name: str = None, new_description: str = None):
         self.name = new_name or self.name
@@ -30,8 +34,27 @@ class Dataset:
         return self._client.edit_dataset(self.id, self.name, self.description)
 
     def delete(self, is_sure: bool):
-        if is_sure:
-            return self._client.delete_dataset(self.id)
+        return self._client.delete_dataset(self.id, is_sure)
 
-    def query_data(self, page_no: int, page_size: int, **kwargs) -> Dict:
-        return self._client.query_data_under_dataset(self.id, page_no, page_size, **kwargs)
+    def query_data(
+            self,
+            page_no: int,
+            page_size: int,
+            name: Optional[str] = None,
+            create_start_time: Optional[str] = None,
+            create_end_time: Optional[str] = None,
+            sort_by: Optional[str] = None,
+            ascending: Optional[bool] = True,
+            annotation_status: Optional[str] = None
+    ) -> Dict:
+        return self._client.query_data_under_dataset(
+            self.id,
+            page_no,
+            page_size,
+            name,
+            create_start_time,
+            create_end_time,
+            sort_by,
+            ascending,
+            annotation_status
+        )
