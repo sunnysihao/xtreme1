@@ -197,7 +197,7 @@ def coco_converter(dst_dir: str, dataset_name: str):
     print(f"*** coco format results have been saved in {save_json} ***")
 
 
-def main(zip_src: str, dst_dir: str):
+def to_coco(zip_src: str, dst_dir: str):
     dataset_name = splitext(basename(zip_src))[0].split('-')[0]
     unzip_file(zip_src, dst_dir)
     coco_converter(dst_dir, dataset_name)
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     if len(os.listdir(dst_dir)):
         input("The save folder needs to be empty, press any key to exit")
     else:
-        main(zip_src, dst_dir)
+        to_coco(zip_src, dst_dir)
         input("Complete, press any key to exit")
 
 
