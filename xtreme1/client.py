@@ -25,7 +25,7 @@ class Client:
 
         return Dataset(resp, self)
 
-    def edit_dataset(self, dataset_id: str, name: str, description: str) -> str:
+    def edit_dataset(self, dataset_id: str, name: str, description: str = None) -> str:
         endpoint = f'dataset/update/{dataset_id}'
         payload = {
             'name': name,
