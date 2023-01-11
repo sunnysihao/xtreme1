@@ -493,13 +493,13 @@ class Client:
 
         return resp
 
-    def query_result(
+    def query_only_result(
             self,
             dataset_id: Union[str, List[str]],
             data_ids: Optional[List[str]] = None
     ) -> List[Dict]:
         """
-        Query the annotation result of a specific dataset or list of datasets.
+        Query only the annotation result of a specific dataset or list of datasets.
         Accept a 'data_ids' parameter to query specific data.
 
         Parameters
@@ -515,3 +515,26 @@ class Client:
             List of JSON annotation results.
         """
         return self._get_data_and_result_info(dataset_id, data_ids)['results']
+
+    def query_data_and_result(
+            self,
+            dataset_id: Union[str, List[str]],
+            data_ids: Optional[List[str]] = None
+    ) -> Dict:
+        """
+        Query both the data information and the annotation result of a specific dataset or list of datasets.
+        Accept a 'data_ids' parameter to query specific data.
+
+        Parameters
+        ----------
+        dataset_id: Union[str, List[str]]
+            Id of the dataset you want to query.
+        data_ids: Optional[List[str]], default None
+            Id or ids of the data you want to query.
+
+        Returns
+        -------
+        Dict
+            List of JSON annotation results.
+        """
+        return self._get_data_and_result_info(dataset_id, data_ids)

@@ -3,7 +3,6 @@ from .standard import *
 
 
 class Annotation:
-
     _SUPPORTED_FORMAT_INFO = {
         "STANDARD_JSON": {
             "description": 'Basic AI standard format'
@@ -28,10 +27,8 @@ class Annotation:
         },
     }
 
-    def __init__(self, access_token, base_url, dataset_id):
-        self.dataset_id = dataset_id
-        self.client = Client(access_token=access_token, base_url=base_url)
-        self.annotation = self.client._get_data_and_result_info(dataset_id=self.dataset_id)
+    def __init__(self, annotation_data):
+        self.annotation = annotation_data
 
     def supported_format(self):
         """
