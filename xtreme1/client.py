@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import List, Dict, Optional, Union, Iterable
 from datetime import datetime
 
@@ -238,6 +239,9 @@ class Client:
     ) -> Dict:
         """
         Query data under a specific dataset with some restrictions.
+        Notice that 'data' ≠ 'file'. For example:
+        for a 'LIDAR_FUSION' dataset, a copy of data means:
+        'a pcd file' + 'a camera config json' + 'several 2D images'.
 
         Parameters
         ----------
@@ -248,9 +252,6 @@ class Client:
             This is used when you have lots of data and only want to check them part by part.
         page_size: int, default 10
             Number of data on one page.
-            Notice that data ≠ file. For example:
-            for a 'LIDAR_FUSION' dataset, one single data means:
-            {'a pcd file' + 'a camera config json' + 'several 2D images'}.
         name: str
             Name of the data you want to query.
             Notice that it's a fuzzy query.
@@ -305,6 +306,9 @@ class Client:
     ) -> str:
         """
         Delete one specific data or a list of data from a specific dataset.
+        Notice that 'data' ≠ 'file'. For example:
+        for a 'LIDAR_FUSION' dataset, a copy of data means:
+        'a pcd file' + 'a camera config json' + 'several 2D images'.
 
         Parameters
         ----------
@@ -343,7 +347,10 @@ class Client:
             data_id: Union[str, List[str]]
     ) -> List[Dict]:
         """
-        Use a specific id or a list of ids to query data.
+        Use a specific id or a list of ids to delete data.
+        Notice that 'data' ≠ 'file'. For example:
+        for a 'LIDAR_FUSION' dataset, a copy of data means:
+        'a pcd file' + 'a camera config json' + 'several 2D images'.
 
         Parameters
         ----------
@@ -367,15 +374,15 @@ class Client:
 
         return resp
 
-    def _generate_file_direct_upload_address(
+    def _generate_data_direct_upload_address(
             self,
-            file_name: str,
+            data_name: str,
             dataset_id: str
     ) -> Dict:
         endpoint = 'data/generatePresignedUrl'
 
         params = {
-            'fileName': file_name,
+            'fileName': data_name,
             'datasetId': dataset_id
         }
 
@@ -401,27 +408,31 @@ class Client:
 
         return resp
 
-    def upload_file(
+    def upload_data(
             self,
-            file_path: str,
+            data_path: str,
             dataset_id: str,
             is_local: bool = True
     ) -> str:
         """
         Upload data to a specific dataset by using a local path or URL.
-        Notice that this function always returns a serial number if the parameters are right.
+        Notice that 'data' ≠ 'file'. For example:
+        for a 'LIDAR_FUSION' dataset, a copy of data means:
+        'a pcd file' + 'a camera config json' + 'several 2D images'.
+
+        This function always returns a serial number if the parameters are right.
         However, it doesn't mean the upload process is successful.
-        Therefore, it's necessary to check the upload status by using the 'query_upload_status' function.
+        It's necessary to check the upload status by using the 'query_upload_status' function.
 
         Parameters
         ----------
-        file_path: str
+        data_path: str
             A local path or URL.
             Notice that if you're using a local path, wrong path or unsupported file format raises a 'param error'.
         dataset_id: str
-            Id of the dataset where files are pushed into.
+            Id of the dataset where data is pushed into.
         is_local: bool, default True
-            Whether the upload file is local or not.
+            Whether the data is local or not.
 
         Returns
         -------
@@ -429,9 +440,9 @@ class Client:
             A serial number for querying the upload status.
         """
         if is_local:
-            file_name = os.path.split(file_path)[-1]
-            url_dict = self._generate_file_direct_upload_address(file_name, dataset_id)
-            put_resp = requests.put(url_dict['presignedUrl'], data=open(file_path, 'rb'))
+            data_name = os.path.split(data_path)[-1]
+            url_dict = self._generate_data_direct_upload_address(data_name, dataset_id)
+            put_resp = requests.put(url_dict['presignedUrl'], data=open(data_path, 'rb'))
 
             if put_resp.status_code != 200:
                 raise SDKException(code=put_resp.status_code, message=put_resp.text)
@@ -440,12 +451,78 @@ class Client:
             source = 'LOCAL'
 
         else:
-            upload_url = file_path
+            upload_url = data_path
             source = 'URL'
 
         resp = self._upload(upload_url, dataset_id, source)
 
         return resp
+
+    @staticmethod
+    def _recursive_download(
+            data: Union[List, Dict],
+            output_folder: str,
+            remain_directory_structure: bool = True
+    ):
+        if type(data) == list:
+            for d in data:
+                Client._recursive_download(d, output_folder, remain_directory_structure)
+
+        elif type(data) == dict:
+            if 'url' in data:
+                if not remain_directory_structure:
+                    output_path = os.path.join(output_folder, data['name'])
+                else:
+                    output_path = Path(output_folder, *Path(data['path']).parts[3:])
+                cur_folder, cur_name = os.path.split(output_path)
+                if not os.path.exists(cur_folder):
+                    os.makedirs(cur_folder)
+                with open(output_path, 'wb') as f:
+                    f.write(requests.request('GET', data['url']).content)
+            else:
+                for v in data.values():
+                    Client._recursive_download(v, output_folder, remain_directory_structure)
+
+    def download_data(
+            self,
+            output_folder: str,
+            data_id: Union[str, List[str], None] = None,
+            dataset_id: Optional[str] = None,
+            remain_directory_structure: bool = True
+    ):
+        """
+        Download all data from a given dataset or download given data.
+
+        Parameters
+        ----------
+        output_folder: str
+            The folder path to save data.
+        data_id: Union[str, List[str], None], default None
+            A data id or a list or data ids.
+            Pass this parameter to download given data.
+        dataset_id: Optional[str], default None
+            A dataset id.
+            Pass this parameter to download all data from a given dataset.
+        remain_directory_structure: bool, default True
+
+
+        Returns
+        -------
+
+        """
+        if data_id:
+            data = self.query_data(data_id)
+        else:
+            if dataset_id:
+                data = self.query_data_under_dataset(dataset_id)
+            else:
+                raise KeyError
+
+        self._recursive_download(
+            data,
+            output_folder,
+            remain_directory_structure
+        )
 
     def query_upload_status(
             self,
@@ -459,7 +536,7 @@ class Client:
         ----------
         serial_numbers: Union[str, List[str]]
             A specific serial_number or list of serial_numbers.
-            Notice that 'serial_number' is the response of 'upload_file' function,
+            Notice that 'serial_number' is the response of 'upload_data' function,
             and it can't be acquired from other functions.
 
         Returns

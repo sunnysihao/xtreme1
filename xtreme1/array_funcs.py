@@ -68,19 +68,22 @@ def get_values(json_info, needed_keys):
 
 
 def as_table(
-        target_list: Union[List[Dataset], List[Dict], List[List]],
+        target_list: List[Union[Dataset, List, Dict]],
         blocks: Optional[List[str]] = None,
         headers: Optional[List[str]] = None
 ):
     if blocks is None:
-        blocks = ['data']
+        blocks = []
 
     sample = target_list[0]
     if not headers:
         if type(sample) == dict:
             headers = sample.keys()
         elif type(sample) == Dataset:
+            blocks += ['data', '_client']
             headers = sample.__dict__
+        else:
+            headers = ['']
         headers = [key for key in headers if key not in blocks]
 
     total = []

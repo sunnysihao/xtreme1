@@ -90,7 +90,7 @@ print(dataset_list)
 ```
 #### Query data under the dataset
 
-The usage of this method is similar to the above one.
+This method is similar to the above one.
 
 It returns a long dict. If you want to simplify this dict, use 'get_values()' to select specific keys in the dict. After that, you can use 'as_table()' to show the data in tabular form and use 'rich.print()' to print this table.
 
@@ -143,12 +143,49 @@ Data ≠ File! Data is the unit of your annotation work. For example:
 - For a 'LIDAR_BASIC' dataset, a copy of data means a pcd file.
 - However, for a 'LIDAR_FUSION' dataset, a copy of data means **a pcd file + a camera config file + several images** because all these files together make an annotation work.
 
-#### 查询单个data
-    query_data(data_id: int)
-- `data_id`:data id
-#### 根据data id查询多个data
-  query_multiple_data(data_ids: list)
-- `data_ids`:多个data id的列表
+#### Query specific data
+
+You can use this method to query specific data by passing a 'data_id' parameter.
+
+Unlike the 'query_data_under_dataset()' method, this method returns all querying data at a time.
+
+```python
+data_list = client.query_data(data_id=['111110', '111111'])
+```
+#### Delete data
+
+You can use this method to delete data. It's similar to the 'delete_dataset()' method.
+
+~~~python
+client.delete_data(dataset_id='888888', data_id=['111110', '111111'], is_sure=True)
+~~~
+
+#### Upload data
+
+You can use this method to push data to a dataset by using a local path or URL.
+
+This method always returns a serial number, which is used to query the upload status.
+
+~~~python
+serial_number = client.upload_data('test.zip', '888888')
+print(serial_number) # 16134xxxxx836416
+
+status = client.query_upload_status('16134xxxxx836416')
+print(status)
+"""
+[{'id': 888,
+  'serialNumber': '16134xxxxx836416',
+  'errorMessage': '',
+  'totalFileSize': 11111,
+  'downloadedFileSize': 11111,
+  'totalDataNum': 1,
+  'parsedDataNum': 1,
+  'status': 'PARSE_COMPLETED'}]
+"""
+~~~
+
+
+
 #### 根据data id删除多个data
   delete_multiple_data(data_ids: list)
 - `data_ids`:多个data id的列表
