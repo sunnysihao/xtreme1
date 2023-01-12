@@ -55,8 +55,8 @@ class Client:
     def edit_dataset(
             self,
             dataset_id: str,
-            name: str,
-            description: Optional[str] = None
+            new_name: str,
+            new_description: Optional[str] = None
     ) -> str:
         """
         Change the name or description of a dataset.
@@ -66,9 +66,9 @@ class Client:
         dataset_id: str
             Dataset id. You can find this in the last part of dataset url, for example:
             'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
-        name: str
+        new_name: str
             New name of the dataset.
-        description: Optional[str], default None
+        new_description: Optional[str], default None
             New description of the dataset
 
         Returns
@@ -78,8 +78,8 @@ class Client:
         """
         endpoint = f'dataset/update/{dataset_id}'
         payload = {
-            'name': name,
-            'description': description
+            'name': new_name,
+            'description': new_description
         }
 
         self.api.post_request(endpoint, payload=payload)
@@ -169,7 +169,7 @@ class Client:
             dataset_type: Optional[str] = None
     ) -> List[Dataset]:
         """
-        Query a specific dataset or query several datasets with some restrictions.
+        Query a specific dataset or query several datasets with some filters.
 
         Parameters
         ----------
@@ -304,7 +304,7 @@ class Client:
             is_sure: bool = False
     ) -> str:
         """
-        Delete one specific data or list of data from a specific dataset.
+        Delete one specific data or a list of data from a specific dataset.
 
         Parameters
         ----------
@@ -343,7 +343,7 @@ class Client:
             data_id: Union[str, List[str]]
     ) -> List[Dict]:
         """
-        Use a specific id or list of ids to query data.
+        Use a specific id or a list of ids to query data.
 
         Parameters
         ----------
@@ -499,7 +499,7 @@ class Client:
             data_ids: Optional[List[str]] = None
     ) -> List[Dict]:
         """
-        Query only the annotation result of a specific dataset or list of datasets.
+        Query only the annotation result of a specific dataset or a list of datasets.
         Accept a 'data_ids' parameter to query specific data.
 
         Parameters
@@ -522,7 +522,7 @@ class Client:
             data_ids: Optional[List[str]] = None
     ) -> Dict:
         """
-        Query both the data information and the annotation result of a specific dataset or list of datasets.
+        Query both the data information and the annotation result of a specific dataset or a list of datasets.
         Accept a 'data_ids' parameter to query specific data.
 
         Parameters

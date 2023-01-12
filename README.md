@@ -1,53 +1,148 @@
-# Xtreme1 python-sdk
-***
-## Install with PyPi(pip)
-## API-tools
-    client = Client(base_url: str, access_token: str)
-- `base_url`:部署地址
-- `access_token`:平台的 api token
-#### 创建数据集
-    client.create_dataset(name: str, annotation_type: str, description: str=None)
-- `name`:数据集名称
-- `annotation_type`:标注类型(LIDAR_FUSION(融合标注), LIDAR_BASIC(点云标注), IMAGE(图片标注))
-- `description`:描述
-#### 编辑数据集
-    client.edit_dataset(dataset_id: int, name: str, description: str=None)
-- `dataset_id`:数据集id
-- `name`:要更改的新的数据集名字
-- `description`:描述
-#### 删除数据集
-    client.delete_dataset(dataset_id: int)
-- `dataset_id`:数据集id
-#### 查询一个数据集
-    client.queary_dataset(dataset_id: int)
-- `dataset_id`:数据集id
-#### 筛选查询多个数据集()
-    client.query_datasets(page_no: int, page_size: str, **kwargs)
-- `page_no`:页码 
-- `page_size`:显示数量
-- 可选参数:
-    - `name`str:数据集名字(模糊查询)
-    - `createStartTime`str:创建起始时间
-    - `createEndTime`str:创建截至时间
-    - `sortFiled`str:排序方式(NAME, CREATED_AT, UPDATED_AT)
-    - `ascOrDesc`str:正序还是逆序(ASC,DESC)
-    - `type`str:标注类型(LIDAR_FUSION(融合标注), LIDAR_BASIC(点云标注), IMAGE(图片标注))
-#### 上传数据集(支持单个文件、压缩包、文件夹)
-    upload_file(file_source: str, dataset_id: str)
-- `file_source`:本地文件资源路径
-- `dataset_id`:上传数据的目标数据集id
-#### 筛选查询指定数据集下的data
-    client.query_data_under_dataset(dataset_id: int, page_no: int, page_size: str, **kwargs)
-- `dataset_id`:数据集id
-- `page_no`:页码
-- `page_size`:显示数量
-- 可选参数:
-    - `name`str:数据集名字(模糊查询)
-    - `createStartTime`str:创建起始时间
-    - `createEndTime`str:创建截至时间
-    - `sortFiled`str:排序方式(NAME, CREATED_AT, UPDATED_AT)
-    - `ascOrDesc`str:正序还是逆序(ASC,DESC)
-    - `annotationStatus`str:状态(ANNOTATED(已标注),NOT_ANNOTATED(未标注),INVALID(无效))
+# Xtreme1 Python SDK
+
+## Installation
+
+~~~python
+pip install xtrame1
+~~~
+
+---
+
+## Usage
+
+```python
+from xtreme1.client import Client
+
+BASE_URL = 'https://x1-community.alidev.beisai.com'
+ACCESS_TOKEN = '...jDC9Pfk9Xstt9vaanXkh8...'
+
+client = Client(base_url=BASE_URL, access_token=ACCESS_TOKEN)
+```
+---
+
+### Datasets
+
+暂空
+
+#### Create a dataset
+
+You can use this method to create a dataset.
+
+For now, supported annotation types are: **['LIDAR_FUSION', 'LIDAR_BASIC', 'IMAGE']**.
+
+```python
+car_dataset = client.create_dataset(name='test', annotation_type='IMAGE', description='A test dataset.')
+```
+#### Edit a dataset
+
+You can use this method to change the information of your dataset.
+
+```python
+info = client.edit_dataset(dataset_id='999999', new_name='cars')
+print(info) # Success
+
+# Or use 'dataset.edit()'
+car_dataset.edit(new_name='cars')
+```
+#### Delete a dataset
+
+You can use this method to delete your dataset.
+
+Notice that if you are really sure to do this, change the 'is_sure' parameter to **True**.
+
+```python
+info = client.delete_dataset(dataset_id='999999', is_sure=True)
+print(info) # Success
+
+# or use 'dataset.delete()'
+car_dataset.delete(is_sure=True)
+```
+#### Query dataset
+
+You can use this method to query a dataset or a list of datasets.
+
+Notice that this method always returns a list even if there is only one dataset.
+
+There are two important parameters: 'page_no' and 'page_size'. The querying result is splitted into pages like an iterator. You can change 'page_size' to get more or fewer datasets at a time and change 'page_no' to load the next page of all querying results.
+
+```python 
+# Query one single dataset by passing a dataset id
+dataset_list = client.query_dataset(dataset_id='888888')
+print(dataset_list) # [BFDataset(id=888888, name=driver_dataset)]
+
+# Query a list of datasets with some filters
+dataset_list = client.query_dataset(
+    page_no = 1, # default 1
+    page_size = 3, # default 1
+    dataset_name = 'car', # fuzzy query
+    create_start_time = (2022, 1, 1),
+    create_end_time = (2023, 1, 1),
+    sort_by = 'CREATED_AT', # ['NAME', 'CREATED_AT', 'UPDATED_AT']
+    ascending = True,
+    dataset_type = 'LIDAR_FUSION'
+)
+print(dataset_list)
+"""
+[BFDataset(id=888000, name=car_dataset1),
+ BFDataset(id=888001, name=car_dataset2),
+ BFDataset(id=888002, name=car_dataset3)]
+"""
+```
+#### Query data under the dataset
+
+The usage of this method is similar to the above one.
+
+It returns a long dict. If you want to simplify this dict, use 'get_values()' to select specific keys in the dict. After that, you can use 'as_table()' to show the data in tabular form and use 'rich.print()' to print this table.
+
+```python
+from xtreme1.array_funcs import get_values, as_table
+from rich import print as rprint
+
+data_dict = client.query_data_under_dataset(
+	dataset_id = '888888',
+    page_no = 1, # default 1
+    page_size = 10, # default 10
+    name = None,
+    create_start_time = None,
+    create_end_time = None,
+    sort_by = 'CREATED_AT',
+    ascending = True,
+    annotation_status = 'ANNOTATED' # ['ANNOTATED', 'NOT_ANNOTATED', 'INVALID']
+)
+
+# Or use 'dataset.query_data(...)'
+data_dict = car_dataset.query_data(page_size=10)
+
+# Simplify the dict
+simple_data = get_values(
+    data_dict['list'], 
+    # Tuple ('content', 'name:1') means the 'name' key is under the 'content' key
+    # If you don't use the '1' in 'name:1', it returns all the names in one list
+    needed_keys=['id', ('content', 'name:1'), 'url:1'] 
+)
+print(simple_data)
+"""
+[[111111, '001.png', 'https://xxx'],
+ [111112, '002.png', 'https://xxx'],
+ [111113, '003.png', 'https://xxx'],
+ ...],
+"""
+
+# Turn the list to a table
+# Ignore the 'headers' parameter if your data is a dict
+result_table = as_table(simple_data, headers=['data_id', 'file_name', 'url'])
+rprint(result_table)
+```
+---
+
+### Data
+
+Data ≠ File! Data is the unit of your annotation work. For example:
+
+- For an 'IMAGE' dataset, a copy of data means an independent image.
+- For a 'LIDAR_BASIC' dataset, a copy of data means a pcd file.
+- However, for a 'LIDAR_FUSION' dataset, a copy of data means **a pcd file + a camera config file + several images** because all these files together make an annotation work.
+
 #### 查询单个data
     query_data(data_id: int)
 - `data_id`:data id

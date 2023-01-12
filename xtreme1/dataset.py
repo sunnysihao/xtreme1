@@ -22,18 +22,71 @@ class Dataset:
     def __repr__(self):
         return f"BFDataset(id={self.id}, name={self.name})"
 
-    def show_attrs(self, blocks=None):
+    def show_attrs(
+            self,
+            blocks=None
+    ) -> Dict:
+        """
+        Get all attributes of the dataset.
+
+        Parameters
+        ----------
+        blocks: List
+            Attributes you don't need.
+
+        Returns
+        -------
+        Dict
+            Attributes of the dataset.
+        """
         if blocks is None:
-            blocks = ['_client']
+            blocks = []
+        blocks.append('_client')
 
         return {k: v for k, v in self.__dict__.items() if k not in blocks}
 
-    def edit(self, new_name: str = None, new_description: str = None):
+    def edit(
+            self,
+            new_name: Optional[str] = None,
+            new_description: Optional[str] = None
+    ):
+        """
+        Change the name or description of a dataset.
+
+        Parameters
+        ----------
+        new_name: str
+            New name of the dataset.
+        new_description: Optional[str], default None
+            New description of the dataset
+
+        Returns
+        -------
+        str
+            'Success'.
+        """
         self.name = new_name or self.name
         self.description = new_description or self.description
         return self._client.edit_dataset(self.id, self.name, self.description)
 
-    def delete(self, is_sure: bool):
+    def delete(
+            self,
+            is_sure: bool
+    ) -> str:
+        """
+        Delete a dataset.
+
+        Parameters
+        ----------
+        is_sure: bool, default False
+            Set it to 'True' to delete the dataset.
+
+        Returns
+        -------
+        str
+            'Unsure' if 'is_sure' is not set to 'True'.
+            'Success' if the dataset is deleted.
+        """
         return self._client.delete_dataset(self.id, is_sure)
 
     def query_data(

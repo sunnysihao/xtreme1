@@ -73,7 +73,7 @@ def as_table(
         headers: Optional[List[str]] = None
 ):
     if blocks is None:
-        blocks = ['data', '_client']
+        blocks = ['data']
 
     sample = target_list[0]
     if not headers:
