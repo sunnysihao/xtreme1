@@ -9,6 +9,17 @@ from tqdm import tqdm
 
 
 def to_json(annotation: dict, export_folder: str):
+    """
+
+    Parameters
+    ----------
+    annotation
+    export_folder
+
+    Returns
+    -------
+
+    """
     id_name_mapping = {}
     datas = annotation['data']
     results = annotation['results']
