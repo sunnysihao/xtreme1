@@ -177,7 +177,7 @@ class Client:
         dataset_id: Optional[str], default None
             Use this parameter to query a specific dataset.
         page_no: int, default 1
-            Number of the page you would like to see.
+            Page number of the total result.
             This is used when you have lots of datasets and only want to check them part by part.
         page_size: int, default 1
             Number of datasets on one page.
@@ -248,7 +248,7 @@ class Client:
         dataset_id: Optional[str], default None
             Id of the dataset that you want to search data from.
         page_no: int, default 1
-            Number of the page you would like to see.
+            Page number of the total result.
             This is used when you have lots of data and only want to check them part by part.
         page_size: int, default 10
             Number of data on one page.
@@ -462,26 +462,32 @@ class Client:
     def _recursive_download(
             data: Union[List, Dict],
             output_folder: str,
+            errors: List,
             remain_directory_structure: bool = True
     ):
         if type(data) == list:
             for d in data:
-                Client._recursive_download(d, output_folder, remain_directory_structure)
+                Client._recursive_download(d, output_folder, errors, remain_directory_structure)
 
         elif type(data) == dict:
             if 'url' in data:
-                if not remain_directory_structure:
-                    output_path = os.path.join(output_folder, data['name'])
-                else:
-                    output_path = Path(output_folder, *Path(data['path']).parts[3:])
-                cur_folder, cur_name = os.path.split(output_path)
-                if not os.path.exists(cur_folder):
-                    os.makedirs(cur_folder)
-                with open(output_path, 'wb') as f:
-                    f.write(requests.request('GET', data['url']).content)
+                try:
+                    if not remain_directory_structure:
+                        output_path = os.path.join(output_folder, data['name'])
+                    else:
+                        output_path = Path(output_folder, *Path(data['path']).parts[3:])
+                    cur_folder, cur_name = os.path.split(output_path)
+                    if not os.path.exists(cur_folder):
+                        os.makedirs(cur_folder)
+
+                    with open(output_path, 'wb') as f:
+                        f.write(requests.request('GET', data['url']).content)
+                except:
+                    errors.append({'name': data['name'], 'file_id': data['id']})
+
             else:
                 for v in data.values():
-                    Client._recursive_download(v, output_folder, remain_directory_structure)
+                    Client._recursive_download(v, output_folder, errors, remain_directory_structure)
 
     def download_data(
             self,
@@ -489,7 +495,7 @@ class Client:
             data_id: Union[str, List[str], None] = None,
             dataset_id: Optional[str] = None,
             remain_directory_structure: bool = True
-    ):
+    ) -> List[Dict]:
         """
         Download all data from a given dataset or download given data.
 
@@ -504,11 +510,15 @@ class Client:
             A dataset id.
             Pass this parameter to download all data from a given dataset.
         remain_directory_structure: bool, default True
-
+            If this parameter is set to True, the folder structure of the data
+            will remain exactly the same as it was uploaded.
+            If this parameter is set to False, all data will be put in 'output_folder'
+            even if there are files with the same name.
 
         Returns
         -------
-
+        List[Dict]
+            List of error information.
         """
         if data_id:
             data = self.query_data(data_id)
@@ -518,11 +528,15 @@ class Client:
             else:
                 raise KeyError
 
+        error_list = []
         self._recursive_download(
-            data,
-            output_folder,
-            remain_directory_structure
+            data=data,
+            output_folder=output_folder,
+            errors=error_list,
+            remain_directory_structure=remain_directory_structure
         )
+
+        return error_list
 
     def query_upload_status(
             self,
