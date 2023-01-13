@@ -4,6 +4,7 @@ from typing import List, Dict, Optional, Union, Iterable
 from datetime import datetime
 
 import requests
+from rich.progress import track
 
 from .api import Api
 from .dataset import Dataset
@@ -459,35 +460,24 @@ class Client:
         return resp
 
     @staticmethod
-    def _recursive_download(
+    def _recursive_search_url(
             data: Union[List, Dict],
             output_folder: str,
-            errors: List,
+            total: List,
             remain_directory_structure: bool = True
     ):
+        if total is None:
+            total = []
         if type(data) == list:
             for d in data:
-                Client._recursive_download(d, output_folder, errors, remain_directory_structure)
+                Client._recursive_search_url(d, output_folder, total, remain_directory_structure)
 
         elif type(data) == dict:
             if 'url' in data:
-                try:
-                    if not remain_directory_structure:
-                        output_path = os.path.join(output_folder, data['name'])
-                    else:
-                        output_path = Path(output_folder, *Path(data['path']).parts[3:])
-                    cur_folder, cur_name = os.path.split(output_path)
-                    if not os.path.exists(cur_folder):
-                        os.makedirs(cur_folder)
-
-                    with open(output_path, 'wb') as f:
-                        f.write(requests.request('GET', data['url']).content)
-                except:
-                    errors.append({'name': data['name'], 'file_id': data['id']})
-
+                total.append((data['id'], data['path'], data['url']))
             else:
                 for v in data.values():
-                    Client._recursive_download(v, output_folder, errors, remain_directory_structure)
+                    Client._recursive_search_url(v, output_folder, total, remain_directory_structure)
 
     def download_data(
             self,
@@ -529,12 +519,29 @@ class Client:
                 raise KeyError
 
         error_list = []
-        self._recursive_download(
+        total_list = []
+
+        self._recursive_search_url(
             data=data,
             output_folder=output_folder,
-            errors=error_list,
-            remain_directory_structure=remain_directory_structure
+            total=total_list,
+            remain_directory_structure=remain_directory_structure,
         )
+
+        for file in track(total_list, description='Downloading'):
+            try:
+                if not remain_directory_structure:
+                    output_path = os.path.join(output_folder, os.path.split(file[1])[2])
+                else:
+                    output_path = Path(output_folder, *Path(file[1]).parts[3:])
+                cur_folder, cur_name = os.path.split(output_path)
+                if not os.path.exists(cur_folder):
+                    os.makedirs(cur_folder)
+
+                with open(output_path, 'wb') as f:
+                    f.write(requests.request('GET', file[2]).content)
+            except:
+                error_list.append(file)
 
         return error_list
 
