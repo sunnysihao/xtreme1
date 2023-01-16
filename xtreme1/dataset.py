@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import List, Dict, Optional, Union, Iterable
 
 
 class Dataset:
@@ -91,15 +91,54 @@ class Dataset:
 
     def query_data(
             self,
-            page_no: int,
-            page_size: int,
+            page_no: int = 1,
+            page_size: int = 10,
             name: Optional[str] = None,
             create_start_time: Optional[str] = None,
             create_end_time: Optional[str] = None,
             sort_by: Optional[str] = None,
             ascending: Optional[bool] = True,
-            annotation_status: Optional[str] = None
+            annotation_status: Optional[str] = None,
     ) -> Dict:
+        """
+        Query data under current dataset with some filters.
+        Notice that 'data' ≠ 'file'. For example:
+        for a 'LIDAR_FUSION' dataset, a copy of data means:
+        'a pcd file' + 'a camera config json' + 'several 2D images'.
+
+        Parameters
+        ----------
+        page_no: int, default 1
+            Page number of the total result.
+            This is used when you have lots of data and only want to check them part by part.
+        page_size: int, default 10
+            Number of data on one page.
+        name: str
+            Name of the data you want to query.
+            Notice that it's a fuzzy query.
+        create_start_time: Iterable, default None
+            An iterable object. For example:
+             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
+            Hour, minute and second are optional.
+        create_end_time: Iterable, default None
+            An iterable object. For example:
+             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
+            Hour, minute and second are optional.
+        sort_by: str, default CREATED_AT
+            A sort field that can only choose from this list:
+            ['NAME', 'CREATED_AT', 'UPDATED_AT']
+        ascending: bool, default True
+            Whether the order of datasets is ascending or descending.
+        annotation_status: Optional[str], default None
+            Annotation status of the data that can only choose from this list:
+            ['ANNOTATED', 'NOT_ANNOTATED', 'INVALID'].
+
+        Returns
+        -------
+        Dict
+            JSON data containing all the data you're querying and information of all the files within these data.
+        """
+
         return self._client.query_data_under_dataset(
             self.id,
             page_no,
@@ -110,4 +149,39 @@ class Dataset:
             sort_by,
             ascending,
             annotation_status
+        )
+
+    def download_data(
+            self,
+            output_folder: str,
+            data_id: Union[str, List[str], None] = None,
+            remain_directory_structure: bool = True
+    ) -> List[Dict]:
+        """
+        Download all or given data from current dataset.
+
+        Parameters
+        ----------
+        output_folder: str
+            The folder path to save data.
+        data_id: Union[str, List[str], None], default None
+            A data id or a list or data ids.
+            Pass this parameter to download given data.
+        remain_directory_structure: bool, default True
+            If this parameter is set to True, the folder structure of the data
+            will remain exactly the same as it was uploaded.
+            If this parameter is set to False, all data will be put in 'output_folder'
+            even if there are files with the same name.
+
+        Returns
+        -------
+        Union[str, List[Dict]]
+            If find target data, returns a list of error information produced during downloading.
+            If not find target data, returns 'No data'.
+        """
+        return self._client.download_data(
+            output_folder=output_folder,
+            data_id=data_id,
+            dataset_id=self.id,
+            remain_directory_structure=remain_directory_structure
         )

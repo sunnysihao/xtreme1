@@ -8,7 +8,9 @@ from rich.progress import track
 
 from .api import Api
 from .dataset import Dataset
-from .exceptions import SDKException
+from .exceptions import SDKException, ParamException
+from .exporter.annotation import Annotation
+from .models import ImageModel, PointCloudModel
 
 
 class Client:
@@ -19,6 +21,8 @@ class Client:
             base_url: str
     ):
         self.api = Api(access_token=access_token, base_url=base_url)
+        self.image_model = ImageModel(self)
+        self.point_cloud_model = PointCloudModel(self)
 
     def create_dataset(
             self, name: str,
@@ -66,7 +70,7 @@ class Client:
         Parameters
         ----------
         dataset_id: str
-            Dataset id. You can find this in the last part of dataset url, for example:
+            A dataset id. You can find this in the last part of the dataset url, for example:
             'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
         new_name: str
             New name of the dataset.
@@ -99,7 +103,7 @@ class Client:
         Parameters
         ----------
         dataset_id: str
-            Dataset id. You can find this in the last part of the dataset URL, for example:
+            A dataset id. You can find this in the last part of the dataset url, for example:
             'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
         is_sure: bool, default False
             Set it to 'True' to delete the dataset.
@@ -176,7 +180,8 @@ class Client:
         Parameters
         ----------
         dataset_id: Optional[str], default None
-            Use this parameter to query a specific dataset.
+            A dataset id. You can find this in the last part of the dataset url, for example:
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of datasets and only want to check them part by part.
@@ -239,7 +244,7 @@ class Client:
             annotation_status: Optional[str] = None
     ) -> Dict:
         """
-        Query data under a specific dataset with some restrictions.
+        Query data under a specific dataset with some filters.
         Notice that 'data' ≠ 'file'. For example:
         for a 'LIDAR_FUSION' dataset, a copy of data means:
         'a pcd file' + 'a camera config json' + 'several 2D images'.
@@ -247,7 +252,8 @@ class Client:
         Parameters
         ----------
         dataset_id: Optional[str], default None
-            Id of the dataset that you want to search data from.
+            A dataset id. You can find this in the last part of the dataset url, for example:
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of data and only want to check them part by part.
@@ -314,7 +320,8 @@ class Client:
         Parameters
         ----------
         dataset_id: str
-            Id of the dataset you want to delete from.
+            A dataset id. You can find this in the last part of the dataset url, for example:
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
         data_id: Union[str, List[str]]
             An id or list of ids of the data you want to delete.
         is_sure: bool, default False
@@ -429,9 +436,9 @@ class Client:
         ----------
         data_path: str
             A local path or URL.
-            Notice that if you're using a local path, wrong path or unsupported file format raises a 'param error'.
         dataset_id: str
-            Id of the dataset where data is pushed into.
+            A dataset id. You can find this in the last part of the dataset url, for example:
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
         is_local: bool, default True
             Whether the data is local or not.
 
@@ -485,7 +492,7 @@ class Client:
             data_id: Union[str, List[str], None] = None,
             dataset_id: Optional[str] = None,
             remain_directory_structure: bool = True
-    ) -> List[Dict]:
+    ) -> Union[str, List[Dict]]:
         """
         Download all data from a given dataset or download given data.
 
@@ -497,7 +504,8 @@ class Client:
             A data id or a list or data ids.
             Pass this parameter to download given data.
         dataset_id: Optional[str], default None
-            A dataset id.
+            A dataset id. You can find this in the last part of the dataset url, for example:
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
             Pass this parameter to download all data from a given dataset.
         remain_directory_structure: bool, default True
             If this parameter is set to True, the folder structure of the data
@@ -507,8 +515,9 @@ class Client:
 
         Returns
         -------
-        List[Dict]
-            List of error information.
+        Union[str, List[Dict]]
+            If find target data, returns a list of error information produced during downloading.
+            If not find target data, returns 'No data'.
         """
         if data_id:
             data = self.query_data(data_id)
@@ -516,7 +525,10 @@ class Client:
             if dataset_id:
                 data = self.query_data_under_dataset(dataset_id)
             else:
-                raise KeyError
+                raise ParamException(message='You need to pass either data_id or dataset_id !!!')
+
+        if not data:
+            return 'No data'
 
         error_list = []
         total_list = []
@@ -528,7 +540,7 @@ class Client:
             remain_directory_structure=remain_directory_structure,
         )
 
-        for file in track(total_list, description='Downloading'):
+        for file in track(total_list, description='Downloading', ):
             try:
                 if not remain_directory_structure:
                     output_path = os.path.join(output_folder, os.path.split(file[1])[2])
@@ -577,8 +589,8 @@ class Client:
 
     def _get_data_and_result_info(
             self,
-            dataset_id: Union[str, List[str]],
-            data_ids: Optional[List[str]] = None
+            dataset_id: str,
+            data_ids: Union[str, List[str], None] = None
     ) -> Dict:
         endpoint = 'data/getDataAndResult'
 
@@ -591,48 +603,29 @@ class Client:
 
         return resp
 
-    def query_only_result(
-            self,
-            dataset_id: Union[str, List[str]],
-            data_ids: Optional[List[str]] = None
-    ) -> List[Dict]:
-        """
-        Query only the annotation result of a specific dataset or a list of datasets.
-        Accept a 'data_ids' parameter to query specific data.
-
-        Parameters
-        ----------
-        dataset_id: Union[str, List[str]]
-            Id of the dataset you want to query.
-        data_ids: Optional[List[str]], default None
-            Id or ids of the data you want to query.
-
-        Returns
-        -------
-        List[Dict]
-            List of JSON annotation results.
-        """
-        return self._get_data_and_result_info(dataset_id, data_ids)['results']
-
     def query_data_and_result(
             self,
-            dataset_id: Union[str, List[str]],
-            data_ids: Optional[List[str]] = None
-    ) -> Dict:
+            dataset_id: str,
+            data_ids: Union[str, List[str], None] = None
+    ) -> Annotation:
         """
         Query both the data information and the annotation result of a specific dataset or a list of datasets.
         Accept a 'data_ids' parameter to query specific data.
 
         Parameters
         ----------
-        dataset_id: Union[str, List[str]]
-            Id of the dataset you want to query.
-        data_ids: Optional[List[str]], default None
-            Id or ids of the data you want to query.
+        dataset_id: str
+            The id of the dataset you want to query.
+        data_ids: Union[str, List[str], None], default None
+            The id or ids of the data you want to query.
 
         Returns
         -------
-        Dict
-            List of JSON annotation results.
+        Annotation
+            An instance of Annotation class.
+            It has some methods to convert the format of annotation result.
         """
-        return self._get_data_and_result_info(dataset_id, data_ids)
+        resp = self._get_data_and_result_info(dataset_id, data_ids)
+        ann = Annotation(resp)
+
+        return ann

@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 import requests
 
-from .exceptions import SDKException
+from .exceptions import SDKException, EXCEPTIONS
 
 
 class Api:
@@ -48,9 +48,10 @@ class Api:
             if info['code'] == 'OK':
                 return info['data']
             else:
-                raise SDKException(code=info['code'], message=info['message'])
+                cur_exception = EXCEPTIONS.get([info['code']], SDKException)
+                raise cur_exception(code=info['code'], message=info['message'])
         else:
-            raise SDKException(code=resp.status_code)
+            raise EXCEPTIONS.get(resp.status_code, SDKException(code=resp.status_code))
 
     def get_request(
             self,
