@@ -48,7 +48,7 @@ class Api:
             if info['code'] == 'OK':
                 return info['data']
             else:
-                cur_exception = EXCEPTIONS.get([info['code']], SDKException)
+                cur_exception = EXCEPTIONS.get(info['code'], SDKException)
                 raise cur_exception(code=info['code'], message=info['message'])
         else:
             raise EXCEPTIONS.get(resp.status_code, SDKException(code=resp.status_code))
