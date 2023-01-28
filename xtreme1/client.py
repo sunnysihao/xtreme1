@@ -29,8 +29,7 @@ class Client:
             annotation_type: str,
             description: str = None
     ) -> Dataset:
-        """
-        Create a dataset with specific name and description.
+        """Create a dataset with specific name and description.
 
         Parameters
         ----------
@@ -38,8 +37,8 @@ class Client:
             Dataset name.
         annotation_type: str
             An annotation type which can only choose from this list:
-            ['LIDAR_FUSION', 'LIDAR_BASIC', 'IMAGE']
-        description: str
+            ['LIDAR_FUSION', 'LIDAR_BASIC', 'IMAGE'].
+        description: str, default None
             Further description about this dataset.
 
         Returns
@@ -70,12 +69,12 @@ class Client:
         Parameters
         ----------
         dataset_id: str
-            A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            A dataset id. You can find this in the last part of the dataset url,
+            for example: 'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
         new_name: str
             New name of the dataset.
         new_description: Optional[str], default None
-            New description of the dataset
+            New description of the dataset.
 
         Returns
         -------
@@ -104,7 +103,7 @@ class Client:
         ----------
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
         is_sure: bool, default False
             Set it to 'True' to delete the dataset.
 
@@ -198,7 +197,7 @@ class Client:
             An iterable object. For example:
              (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
             Hour, minute and second are optional.
-        sort_by: str, default CREATED_AT
+        sort_by: str, default 'CREATED_AT'
             A sort field that can only choose from this list:
             ['NAME', 'CREATED_AT', 'UPDATED_AT']
         ascending: bool, default True
@@ -253,7 +252,7 @@ class Client:
         ----------
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of data and only want to check them part by part.
@@ -270,7 +269,7 @@ class Client:
             An iterable object. For example:
              (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
             Hour, minute and second are optional.
-        sort_by: str, default CREATED_AT
+        sort_by: str, default 'CREATED_AT'
             A sort field that can only choose from this list:
             ['NAME', 'CREATED_AT', 'UPDATED_AT']
         ascending: bool, default True
@@ -321,7 +320,7 @@ class Client:
         ----------
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
         data_id: Union[str, List[str]]
             An id or list of ids of the data you want to delete.
         is_sure: bool, default False
@@ -403,7 +402,7 @@ class Client:
             url: str,
             dataset_id: str,
             source: str
-    ):
+    ) -> str:
         endpoint = 'data/upload'
 
         payload = {
@@ -438,7 +437,7 @@ class Client:
             A local path or URL.
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
         is_local: bool, default True
             Whether the data is local or not.
 
@@ -505,7 +504,7 @@ class Client:
             Pass this parameter to download given data.
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
             Pass this parameter to download all data from a given dataset.
         remain_directory_structure: bool, default True
             If this parameter is set to True, the folder structure of the data

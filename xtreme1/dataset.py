@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Union, Iterable
+from typing import List, Dict, Optional, Union
 
 
 class Dataset:
@@ -124,7 +124,7 @@ class Dataset:
             An iterable object. For example:
              (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
             Hour, minute and second are optional.
-        sort_by: str, default CREATED_AT
+        sort_by: str, default 'CREATED_AT'
             A sort field that can only choose from this list:
             ['NAME', 'CREATED_AT', 'UPDATED_AT']
         ascending: bool, default True

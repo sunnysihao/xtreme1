@@ -95,8 +95,25 @@ class ImageModel(Model):
         -------
         List[Dict]:
             A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
-        """
+            Here's an example of objects::
 
+                [
+                    {
+                        'points': [{'x': 1166, 'y': 498}, {'x': 1246, 'y': 548}],
+                        'objType': 'rectangle',
+                        'confidence': 0.64111328125,
+                        'modelClass': 'Truck',
+                        'modelClassId': 8
+                    },
+                    {
+                        'points': [{'x': 1382, 'y': 528}, {'x': 1472, 'y': 567}],
+                        'objType': 'rectangle',
+                        'confidence': 0.64794921875,
+                        'modelClass': 'Car',
+                        'modelClassId': 3
+                    }
+                ]
+        """
         if data_id:
             if type(data_id) == str:
                 data_id = [data_id]
@@ -180,23 +197,6 @@ class PointCloudModel(Model):
         -------
         List[Dict]:
             A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
-            Here's an example of objects:
-                [
-                    {
-                        'points': [{'x': 1166, 'y': 498}, {'x': 1246, 'y': 548}],
-                        'objType': 'rectangle',
-                        'confidence': 0.64111328125,
-                        'modelClass': 'Truck',
-                        'modelClassId': 8
-                    },
-                    {
-                        'points': [{'x': 1382, 'y': 528}, {'x': 1472, 'y': 567}],
-                        'objType': 'rectangle',
-                        'confidence': 0.64794921875,
-                        'modelClass': 'Car',
-                        'modelClassId': 3
-                    }
-                ]
         """
 
         if data_id:

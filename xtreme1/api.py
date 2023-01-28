@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import List, Dict, Optional, Union
 
 import requests
 
@@ -59,7 +59,26 @@ class Api:
             params: Optional[Dict] = None,
             headers: bool = True,
             full_url: Optional[str] = None
-    ):
+    ) -> Union[Dict, List[Dict]]:
+        """
+        An encapsulated 'GET' method.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint of current api url.
+        params: Optional[Dict], default None
+            Parameters to add in 'GET' request.
+        headers: bool, default True
+            Request with headers or not.
+        full_url: Optional[str], default None
+            A complete url. If this parameter is passed, 'self.base_url' and 'endpoint' will be invalid.
+
+        Returns
+        -------
+        Union[Dict, List[Dict]]
+            A dict or list of dict transformed from json.
+        """
         if headers:
             headers = self._headers
         return self._base_request(
@@ -77,7 +96,28 @@ class Api:
             files: Optional[Dict] = None,
             headers: bool = True,
             full_url: Optional[str] = None
-    ):
+    ) -> Union[str, Dict, None]:
+        """
+        An encapsulated 'POST' method.
+
+        Parameters
+        ----------
+        endpoint: str
+            The endpoint of current api url.
+        payload: Optional[Dict], default None
+            Parameters to add in 'POST' request.
+        files: Optional[Dict], default None
+            Files to upload.
+        headers: bool, default True
+            Request with headers or not.
+        full_url: Optional[str], default None
+            A complete url. If this parameter is passed, 'self.base_url' and 'endpoint' will be invalid.
+
+        Returns
+        -------
+        Union[str, Dict, None]
+            A simple message, a dict or null.
+        """
         if headers:
             headers = self._headers
         return self._base_request(

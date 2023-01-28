@@ -1,4 +1,3 @@
-from xtreme1.client import Client
 from .standard import *
 
 
