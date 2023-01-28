@@ -47,8 +47,12 @@ class Annotation:
         return f"Annotation(dataset_id={self.dataset_id}, dataset_name={self.dataset_name})"
 
     def supported_format(self):
-        """
-        Query the supported conversion format
+        """Query the supported conversion format.
+
+        Returns
+        -------
+        dict
+            Formats that support transformations
         """
 
         return self._SUPPORTED_FORMAT_INFO
@@ -59,7 +63,21 @@ class Annotation:
     def tail(self, count=5):
         return self.annotation[-count:]
 
-    def converter(self, format: str, export_folder):
+    def converter(self, format: str, export_folder: str):
+        """
+
+        Parameters
+        ----------
+        format: str
+            Target format
+
+        export_folder: str
+
+
+        Returns
+        -------
+
+        """
         format = format.upper()
         if format == 'STANDARD_JSON':
             self.to_standard_json(export_folder)
@@ -69,7 +87,18 @@ class Annotation:
             self.to_coco(self.annotation, export_folder)
 
     def to_standard_json(self, export_folder):
-        to_json(annotation=self.annotation, export_folder=export_folder)
+        """Convert the saved result to a json file in the xtreme1 standard format.
+        Find more info, see 'https://docs.xtreme1.io/xtreme1-docs'
+
+        Parameters
+        ----------
+        export_folder: The path to save the conversion result
+
+        Returns
+        -------
+
+        """
+        to_json(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
 
     def to_csv(self, input_annotations, export_folder):
         pass
