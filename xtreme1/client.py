@@ -465,6 +465,36 @@ class Client:
 
         return resp
 
+    def query_upload_status(
+            self,
+            serial_numbers: Union[str, List[str]]
+    ) -> List[Dict]:
+        """
+        Query if the upload process is completed.
+        Also shows the number of parsed data.
+
+        Parameters
+        ----------
+        serial_numbers: Union[str, List[str]]
+            A specific serial_number or list of serial_numbers.
+            Notice that 'serial_number' is the response of 'upload_data' function,
+            and it can't be acquired from other functions.
+
+        Returns
+        -------
+        List[Dict]
+            List of upload status.
+        """
+        endpoint = 'data/findUploadRecordBySerialNumbers'
+
+        params = {
+            'serialNumbers': serial_numbers
+        }
+
+        resp = self.api.get_request(endpoint=endpoint, params=params)
+
+        return resp
+
     @staticmethod
     def _recursive_search_url(
             data: Union[List, Dict],
@@ -555,36 +585,6 @@ class Client:
                 error_list.append(file)
 
         return error_list
-
-    def query_upload_status(
-            self,
-            serial_numbers: Union[str, List[str]]
-    ) -> List[Dict]:
-        """
-        Query if the upload process is completed.
-        Also shows the number of parsed data.
-
-        Parameters
-        ----------
-        serial_numbers: Union[str, List[str]]
-            A specific serial_number or list of serial_numbers.
-            Notice that 'serial_number' is the response of 'upload_data' function,
-            and it can't be acquired from other functions.
-
-        Returns
-        -------
-        List[Dict]
-            List of upload status.
-        """
-        endpoint = 'data/findUploadRecordBySerialNumbers'
-
-        params = {
-            'serialNumbers': serial_numbers
-        }
-
-        resp = self.api.get_request(endpoint=endpoint, params=params)
-
-        return resp
 
     def _get_data_and_result_info(
             self,

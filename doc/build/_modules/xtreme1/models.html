@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xtreme1.models &mdash; xtreme1 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> xtreme1
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rst/xtreme1.html">xtreme1 package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">xtreme1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">xtreme1.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for xtreme1.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamException</span>
+
+
+<div class="viewcode-block" id="ImageModelClass"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.ImageModelClass">[docs]</a><span class="k">class</span> <span class="nc">ImageModelClass</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">tool</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;KNIFE&#39;</span><span class="p">,</span> <span class="s1">&#39;BACKPACK&#39;</span><span class="p">,</span> <span class="s1">&#39;UMBRELLA&#39;</span><span class="p">,</span> <span class="s1">&#39;HANDBAG&#39;</span><span class="p">,</span> <span class="s1">&#39;TIE&#39;</span><span class="p">,</span> <span class="s1">&#39;SUITCASE&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;CLOCK&#39;</span><span class="p">,</span> <span class="s1">&#39;SCISSORS&#39;</span><span class="p">,</span> <span class="s1">&#39;TOOTHBRUSH&#39;</span><span class="p">})</span>
+    <span class="n">dishware</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;SPOON&#39;</span><span class="p">,</span> <span class="s1">&#39;BOWL&#39;</span><span class="p">,</span> <span class="s1">&#39;BOTTLE&#39;</span><span class="p">,</span> <span class="s1">&#39;CUP&#39;</span><span class="p">,</span> <span class="s1">&#39;WINE_GLASS&#39;</span><span class="p">,</span> <span class="s1">&#39;FORK&#39;</span><span class="p">})</span>
+    <span class="n">sports</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;FRISBEE&#39;</span><span class="p">,</span> <span class="s1">&#39;SKIS&#39;</span><span class="p">,</span> <span class="s1">&#39;SNOWBOARD&#39;</span><span class="p">,</span> <span class="s1">&#39;SPORTS_BALL&#39;</span><span class="p">,</span> <span class="s1">&#39;BASEBALL_BAT&#39;</span><span class="p">,</span> <span class="s1">&#39;BASEBALL_GLOVE&#39;</span><span class="p">,</span> <span class="s1">&#39;SKATEBOARD&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;SURFBOARD&#39;</span><span class="p">,</span> <span class="s1">&#39;TENNIS_RACKET&#39;</span><span class="p">})</span>
+    <span class="n">toy</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;KITE&#39;</span><span class="p">,</span> <span class="s1">&#39;TEDDY_BEAR&#39;</span><span class="p">})</span>
+    <span class="n">vegetable</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;BANANA&#39;</span><span class="p">,</span> <span class="s1">&#39;APPLE&#39;</span><span class="p">,</span> <span class="s1">&#39;ORANGE&#39;</span><span class="p">,</span> <span class="s1">&#39;BROCCOLI&#39;</span><span class="p">,</span> <span class="s1">&#39;CARROT&#39;</span><span class="p">})</span>
+    <span class="n">food</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;SANDWICH&#39;</span><span class="p">,</span> <span class="s1">&#39;HOT_DOG&#39;</span><span class="p">,</span> <span class="s1">&#39;PIZZA&#39;</span><span class="p">,</span> <span class="s1">&#39;DONUT&#39;</span><span class="p">,</span> <span class="s1">&#39;CAKE&#39;</span><span class="p">})</span>
+    <span class="n">traffic</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;TRAFFIC_LIGHT&#39;</span><span class="p">,</span> <span class="s1">&#39;STOP_SIGN&#39;</span><span class="p">,</span> <span class="s1">&#39;PARKING_METER&#39;</span><span class="p">,</span> <span class="s1">&#39;PERSON&#39;</span><span class="p">,</span> <span class="s1">&#39;BICYCLE&#39;</span><span class="p">,</span> <span class="s1">&#39;CAR&#39;</span><span class="p">,</span> <span class="s1">&#39;MOTORCYCLE&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;AIRPLANE&#39;</span><span class="p">,</span> <span class="s2">&quot;BUS&quot;</span><span class="p">,</span> <span class="s2">&quot;TRAIN&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUCK&quot;</span><span class="p">,</span> <span class="s2">&quot;BOAT&quot;</span><span class="p">})</span>
+    <span class="n">electronic</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;LAPTOP&#39;</span><span class="p">,</span> <span class="s1">&#39;KEYBOARD&#39;</span><span class="p">,</span> <span class="s1">&#39;CELL_PHONE&#39;</span><span class="p">,</span> <span class="s1">&#39;TV&#39;</span><span class="p">,</span> <span class="s1">&#39;MICROWAVE&#39;</span><span class="p">,</span> <span class="s1">&#39;OVEN&#39;</span><span class="p">,</span> <span class="s1">&#39;TOASTER&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;REFRIGERATOR&#39;</span><span class="p">,</span> <span class="s1">&#39;HAIR_DRIER&#39;</span><span class="p">})</span>
+    <span class="n">furniture</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;CHAIR&#39;</span><span class="p">,</span> <span class="s1">&#39;BENCH&#39;</span><span class="p">,</span> <span class="s1">&#39;COUCH&#39;</span><span class="p">,</span> <span class="s1">&#39;POTTED_PLANT&#39;</span><span class="p">,</span> <span class="s1">&#39;BED&#39;</span><span class="p">,</span> <span class="s1">&#39;DINING_TABLE&#39;</span><span class="p">,</span> <span class="s1">&#39;TOILET&#39;</span><span class="p">,</span> <span class="s1">&#39;SINK&#39;</span><span class="p">})</span>
+    <span class="n">animal</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;BIRD&#39;</span><span class="p">,</span> <span class="s1">&#39;CAT&#39;</span><span class="p">,</span> <span class="s1">&#39;DOG&#39;</span><span class="p">,</span> <span class="s1">&#39;HORSE&#39;</span><span class="p">,</span> <span class="s1">&#39;SHEEP&#39;</span><span class="p">,</span> <span class="s1">&#39;COW&#39;</span><span class="p">,</span> <span class="s1">&#39;ELEPHANT&#39;</span><span class="p">,</span> <span class="s1">&#39;MOUSE&#39;</span><span class="p">,</span> <span class="s1">&#39;BEAR&#39;</span><span class="p">,</span> <span class="s1">&#39;ZEBRA&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;GIRAFFE&#39;</span><span class="p">})</span>
+    <span class="n">others</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s1">&#39;FIRE_HYDRANT&#39;</span><span class="p">,</span> <span class="s1">&#39;BOOK&#39;</span><span class="p">,</span> <span class="s1">&#39;VASE&#39;</span><span class="p">,</span> <span class="s1">&#39;REMOTE&#39;</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="PointCloudModelClass"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.PointCloudModelClass">[docs]</a><span class="k">class</span> <span class="nc">PointCloudModelClass</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">traffic</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;CAR&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUCK&quot;</span><span class="p">,</span> <span class="s2">&quot;CONSTRUCTION_VEHICLE&quot;</span><span class="p">,</span> <span class="s2">&quot;BUS&quot;</span><span class="p">,</span> <span class="s2">&quot;TRAILER&quot;</span><span class="p">,</span> <span class="s2">&quot;BARRIER&quot;</span><span class="p">,</span> <span class="s2">&quot;MOTORCYCLE&quot;</span><span class="p">,</span> <span class="s2">&quot;BICYCLE&quot;</span><span class="p">,</span> <span class="s2">&quot;PEDESTRIAN&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;TRAFFIC_CONE&quot;</span><span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">client</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+
+<div class="viewcode-block" id="Model.show_classes"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.Model.show_classes">[docs]</a>    <span class="k">def</span> <span class="nf">show_classes</span><span class="p">(</span>
+            <span class="bp">self</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FrozenSet</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all classes which are supported by a trained model as a dict.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict[str, FrozenSet]</span>
+<span class="sd">            Various classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="ImageModel"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.ImageModel">[docs]</a><span class="k">class</span> <span class="nc">ImageModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">ImageModelClass</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">client</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageModel.predict"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.ImageModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">classes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+            <span class="n">max_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use a trained model to recognize given objects in an image.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        classes: Union[List[List[str]], List[str], str]</span>
+<span class="sd">            Object classes.</span>
+<span class="sd">            If you pass a &#39;str&#39;, the model will predict the given object in each data.</span>
+<span class="sd">            If you pass a list of &#39;str&#39;, the model will predict all the given objects in each data.</span>
+<span class="sd">            If you pass a nested list, the function will match &#39;classes&#39; and &#39;data_id&#39; first,</span>
+<span class="sd">            which means the model will predict different objects in different data.</span>
+<span class="sd">        min_confidence: Union[Union[int, float], List[Union[int, float]]]</span>
+<span class="sd">            Filter all the results that has a lower confidence than &#39;min_confidence&#39;.</span>
+<span class="sd">        max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</span>
+<span class="sd">            Filter all the results that has a higher confidence than &#39;max_confidence&#39;.</span>
+<span class="sd">        data_id: Optional[Union[str, List[str]]], default None</span>
+<span class="sd">            If you pass this parameter, the model will only predict the given data.</span>
+<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">            If you pass this parameter, the model will predict all the data under this dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]:</span>
+<span class="sd">            A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.</span>
+<span class="sd">            Here&#39;s an example of objects::</span>
+
+<span class="sd">                [</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &#39;points&#39;: [{&#39;x&#39;: 1166, &#39;y&#39;: 498}, {&#39;x&#39;: 1246, &#39;y&#39;: 548}],</span>
+<span class="sd">                        &#39;objType&#39;: &#39;rectangle&#39;,</span>
+<span class="sd">                        &#39;confidence&#39;: 0.64111328125,</span>
+<span class="sd">                        &#39;modelClass&#39;: &#39;Truck&#39;,</span>
+<span class="sd">                        &#39;modelClassId&#39;: 8</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &#39;points&#39;: [{&#39;x&#39;: 1382, &#39;y&#39;: 528}, {&#39;x&#39;: 1472, &#39;y&#39;: 567}],</span>
+<span class="sd">                        &#39;objType&#39;: &#39;rectangle&#39;,</span>
+<span class="sd">                        &#39;confidence&#39;: 0.64794921875,</span>
+<span class="sd">                        &#39;modelClass&#39;: &#39;Car&#39;,</span>
+<span class="sd">                        &#39;modelClassId&#39;: 3</span>
+<span class="sd">                    }</span>
+<span class="sd">                ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_id</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
+                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;You need to pass either data_id or dataset_id !!!&#39;</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">min_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="n">min_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">max_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="n">max_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Wrong shape of &#39;classes&#39;. Can not match &#39;data_id&#39; !!!&quot;</span><span class="p">)</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;model/image/recognition&#39;</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;dataId&#39;</span><span class="p">:</span> <span class="n">data_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;minConfidence&#39;</span><span class="p">:</span> <span class="n">min_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;maxConfidence&#39;</span><span class="p">:</span> <span class="n">max_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;classes&#39;</span><span class="p">:</span> <span class="n">classes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="p">}</span>
+
+            <span class="n">total</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">))</span>
+
+        <span class="c1"># total = [x[&#39;modelResult&#39;] for x in total]</span>
+        <span class="k">return</span> <span class="n">total</span></div></div>
+
+
+<div class="viewcode-block" id="PointCloudModel"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.PointCloudModel">[docs]</a><span class="k">class</span> <span class="nc">PointCloudModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">PointCloudModelClass</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">client</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PointCloudModel.predict"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.PointCloudModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">classes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+            <span class="n">max_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use a trained model to recognize given objects in a point cloud.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        classes: Union[List[List[str]], List[str], str]</span>
+<span class="sd">            Object classes.</span>
+<span class="sd">            If you pass a &#39;str&#39;, the model will predict the given object in each data.</span>
+<span class="sd">            If you pass a list of &#39;str&#39;, the model will predict all the given objects in each data.</span>
+<span class="sd">            If you pass a nested list, the function will match &#39;classes&#39; and &#39;data_id&#39; first,</span>
+<span class="sd">            which means the model will predict different objects in different data.</span>
+<span class="sd">        min_confidence: Union[Union[int, float], List[Union[int, float]]]</span>
+
+<span class="sd">        max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</span>
+<span class="sd">        data_id: Optional[Union[str, List[str]]], default None</span>
+<span class="sd">            If you pass this parameter, the model will only predict the given data.</span>
+<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">            If you pass this parameter, the model will predict all the data under this dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]:</span>
+<span class="sd">            A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">data_id</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
+                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;You need to pass either data_id or dataset_id !!!&#39;</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">min_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="n">min_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">max_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="n">max_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;model/image/recognition&#39;</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;dataId&#39;</span><span class="p">:</span> <span class="n">data_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;minConfidence&#39;</span><span class="p">:</span> <span class="n">min_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;maxConfidence&#39;</span><span class="p">:</span> <span class="n">max_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;classes&#39;</span><span class="p">:</span> <span class="n">classes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="p">}</span>
+
+            <span class="n">total</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">))</span>
+
+        <span class="c1"># total = [x[&#39;modelResult&#39;] for x in total]</span>
+        <span class="k">return</span> <span class="n">total</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, basicai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

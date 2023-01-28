@@ -1,4 +1,3 @@
-from .convert_to_coco import to_coco
 from os.path import *
 from xtreme1.exceptions import *
 

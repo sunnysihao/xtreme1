@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xtreme1.dataset &mdash; xtreme1 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> xtreme1
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rst/xtreme1.html">xtreme1 package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">xtreme1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">xtreme1.dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for xtreme1.dataset</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+
+<div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">org_json</span><span class="p">,</span>
+            <span class="n">client</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">annotated_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;annotatedCount&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unannotated_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;notAnnotatedCount&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invalid_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;invalidCount&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">item_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;itemCount&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;datas&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;BFDataset(id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="Dataset.show_attrs"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.show_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">show_attrs</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">blocks</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all attributes of the dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        blocks: List</span>
+<span class="sd">            Attributes you don&#39;t need.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            Attributes of the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">blocks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">blocks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;_client&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Dataset.edit"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.edit">[docs]</a>    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">new_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">new_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the name or description of a dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_name: str</span>
+<span class="sd">            New name of the dataset.</span>
+<span class="sd">        new_description: Optional[str], default None</span>
+<span class="sd">            New description of the dataset</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            &#39;Success&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">new_description</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">edit_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.delete"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">is_sure</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        is_sure: bool, default False</span>
+<span class="sd">            Set it to &#39;True&#39; to delete the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            &#39;Unsure&#39; if &#39;is_sure&#39; is not set to &#39;True&#39;.</span>
+<span class="sd">            &#39;Success&#39; if the dataset is deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">delete_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">is_sure</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.query_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.query_data">[docs]</a>    <span class="k">def</span> <span class="nf">query_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_end_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_by</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">ascending</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">annotation_status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query data under current dataset with some filters.</span>
+<span class="sd">        Notice that &#39;data&#39; ≠ &#39;file&#39;. For example:</span>
+<span class="sd">        for a &#39;LIDAR_FUSION&#39; dataset, a copy of data means:</span>
+<span class="sd">        &#39;a pcd file&#39; + &#39;a camera config json&#39; + &#39;several 2D images&#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        page_no: int, default 1</span>
+<span class="sd">            Page number of the total result.</span>
+<span class="sd">            This is used when you have lots of data and only want to check them part by part.</span>
+<span class="sd">        page_size: int, default 10</span>
+<span class="sd">            Number of data on one page.</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name of the data you want to query.</span>
+<span class="sd">            Notice that it&#39;s a fuzzy query.</span>
+<span class="sd">        create_start_time: Iterable, default None</span>
+<span class="sd">            An iterable object. For example:</span>
+<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
+<span class="sd">            Hour, minute and second are optional.</span>
+<span class="sd">        create_end_time: Iterable, default None</span>
+<span class="sd">            An iterable object. For example:</span>
+<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
+<span class="sd">            Hour, minute and second are optional.</span>
+<span class="sd">        sort_by: str, default &#39;CREATED_AT&#39;</span>
+<span class="sd">            A sort field that can only choose from this list:</span>
+<span class="sd">            [&#39;NAME&#39;, &#39;CREATED_AT&#39;, &#39;UPDATED_AT&#39;]</span>
+<span class="sd">        ascending: bool, default True</span>
+<span class="sd">            Whether the order of datasets is ascending or descending.</span>
+<span class="sd">        annotation_status: Optional[str], default None</span>
+<span class="sd">            Annotation status of the data that can only choose from this list:</span>
+<span class="sd">            [&#39;ANNOTATED&#39;, &#39;NOT_ANNOTATED&#39;, &#39;INVALID&#39;].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            JSON data containing all the data you&#39;re querying and information of all the files within these data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">create_start_time</span><span class="p">,</span>
+            <span class="n">create_end_time</span><span class="p">,</span>
+            <span class="n">sort_by</span><span class="p">,</span>
+            <span class="n">ascending</span><span class="p">,</span>
+            <span class="n">annotation_status</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.download_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.download_data">[docs]</a>    <span class="k">def</span> <span class="nf">download_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">remain_directory_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download all or given data from current dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_folder: str</span>
+<span class="sd">            The folder path to save data.</span>
+<span class="sd">        data_id: Union[str, List[str], None], default None</span>
+<span class="sd">            A data id or a list or data ids.</span>
+<span class="sd">            Pass this parameter to download given data.</span>
+<span class="sd">        remain_directory_structure: bool, default True</span>
+<span class="sd">            If this parameter is set to True, the folder structure of the data</span>
+<span class="sd">            will remain exactly the same as it was uploaded.</span>
+<span class="sd">            If this parameter is set to False, all data will be put in &#39;output_folder&#39;</span>
+<span class="sd">            even if there are files with the same name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[str, List[Dict]]</span>
+<span class="sd">            If find target data, returns a list of error information produced during downloading.</span>
+<span class="sd">            If not find target data, returns &#39;No data&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">remain_directory_structure</span><span class="o">=</span><span class="n">remain_directory_structure</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, basicai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

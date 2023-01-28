@@ -3,7 +3,7 @@
 ## Installation
 
 ~~~python
-pip install xtrame1
+pip install xtreme1
 ~~~
 
 ---
@@ -63,7 +63,7 @@ You can use this method to query a dataset or a list of datasets.
 
 Notice that this method always returns a list even if there is only one dataset.
 
-There are two important parameters: 'page_no' and 'page_size'. The querying result is splitted into pages like an iterator. You can change 'page_size' to get more or fewer datasets at a time and change 'page_no' to load the next page of all querying results.
+There are two important parameters: 'page_no' and 'page_size'. The queried result is splitted into pages like an iterator. You can change 'page_size' to get more or fewer datasets at a time and change 'page_no' to load the next page of all queried results.
 
 ```python 
 # Query one single dataset by passing a dataset id
@@ -147,7 +147,7 @@ Data ≠ File! Data is the unit of your annotation work. For example:
 
 You can use this method to query specific data by passing a 'data_id' parameter.
 
-Unlike the 'query_data_under_dataset()' method, this method returns all querying data at a time.
+Unlike the 'query_data_under_dataset()' method, this method returns all queried data at a time.
 
 ```python
 data_list = client.query_data(data_id=['111110', '111111'])
@@ -184,12 +184,22 @@ print(status)
 """
 ~~~
 
+#### Download data
+
+A method for downloading data from a remote dataset. It will recursively search data urls in a query result and download files one by one.
+
+Notice that the directory of your data will remain the same as they were uploaded in the '.zip' file. You can also put your files in one single folder by setting the 'remain_directory_structure' parameter to 'False'.
+
+~~~python
+# Download '777777' to the given folder 'my_dataset'
+x1_client.download_data(output_folder='my_dataset', dataset_id='777777')
+~~~
+
+#### Query annotation result
 
 
-#### 根据data id删除多个data
-  delete_multiple_data(data_ids: list)
-- `data_ids`:多个data id的列表
-#### 
+
+
 
 
 ## Annotation-tools

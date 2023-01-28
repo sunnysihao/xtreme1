@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xtreme1.client &mdash; xtreme1 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> xtreme1
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../rst/xtreme1.html">xtreme1 package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">xtreme1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">xtreme1.client</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for xtreme1.client</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">rich.progress</span> <span class="kn">import</span> <span class="n">track</span>
+
+<span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">Api</span>
+<span class="kn">from</span> <span class="nn">.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">SDKException</span><span class="p">,</span> <span class="n">ParamException</span>
+<span class="kn">from</span> <span class="nn">.exporter.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">ImageModel</span><span class="p">,</span> <span class="n">PointCloudModel</span>
+
+
+<div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">Api</span><span class="p">(</span><span class="n">access_token</span><span class="o">=</span><span class="n">access_token</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_model</span> <span class="o">=</span> <span class="n">ImageModel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_cloud_model</span> <span class="o">=</span> <span class="n">PointCloudModel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Client.create_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.create_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">create_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">annotation_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a dataset with specific name and description.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Dataset name.</span>
+<span class="sd">        annotation_type: str</span>
+<span class="sd">            An annotation type which can only choose from this list:</span>
+<span class="sd">            [&#39;LIDAR_FUSION&#39;, &#39;LIDAR_BASIC&#39;, &#39;IMAGE&#39;].</span>
+<span class="sd">        description: str, default None</span>
+<span class="sd">            Further description about this dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dataset</span>
+<span class="sd">            An instance of dataset class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;dataset/create&#39;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">annotation_type</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">description</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.edit_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.edit_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">edit_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">new_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the name or description of a dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: str</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url,</span>
+<span class="sd">            for example: &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">        new_name: str</span>
+<span class="sd">            New name of the dataset.</span>
+<span class="sd">        new_description: Optional[str], default None</span>
+<span class="sd">            New description of the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            &#39;Success&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/update/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">new_name</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">new_description</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;Success&#39;</span></div>
+
+<div class="viewcode-block" id="Client.delete_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.delete_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">delete_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">is_sure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete a dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: str</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">        is_sure: bool, default False</span>
+<span class="sd">            Set it to &#39;True&#39; to delete the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            &#39;Unsure&#39; if &#39;is_sure&#39; is not set to &#39;True&#39;.</span>
+<span class="sd">            &#39;Success&#39; if the dataset is deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Unsure&#39;</span>
+
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/delete/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;Success&#39;</span></div>
+
+    <span class="k">def</span> <span class="nf">_query_a_single_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/info/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="k">def</span> <span class="nf">_query_the_list_of_datasets</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_end_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_by</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">ascending</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">dataset_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;dataset/findByPage&#39;</span>
+
+        <span class="n">create_start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">create_start_time</span><span class="p">)</span> <span class="k">if</span> <span class="n">create_start_time</span> <span class="k">else</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">create_end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">create_end_time</span><span class="p">)</span> <span class="k">if</span> <span class="n">create_end_time</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;pageNo&#39;</span><span class="p">:</span> <span class="n">page_no</span><span class="p">,</span>
+            <span class="s1">&#39;pageSize&#39;</span><span class="p">:</span> <span class="n">page_size</span><span class="p">,</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;createStartTime&#39;</span><span class="p">:</span> <span class="n">create_start_time</span><span class="p">,</span>
+            <span class="s1">&#39;createEndTime&#39;</span><span class="p">:</span> <span class="n">create_end_time</span><span class="p">,</span>
+            <span class="s1">&#39;sortField&#39;</span><span class="p">:</span> <span class="n">sort_by</span><span class="p">,</span>
+            <span class="s1">&#39;ascOrDesc&#39;</span><span class="p">:</span> <span class="s1">&#39;ASC&#39;</span> <span class="k">if</span> <span class="n">ascending</span> <span class="k">else</span> <span class="s1">&#39;DESC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">dataset_type</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
+<div class="viewcode-block" id="Client.query_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">query_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">dataset_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_end_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CREATED_AT&#39;</span><span class="p">,</span>
+            <span class="n">ascending</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">dataset_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dataset</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query a specific dataset or query several datasets with some filters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;</span>
+<span class="sd">        page_no: int, default 1</span>
+<span class="sd">            Page number of the total result.</span>
+<span class="sd">            This is used when you have lots of datasets and only want to check them part by part.</span>
+<span class="sd">        page_size: int, default 1</span>
+<span class="sd">            Number of datasets on one page.</span>
+<span class="sd">        dataset_name: str</span>
+<span class="sd">            Name of the dataset you want to query.</span>
+<span class="sd">            Notice that it&#39;s a fuzzy query.</span>
+<span class="sd">        create_start_time: Iterable, default None</span>
+<span class="sd">            An iterable object. For example:</span>
+<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
+<span class="sd">            Hour, minute and second are optional.</span>
+<span class="sd">        create_end_time: Iterable, default None</span>
+<span class="sd">            An iterable object. For example:</span>
+<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
+<span class="sd">            Hour, minute and second are optional.</span>
+<span class="sd">        sort_by: str, default &#39;CREATED_AT&#39;</span>
+<span class="sd">            A sort field that can only choose from this list:</span>
+<span class="sd">            [&#39;NAME&#39;, &#39;CREATED_AT&#39;, &#39;UPDATED_AT&#39;]</span>
+<span class="sd">        ascending: bool, default True</span>
+<span class="sd">            Whether the order of datasets is ascending or descending.</span>
+<span class="sd">        dataset_type: str</span>
+<span class="sd">            An annotation type that can only choose from this list:</span>
+<span class="sd">            [&#39;LIDAR_FUSION&#39;, &#39;LIDAR_BASIC&#39;, &#39;IMAGE&#39;]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dataset]</span>
+<span class="sd">            A list of Dataset classes.</span>
+<span class="sd">            Notice that this function only returns one dataset at a time unless you change the &#39;page_size&#39; parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
+            <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_a_single_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_the_list_of_datasets</span><span class="p">(</span>
+            <span class="n">page_no</span><span class="o">=</span><span class="n">page_no</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span>
+            <span class="n">create_start_time</span><span class="o">=</span><span class="n">create_start_time</span><span class="p">,</span>
+            <span class="n">create_end_time</span><span class="o">=</span><span class="n">create_end_time</span><span class="p">,</span>
+            <span class="n">sort_by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">,</span>
+            <span class="n">ascending</span><span class="o">=</span><span class="n">ascending</span><span class="p">,</span>
+            <span class="n">dataset_type</span><span class="o">=</span><span class="n">dataset_type</span>
+        <span class="p">)</span>
+
+        <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">datasets</span></div>
+
+<div class="viewcode-block" id="Client.query_data_under_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data_under_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_under_dataset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">create_end_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CREATED_AT&#39;</span><span class="p">,</span>
+            <span class="n">ascending</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">annotation_status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query data under a specific dataset with some filters.</span>
+<span class="sd">        Notice that &#39;data&#39; ≠ &#39;file&#39;. For example:</span>
+<span class="sd">        for a &#39;LIDAR_FUSION&#39; dataset, a copy of data means:</span>
+<span class="sd">        &#39;a pcd file&#39; + &#39;a camera config json&#39; + &#39;several 2D images&#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">        page_no: int, default 1</span>
+<span class="sd">            Page number of the total result.</span>
+<span class="sd">            This is used when you have lots of data and only want to check them part by part.</span>
+<span class="sd">        page_size: int, default 10</span>
+<span class="sd">            Number of data on one page.</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name of the data you want to query.</span>
+<span class="sd">            Notice that it&#39;s a fuzzy query.</span>
+<span class="sd">        create_start_time: Iterable, default None</span>
+<span class="sd">            An iterable object. For example:</span>
+<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
+<span class="sd">            Hour, minute and second are optional.</span>
+<span class="sd">        create_end_time: Iterable, default None</span>
+<span class="sd">            An iterable object. For example:</span>
+<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
+<span class="sd">            Hour, minute and second are optional.</span>
+<span class="sd">        sort_by: str, default &#39;CREATED_AT&#39;</span>
+<span class="sd">            A sort field that can only choose from this list:</span>
+<span class="sd">            [&#39;NAME&#39;, &#39;CREATED_AT&#39;, &#39;UPDATED_AT&#39;]</span>
+<span class="sd">        ascending: bool, default True</span>
+<span class="sd">            Whether the order of datasets is ascending or descending.</span>
+<span class="sd">        annotation_status: Optional[str], default None</span>
+<span class="sd">            Annotation status of the data that can only choose from this list:</span>
+<span class="sd">            [&#39;ANNOTATED&#39;, &#39;NOT_ANNOTATED&#39;, &#39;INVALID&#39;].</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            JSON data containing all the data you&#39;re querying and information of all the files within these data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/findByPage&#39;</span>
+
+        <span class="n">create_start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">create_start_time</span><span class="p">)</span> <span class="k">if</span> <span class="n">create_start_time</span> <span class="k">else</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">create_end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="o">*</span><span class="n">create_end_time</span><span class="p">)</span> <span class="k">if</span> <span class="n">create_end_time</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
+            <span class="s1">&#39;pageNo&#39;</span><span class="p">:</span> <span class="n">page_no</span><span class="p">,</span>
+            <span class="s1">&#39;pageSize&#39;</span><span class="p">:</span> <span class="n">page_size</span><span class="p">,</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;createStartTime&#39;</span><span class="p">:</span> <span class="n">create_start_time</span><span class="p">,</span>
+            <span class="s1">&#39;createEndTime&#39;</span><span class="p">:</span> <span class="n">create_end_time</span><span class="p">,</span>
+            <span class="s1">&#39;sortField&#39;</span><span class="p">:</span> <span class="n">sort_by</span><span class="p">,</span>
+            <span class="s1">&#39;ascOrDesc&#39;</span><span class="p">:</span> <span class="s1">&#39;ASC&#39;</span> <span class="k">if</span> <span class="n">ascending</span> <span class="k">else</span> <span class="s1">&#39;DESC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;annotationStatus&#39;</span><span class="p">:</span> <span class="n">annotation_status</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div>
+
+<div class="viewcode-block" id="Client.delete_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.delete_data">[docs]</a>    <span class="k">def</span> <span class="nf">delete_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="n">is_sure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete one specific data or a list of data from a specific dataset.</span>
+<span class="sd">        Notice that &#39;data&#39; ≠ &#39;file&#39;. For example:</span>
+<span class="sd">        for a &#39;LIDAR_FUSION&#39; dataset, a copy of data means:</span>
+<span class="sd">        &#39;a pcd file&#39; + &#39;a camera config json&#39; + &#39;several 2D images&#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: str</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">        data_id: Union[str, List[str]]</span>
+<span class="sd">            An id or list of ids of the data you want to delete.</span>
+<span class="sd">        is_sure: bool, default False</span>
+<span class="sd">            Set it to &#39;True&#39; to delete the data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            &#39;Unsure&#39; if &#39;is_sure&#39; is not set to &#39;True&#39;.</span>
+<span class="sd">            &#39;Success&#39; if the data is deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;Unsure&#39;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
+
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/deleteBatch&#39;</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
+            <span class="s1">&#39;ids&#39;</span><span class="p">:</span> <span class="n">data_id</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;Success&#39;</span></div>
+
+<div class="viewcode-block" id="Client.query_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data">[docs]</a>    <span class="k">def</span> <span class="nf">query_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use a specific id or a list of ids to delete data.</span>
+<span class="sd">        Notice that &#39;data&#39; ≠ &#39;file&#39;. For example:</span>
+<span class="sd">        for a &#39;LIDAR_FUSION&#39; dataset, a copy of data means:</span>
+<span class="sd">        &#39;a pcd file&#39; + &#39;a camera config json&#39; + &#39;several 2D images&#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_id: Union[str, List[str]]</span>
+<span class="sd">            A specific id or a list of ids.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]</span>
+<span class="sd">            List of JSON data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/listByIds&#39;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;dataIds&#39;</span><span class="p">:</span> <span class="n">data_id</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div>
+
+    <span class="k">def</span> <span class="nf">_generate_data_direct_upload_address</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/generatePresignedUrl&#39;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;fileName&#39;</span><span class="p">:</span> <span class="n">data_name</span><span class="p">,</span>
+            <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="k">def</span> <span class="nf">_upload</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/upload&#39;</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;fileUrl&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
+            <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
+            <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="n">source</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
+<div class="viewcode-block" id="Client.upload_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.upload_data">[docs]</a>    <span class="k">def</span> <span class="nf">upload_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">is_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Upload data to a specific dataset by using a local path or URL.</span>
+<span class="sd">        Notice that &#39;data&#39; ≠ &#39;file&#39;. For example:</span>
+<span class="sd">        for a &#39;LIDAR_FUSION&#39; dataset, a copy of data means:</span>
+<span class="sd">        &#39;a pcd file&#39; + &#39;a camera config json&#39; + &#39;several 2D images&#39;.</span>
+
+<span class="sd">        This function always returns a serial number if the parameters are right.</span>
+<span class="sd">        However, it doesn&#39;t mean the upload process is successful.</span>
+<span class="sd">        It&#39;s necessary to check the upload status by using the &#39;query_upload_status&#39; function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_path: str</span>
+<span class="sd">            A local path or URL.</span>
+<span class="sd">        dataset_id: str</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">        is_local: bool, default True</span>
+<span class="sd">            Whether the data is local or not.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A serial number for querying the upload status.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_local</span><span class="p">:</span>
+            <span class="n">data_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">data_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">url_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_data_direct_upload_address</span><span class="p">(</span><span class="n">data_name</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">)</span>
+            <span class="n">put_resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">url_dict</span><span class="p">[</span><span class="s1">&#39;presignedUrl&#39;</span><span class="p">],</span> <span class="n">data</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">put_resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SDKException</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">put_resp</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">put_resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+            <span class="n">upload_url</span> <span class="o">=</span> <span class="n">url_dict</span><span class="p">[</span><span class="s1">&#39;accessUrl&#39;</span><span class="p">]</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;LOCAL&#39;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">upload_url</span> <span class="o">=</span> <span class="n">data_path</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;URL&#39;</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload</span><span class="p">(</span><span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_recursive_search_url</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span>
+            <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">total</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+            <span class="n">remain_directory_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">Client</span><span class="o">.</span><span class="n">_recursive_search_url</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">remain_directory_structure</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;url&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">total</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">Client</span><span class="o">.</span><span class="n">_recursive_search_url</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">remain_directory_structure</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Client.download_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.download_data">[docs]</a>    <span class="k">def</span> <span class="nf">download_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">remain_directory_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download all data from a given dataset or download given data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_folder: str</span>
+<span class="sd">            The folder path to save data.</span>
+<span class="sd">        data_id: Union[str, List[str], None], default None</span>
+<span class="sd">            A data id or a list or data ids.</span>
+<span class="sd">            Pass this parameter to download given data.</span>
+<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            Pass this parameter to download all data from a given dataset.</span>
+<span class="sd">        remain_directory_structure: bool, default True</span>
+<span class="sd">            If this parameter is set to True, the folder structure of the data</span>
+<span class="sd">            will remain exactly the same as it was uploaded.</span>
+<span class="sd">            If this parameter is set to False, all data will be put in &#39;output_folder&#39;</span>
+<span class="sd">            even if there are files with the same name.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Union[str, List[Dict]]</span>
+<span class="sd">            If find target data, returns a list of error information produced during downloading.</span>
+<span class="sd">            If not find target data, returns &#39;No data&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_id</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_data</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;You need to pass either data_id or dataset_id !!!&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;No data&#39;</span>
+
+        <span class="n">error_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">total_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recursive_search_url</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">total_list</span><span class="p">,</span>
+            <span class="n">remain_directory_structure</span><span class="o">=</span><span class="n">remain_directory_structure</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">track</span><span class="p">(</span><span class="n">total_list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Downloading&#39;</span><span class="p">,</span> <span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">remain_directory_structure</span><span class="p">:</span>
+                    <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="o">*</span><span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+                <span class="n">cur_folder</span><span class="p">,</span> <span class="n">cur_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cur_folder</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cur_folder</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">file</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">error_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">error_list</span></div>
+
+<div class="viewcode-block" id="Client.query_upload_status"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_upload_status">[docs]</a>    <span class="k">def</span> <span class="nf">query_upload_status</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">serial_numbers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query if the upload process is completed.</span>
+<span class="sd">        Also shows the number of parsed data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        serial_numbers: Union[str, List[str]]</span>
+<span class="sd">            A specific serial_number or list of serial_numbers.</span>
+<span class="sd">            Notice that &#39;serial_number&#39; is the response of &#39;upload_data&#39; function,</span>
+<span class="sd">            and it can&#39;t be acquired from other functions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]</span>
+<span class="sd">            List of upload status.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/findUploadRecordBySerialNumbers&#39;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;serialNumbers&#39;</span><span class="p">:</span> <span class="n">serial_numbers</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_data_and_result_info</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/getDataAndResult&#39;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
+            <span class="s1">&#39;dataIds&#39;</span><span class="p">:</span> <span class="n">data_ids</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
+<div class="viewcode-block" id="Client.query_data_and_result"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data_and_result">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_and_result</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query both the data information and the annotation result of a specific dataset or a list of datasets.</span>
+<span class="sd">        Accept a &#39;data_ids&#39; parameter to query specific data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: str</span>
+<span class="sd">            The id of the dataset you want to query.</span>
+<span class="sd">        data_ids: Union[str, List[str], None], default None</span>
+<span class="sd">            The id or ids of the data you want to query.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Annotation</span>
+<span class="sd">            An instance of Annotation class.</span>
+<span class="sd">            It has some methods to convert the format of annotation result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data_and_result_info</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">data_ids</span><span class="p">)</span>
+        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ann</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, basicai.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
