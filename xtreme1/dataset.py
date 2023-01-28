@@ -19,6 +19,9 @@ class Dataset:
         self.data = org_json.get('datas')
         self._client = client
 
+    def __str__(self):
+        return f"BFDataset(id={self.id}, name={self.name})"
+
     def __repr__(self):
         return f"BFDataset(id={self.id}, name={self.name})"
 
