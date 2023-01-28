@@ -145,7 +145,7 @@ Data ≠ File! Data is the unit of your annotation work. For example:
 
 #### Query specific data
 
-You can use this method to query specific data by passing a 'data_id' parameter.
+A method for querying specific data by passing a 'data_id' parameter.
 
 Unlike the 'query_data_under_dataset()' method, this method returns all queried data at a time.
 
@@ -162,7 +162,7 @@ client.delete_data(dataset_id='888888', data_id=['111110', '111111'], is_sure=Tr
 
 #### Upload data
 
-You can use this method to push data to a dataset by using a local path or URL.
+A method for pushing data to a dataset by using a local path or URL.
 
 This method always returns a serial number, which is used to query the upload status.
 
@@ -196,6 +196,13 @@ x1_client.download_data(output_folder='my_dataset', dataset_id='777777')
 ~~~
 
 #### Query annotation result
+
+The 'query_data' method only returns information about data, but this 'query_data_and_result' method returns data information and annotation results together.
+
+It returns an instance of the 'Annotation' class, which is convenient for format converting.
+
+~~~python
+~~~
 
 
 

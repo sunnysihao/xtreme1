@@ -15,6 +15,10 @@ class ParamException(SDKException):
     code = 'PARAM_ERROR'
 
 
+class DatasetIdException(SDKException):
+    code = 'DATASET_NOT_FOUND'
+
+
 class ConverterException(SDKException):
     """
 
@@ -22,5 +26,6 @@ class ConverterException(SDKException):
 
 
 EXCEPTIONS = {
-    ParamException.code: ParamException
+    ParamException.code: ParamException,
+    DatasetIdException.code: DatasetIdException
 }

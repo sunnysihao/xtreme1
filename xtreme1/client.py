@@ -605,7 +605,8 @@ class Client:
     def query_data_and_result(
             self,
             dataset_id: str,
-            data_ids: Union[str, List[str], None] = None
+            data_ids: Union[str, List[str], None] = None,
+            limit: int = 5000
     ) -> Annotation:
         """
         Query both the data information and the annotation result of a specific dataset or a list of datasets.
@@ -617,6 +618,9 @@ class Client:
             The id of the dataset you want to query.
         data_ids: Union[str, List[str], None], default None
             The id or ids of the data you want to query.
+        limit: int, default 5000
+            The max number of returned annotation results.
+            Change this parameter according to your system memory.
 
         Returns
         -------
@@ -625,6 +629,20 @@ class Client:
             It has some methods to convert the format of annotation result.
         """
         resp = self._get_data_and_result_info(dataset_id, data_ids)
-        ann = Annotation(resp)
+        key_name = 'id' if 'id' in resp['data'][0] else 'dataId'
+        result_dict = {result['dataId']: result for result in resp['results']}
+        annotation = [
+            {
+                'data': data,
+                'result': result_dict.get(data[key_name], {})
+            }
+            for data in resp['data'][:limit]
+        ]
 
-        return ann
+        return Annotation(
+            resp['version'],
+            resp['datasetId'],
+            resp['datasetName'],
+            resp['exportTime'],
+            annotation
+        )

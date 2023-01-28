@@ -26,7 +26,18 @@ class Annotation:
         },
     }
 
-    def __init__(self, annotation_data):
+    def __init__(
+            self,
+            version,
+            dataset_id,
+            dataset_name,
+            export_time,
+            annotation_data
+    ):
+        self.version = version
+        self.dataset_id = dataset_id
+        self.dataset_name = dataset_name
+        self.export_time = export_time
         self.annotation = annotation_data
 
     def supported_format(self):
