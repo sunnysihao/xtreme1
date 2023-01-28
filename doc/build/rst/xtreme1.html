@@ -64,6 +64,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.SDKException"><code class="docutils literal notranslate"><span class="pre">SDKException</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.UrlNotFoundException"><code class="docutils literal notranslate"><span class="pre">UrlNotFoundException</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.ParamException"><code class="docutils literal notranslate"><span class="pre">ParamException</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.DatasetIdException"><code class="docutils literal notranslate"><span class="pre">DatasetIdException</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.ConverterException"><code class="docutils literal notranslate"><span class="pre">ConverterException</span></code></a></li>
 </ul>
 </li>
@@ -106,8 +107,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.delete_data"><code class="docutils literal notranslate"><span class="pre">Client.delete_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.query_data"><code class="docutils literal notranslate"><span class="pre">Client.query_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.upload_data"><code class="docutils literal notranslate"><span class="pre">Client.upload_data()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.download_data"><code class="docutils literal notranslate"><span class="pre">Client.download_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.query_upload_status"><code class="docutils literal notranslate"><span class="pre">Client.query_upload_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.download_data"><code class="docutils literal notranslate"><span class="pre">Client.download_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.client.Client.query_data_and_result"><code class="docutils literal notranslate"><span class="pre">Client.query_data_and_result()</span></code></a></li>
 </ul>
 </li>
@@ -135,6 +136,10 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#xtreme1.exceptions.ParamException"><code class="docutils literal notranslate"><span class="pre">ParamException</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.ParamException.code"><code class="docutils literal notranslate"><span class="pre">ParamException.code</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#xtreme1.exceptions.DatasetIdException"><code class="docutils literal notranslate"><span class="pre">DatasetIdException</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#xtreme1.exceptions.DatasetIdException.code"><code class="docutils literal notranslate"><span class="pre">DatasetIdException.code</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#xtreme1.exceptions.ConverterException"><code class="docutils literal notranslate"><span class="pre">ConverterException</span></code></a></li>
@@ -334,7 +339,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#xtreme1.client.Client.query_data" title="xtreme1.client.Client.query_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_data</span></code></a>(data_id)</p></td>
 <td><p>Use a specific id or a list of ids to delete data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#xtreme1.client.Client.query_data_and_result" title="xtreme1.client.Client.query_data_and_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_data_and_result</span></code></a>(dataset_id[, data_ids])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#xtreme1.client.Client.query_data_and_result" title="xtreme1.client.Client.query_data_and_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_data_and_result</span></code></a>(dataset_id[, ...])</p></td>
 <td><p>Query both the data information and the annotation result of a specific dataset or a list of datasets.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#xtreme1.client.Client.query_data_under_dataset" title="xtreme1.client.Client.query_data_under_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query_data_under_dataset</span></code></a>(dataset_id[, ...])</p></td>
@@ -383,8 +388,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>dataset_id: str</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url,
-for example: ‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’.</p>
+<dt><strong>dataset_id: str</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>new_name: str</strong></dt><dd><p>New name of the dataset.</p>
 </dd>
@@ -409,7 +414,7 @@ for example: ‘<a class="reference external" href="https://x1-community.alidev.
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>dataset_id: str</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
-‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’.</p>
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>is_sure: bool, default False</strong></dt><dd><p>Set it to ‘True’ to delete the dataset.</p>
 </dd>
@@ -433,7 +438,7 @@ for example: ‘<a class="reference external" href="https://x1-community.alidev.
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
 <dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
-‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’</p>
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>page_no: int, default 1</strong></dt><dd><p>Page number of the total result.
 This is used when you have lots of datasets and only want to check them part by part.</p>
@@ -486,7 +491,7 @@ for a ‘LIDAR_FUSION’ dataset, a copy of data means:
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
 <dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
-‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’.</p>
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>page_no: int, default 1</strong></dt><dd><p>Page number of the total result.
 This is used when you have lots of data and only want to check them part by part.</p>
@@ -538,7 +543,7 @@ for a ‘LIDAR_FUSION’ dataset, a copy of data means:
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>dataset_id: str</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
-‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’.</p>
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>data_id: Union[str, List[str]]</strong></dt><dd><p>An id or list of ids of the data you want to delete.</p>
 </dd>
@@ -595,7 +600,7 @@ It’s necessary to check the upload status by using the ‘query_upload_status�
 <dt><strong>data_path: str</strong></dt><dd><p>A local path or URL.</p>
 </dd>
 <dt><strong>dataset_id: str</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
-‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’.</p>
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>is_local: bool, default True</strong></dt><dd><p>Whether the data is local or not.</p>
 </dd>
@@ -604,39 +609,6 @@ It’s necessary to check the upload status by using the ‘query_upload_status�
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
 <dt>str</dt><dd><p>A serial number for querying the upload status.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="xtreme1.client.Client.download_data">
-<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remain_directory_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/xtreme1/client.html#Client.download_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.client.Client.download_data" title="Permalink to this definition"></a></dt>
-<dd><p>Download all data from a given dataset or download given data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>output_folder: str</strong></dt><dd><p>The folder path to save data.</p>
-</dd>
-<dt><strong>data_id: Union[str, List[str], None], default None</strong></dt><dd><p>A data id or a list or data ids.
-Pass this parameter to download given data.</p>
-</dd>
-<dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
-‘<a class="reference external" href="https://x1-community.alidev.beisai.com/#/datasets/overview">https://x1-community.alidev.beisai.com/#/datasets/overview</a>?id=766416’.
-Pass this parameter to download all data from a given dataset.</p>
-</dd>
-<dt><strong>remain_directory_structure: bool, default True</strong></dt><dd><p>If this parameter is set to True, the folder structure of the data
-will remain exactly the same as it was uploaded.
-If this parameter is set to False, all data will be put in ‘output_folder’
-even if there are files with the same name.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>Union[str, List[Dict]]</dt><dd><p>If find target data, returns a list of error information produced during downloading.
-If not find target data, returns ‘No data’.</p>
 </dd>
 </dl>
 </dd>
@@ -667,8 +639,41 @@ and it can’t be acquired from other functions.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="xtreme1.client.Client.download_data">
+<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remain_directory_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/xtreme1/client.html#Client.download_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.client.Client.download_data" title="Permalink to this definition"></a></dt>
+<dd><p>Download all data from a given dataset or download given data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_folder: str</strong></dt><dd><p>The folder path to save data.</p>
+</dd>
+<dt><strong>data_id: Union[str, List[str], None], default None</strong></dt><dd><p>A data id or a list or data ids.
+Pass this parameter to download given data.</p>
+</dd>
+<dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
+<code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.
+Pass this parameter to download all data from a given dataset.</p>
+</dd>
+<dt><strong>remain_directory_structure: bool, default True</strong></dt><dd><p>If this parameter is set to True, the folder structure of the data
+will remain exactly the same as it was uploaded.
+If this parameter is set to False, all data will be put in ‘output_folder’
+even if there are files with the same name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Union[str, List[Dict]]</dt><dd><p>If find target data, returns a list of error information produced during downloading.
+If not find target data, returns ‘No data’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="xtreme1.client.Client.query_data_and_result">
-<span class="sig-name descname"><span class="pre">query_data_and_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Annotation</span></span></span><a class="reference internal" href="../_modules/xtreme1/client.html#Client.query_data_and_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.client.Client.query_data_and_result" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">query_data_and_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Annotation</span></span></span><a class="reference internal" href="../_modules/xtreme1/client.html#Client.query_data_and_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.client.Client.query_data_and_result" title="Permalink to this definition"></a></dt>
 <dd><p>Query both the data information and the annotation result of a specific dataset or a list of datasets.
 Accept a ‘data_ids’ parameter to query specific data.</p>
 <dl class="field-list simple">
@@ -677,6 +682,9 @@ Accept a ‘data_ids’ parameter to query specific data.</p>
 <dt><strong>dataset_id: str</strong></dt><dd><p>The id of the dataset you want to query.</p>
 </dd>
 <dt><strong>data_ids: Union[str, List[str], None], default None</strong></dt><dd><p>The id or ids of the data you want to query.</p>
+</dd>
+<dt><strong>limit: int, default 5000</strong></dt><dd><p>The max number of returned annotation results.
+Change this parameter according to your system memory.</p>
 </dd>
 </dl>
 </dd>
@@ -828,7 +836,7 @@ Notice that it’s a fuzzy query.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>Dict</dt><dd><p>JSON data containing all the data you’re querying and information of all the files within these data.</p>
+<dt>Dict</dt><dd><p>Json data containing all the data you’re querying and information of all the files within these data.</p>
 </dd>
 </dl>
 </dd>
@@ -898,6 +906,17 @@ If not find target data, returns ‘No data’.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="xtreme1.exceptions.ParamException.code">
 <span class="sig-name descname"><span class="pre">code</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PARAM_ERROR'</span></em><a class="headerlink" href="#xtreme1.exceptions.ParamException.code" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="xtreme1.exceptions.DatasetIdException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">xtreme1.exceptions.</span></span><span class="sig-name descname"><span class="pre">DatasetIdException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xtreme1/exceptions.html#DatasetIdException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.exceptions.DatasetIdException" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#xtreme1.exceptions.SDKException" title="xtreme1.exceptions.SDKException"><code class="xref py py-class docutils literal notranslate"><span class="pre">SDKException</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="xtreme1.exceptions.DatasetIdException.code">
+<span class="sig-name descname"><span class="pre">code</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DATASET_NOT_FOUND'</span></em><a class="headerlink" href="#xtreme1.exceptions.DatasetIdException.code" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -139,7 +139,7 @@ class Dataset:
         Returns
         -------
         Dict
-            JSON data containing all the data you're querying and information of all the files within these data.
+            Json data containing all the data you're querying and information of all the files within these data.
         """
 
         return self._client.query_data_under_dataset(

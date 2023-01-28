@@ -98,7 +98,8 @@
             <span class="n">annotation_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Create a dataset with specific name and description.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a dataset with specific name and description.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -138,8 +139,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset_id: str</span>
-<span class="sd">            A dataset id. You can find this in the last part of the dataset url,</span>
-<span class="sd">            for example: &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        new_name: str</span>
 <span class="sd">            New name of the dataset.</span>
 <span class="sd">        new_description: Optional[str], default None</span>
@@ -172,7 +173,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        dataset_id: str</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
-<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        is_sure: bool, default False</span>
 <span class="sd">            Set it to &#39;True&#39; to delete the dataset.</span>
 
@@ -249,7 +250,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        dataset_id: Optional[str], default None</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
-<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        page_no: int, default 1</span>
 <span class="sd">            Page number of the total result.</span>
 <span class="sd">            This is used when you have lots of datasets and only want to check them part by part.</span>
@@ -321,7 +322,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        dataset_id: Optional[str], default None</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
-<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        page_no: int, default 1</span>
 <span class="sd">            Page number of the total result.</span>
 <span class="sd">            This is used when you have lots of data and only want to check them part by part.</span>
@@ -389,7 +390,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        dataset_id: str</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
-<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        data_id: Union[str, List[str]]</span>
 <span class="sd">            An id or list of ids of the data you want to delete.</span>
 <span class="sd">        is_sure: bool, default False</span>
@@ -506,7 +507,7 @@
 <span class="sd">            A local path or URL.</span>
 <span class="sd">        dataset_id: str</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
-<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        is_local: bool, default True</span>
 <span class="sd">            Whether the data is local or not.</span>
 
@@ -531,6 +532,36 @@
             <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;URL&#39;</span>
 
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upload</span><span class="p">(</span><span class="n">upload_url</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div>
+
+<div class="viewcode-block" id="Client.query_upload_status"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_upload_status">[docs]</a>    <span class="k">def</span> <span class="nf">query_upload_status</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">serial_numbers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query if the upload process is completed.</span>
+<span class="sd">        Also shows the number of parsed data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        serial_numbers: Union[str, List[str]]</span>
+<span class="sd">            A specific serial_number or list of serial_numbers.</span>
+<span class="sd">            Notice that &#39;serial_number&#39; is the response of &#39;upload_data&#39; function,</span>
+<span class="sd">            and it can&#39;t be acquired from other functions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]</span>
+<span class="sd">            List of upload status.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/findUploadRecordBySerialNumbers&#39;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;serialNumbers&#39;</span><span class="p">:</span> <span class="n">serial_numbers</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">resp</span></div>
 
@@ -573,7 +604,7 @@
 <span class="sd">            Pass this parameter to download given data.</span>
 <span class="sd">        dataset_id: Optional[str], default None</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
-<span class="sd">            &#39;https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416&#39;.</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">            Pass this parameter to download all data from a given dataset.</span>
 <span class="sd">        remain_directory_structure: bool, default True</span>
 <span class="sd">            If this parameter is set to True, the folder structure of the data</span>
@@ -625,36 +656,6 @@
 
         <span class="k">return</span> <span class="n">error_list</span></div>
 
-<div class="viewcode-block" id="Client.query_upload_status"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_upload_status">[docs]</a>    <span class="k">def</span> <span class="nf">query_upload_status</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">serial_numbers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Query if the upload process is completed.</span>
-<span class="sd">        Also shows the number of parsed data.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        serial_numbers: Union[str, List[str]]</span>
-<span class="sd">            A specific serial_number or list of serial_numbers.</span>
-<span class="sd">            Notice that &#39;serial_number&#39; is the response of &#39;upload_data&#39; function,</span>
-<span class="sd">            and it can&#39;t be acquired from other functions.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        List[Dict]</span>
-<span class="sd">            List of upload status.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/findUploadRecordBySerialNumbers&#39;</span>
-
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;serialNumbers&#39;</span><span class="p">:</span> <span class="n">serial_numbers</span>
-        <span class="p">}</span>
-
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">resp</span></div>
-
     <span class="k">def</span> <span class="nf">_get_data_and_result_info</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -674,7 +675,8 @@
 <div class="viewcode-block" id="Client.query_data_and_result"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data_and_result">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_and_result</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Query both the data information and the annotation result of a specific dataset or a list of datasets.</span>
@@ -686,6 +688,9 @@
 <span class="sd">            The id of the dataset you want to query.</span>
 <span class="sd">        data_ids: Union[str, List[str], None], default None</span>
 <span class="sd">            The id or ids of the data you want to query.</span>
+<span class="sd">        limit: int, default 5000</span>
+<span class="sd">            The max number of returned annotation results.</span>
+<span class="sd">            Change this parameter according to your system memory.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -694,9 +699,23 @@
 <span class="sd">            It has some methods to convert the format of annotation result.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data_and_result_info</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">data_ids</span><span class="p">)</span>
-        <span class="n">ann</span> <span class="o">=</span> <span class="n">Annotation</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+        <span class="n">key_name</span> <span class="o">=</span> <span class="s1">&#39;id&#39;</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;dataId&#39;</span>
+        <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;dataId&#39;</span><span class="p">]:</span> <span class="n">result</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">]}</span>
+        <span class="n">annotation</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+                <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key_name</span><span class="p">],</span> <span class="p">{})</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][:</span><span class="n">limit</span><span class="p">]</span>
+        <span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">ann</span></div></div>
+        <span class="k">return</span> <span class="n">Annotation</span><span class="p">(</span>
+            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span>
+            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;datasetId&#39;</span><span class="p">],</span>
+            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;datasetName&#39;</span><span class="p">],</span>
+            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;exportTime&#39;</span><span class="p">],</span>
+            <span class="n">annotation</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
            </div>

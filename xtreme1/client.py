@@ -29,7 +29,8 @@ class Client:
             annotation_type: str,
             description: str = None
     ) -> Dataset:
-        """Create a dataset with specific name and description.
+        """
+        Create a dataset with specific name and description.
 
         Parameters
         ----------
@@ -69,8 +70,8 @@ class Client:
         Parameters
         ----------
         dataset_id: str
-            A dataset id. You can find this in the last part of the dataset url,
-            for example: 'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
+            A dataset id. You can find this in the last part of the dataset url, for example:
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         new_name: str
             New name of the dataset.
         new_description: Optional[str], default None
@@ -103,7 +104,7 @@ class Client:
         ----------
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         is_sure: bool, default False
             Set it to 'True' to delete the dataset.
 
@@ -180,7 +181,7 @@ class Client:
         ----------
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of datasets and only want to check them part by part.
@@ -252,7 +253,7 @@ class Client:
         ----------
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of data and only want to check them part by part.
@@ -320,7 +321,7 @@ class Client:
         ----------
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         data_id: Union[str, List[str]]
             An id or list of ids of the data you want to delete.
         is_sure: bool, default False
@@ -437,7 +438,7 @@ class Client:
             A local path or URL.
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         is_local: bool, default True
             Whether the data is local or not.
 
@@ -534,7 +535,7 @@ class Client:
             Pass this parameter to download given data.
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
-            'https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416'.
+            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Pass this parameter to download all data from a given dataset.
         remain_directory_structure: bool, default True
             If this parameter is set to True, the folder structure of the data
