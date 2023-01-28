@@ -202,14 +202,45 @@ The 'query_data' method only returns information about data, but this 'query_dat
 It returns an instance of the 'Annotation' class, which is convenient for format converting.
 
 ~~~python
+my_annotation = x1_client.query_data_and_result(
+    dataset_id='777777',
+    limit = 1000
+)
+print(my_annotation) # Annotation(dataset_id=777777, dataset_name=test_dataset)
+
+# Check all annotation results
+my_annotation.annotation
+
+# Check a few annotation results
+my_annotation.head()
+
+# Convert raw annotation results to BasicAI standard json
+my_annotation.to_standard_json(export_folder='my_annotation_result')
 ~~~
 
+Notice that this method only returns limited annotation results. If you want to download all annotation results, try this:
 
+~~~python
+i = 0
+while True:
+    i += 1
+    data_list = x1_client.query_data_under_dataset(dataset_id='766402', page_no=i)['list']
+    if not data_list:
+        break
+    
+    data_ids = [x['id'] for x in data_list]
+    my_annotation = x1_client.query_data_and_result(dataset_id='766402', data_ids=data_ids)
+    
+    # Any further actions
+    my_annotation.to_standard_json(export_folder='my_annotation_result')
+~~~
 
+---
 
+### Annotation
 
+A class contains all methods that convert json format to other widely used formats.
 
-## Annotation-tools
+An instance of this class will be automatically generated after using the 'query_data_and_result' method.
 
-## Xtreme1-Exception
-### ApiException
+It's not recommended to instantiate this class by yourself, because the annotation result needed is a list of dict in a specific format. 
