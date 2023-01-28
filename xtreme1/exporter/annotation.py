@@ -1,4 +1,5 @@
 from .standard import *
+from .to_coco import *
 
 
 class Annotation:
@@ -47,8 +48,12 @@ class Annotation:
         return f"Annotation(dataset_id={self.dataset_id}, dataset_name={self.dataset_name})"
 
     def supported_format(self):
-        """
-        Query the supported conversion format
+        """Query the supported conversion format.
+
+        Returns
+        -------
+        dict
+            Formats that support transformations
         """
 
         return self._SUPPORTED_FORMAT_INFO
@@ -59,17 +64,42 @@ class Annotation:
     def tail(self, count=5):
         return self.annotation[-count:]
 
-    def converter(self, format: str, export_folder):
+    def converter(self, format: str, export_folder: str):
+        """Convert the saved result to a target format.
+        Find more info, see `description <https://docs.xtreme1.io/xtreme1-docs>`_.
+
+        Parameters
+        ----------
+        format: str
+            Target format
+
+        export_folder: str
+
+
+        Returns
+        -------
+
+        """
         format = format.upper()
         if format == 'STANDARD_JSON':
             self.to_standard_json(export_folder)
         elif format == 'CSV':
             self.to_csv(self.annotation, export_folder)
         elif format == 'COCO':
-            self.to_coco(self.annotation, export_folder)
+            self.to_coco(export_folder)
 
     def to_standard_json(self, export_folder):
-        to_json(annotation=self.annotation, export_folder=export_folder)
+        """Convert the saved result to a json file in the xtreme1 standard format.
+
+        Parameters
+        ----------
+        export_folder: The path to save the conversion result
+
+        Returns
+        -------
+
+        """
+        to_json(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
 
     def to_csv(self, input_annotations, export_folder):
         pass
@@ -80,8 +110,18 @@ class Annotation:
     def to_txt(self, input_annotations, export_folder):
         pass
 
-    def to_coco(self, input_annotations, export_folder):
-        pass
+    def to_coco(self, export_folder):
+        """
+
+        Parameters
+        ----------
+        export_folder: The path to save the conversion result
+
+        Returns
+        -------
+
+        """
+        to_coco(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
 
     def to_voc(self, input_annotations, export_folder):
         pass
