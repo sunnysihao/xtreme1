@@ -47,6 +47,12 @@ class Annotation:
 
         return self._SUPPORTED_FORMAT_INFO
 
+    def head(self, count=5):
+        return self.annotation[:count]
+
+    def tail(self, count=5):
+        return self.annotation[-count:]
+
     def converter(self, format: str, export_folder):
         format = format.upper()
         if format == 'STANDARD_JSON':
