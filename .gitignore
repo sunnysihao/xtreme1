@@ -1,6 +1,6 @@
 **__pycache__**
 **egg-info**
-**source**
+**doc/source**
 **make.bat**
 **Makefile**
 **dist**
@@ -16,7 +16,6 @@ venv/
 *.pkl
 *.zip
 *.bin
-*.txt
 
 output
 version.py
