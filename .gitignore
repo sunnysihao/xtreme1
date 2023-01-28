@@ -1,6 +1,8 @@
 **__pycache__**
-**build**
 **egg-info**
+**source**
+**make.bat**
+**Makefile**
 **dist**
 **server_logs**
 
