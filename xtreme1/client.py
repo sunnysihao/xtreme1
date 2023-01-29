@@ -102,7 +102,7 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: str
+        dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
         is_sure: bool, default False
@@ -192,18 +192,18 @@ class Client:
             Notice that it's a fuzzy query.
         create_start_time: Iterable, default None
             An iterable object. For example:
-             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
+            (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
             Hour, minute and second are optional.
         create_end_time: Iterable, default None
             An iterable object. For example:
-             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
+            (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
             Hour, minute and second are optional.
         sort_by: str, default 'CREATED_AT'
             A sort field that can only choose from this list:
             ['NAME', 'CREATED_AT', 'UPDATED_AT']
         ascending: bool, default True
             Whether the order of datasets is ascending or descending.
-        dataset_type: str
+        dataset_type: str, default None
             An annotation type that can only choose from this list:
             ['LIDAR_FUSION', 'LIDAR_BASIC', 'IMAGE']
 
@@ -264,11 +264,11 @@ class Client:
             Notice that it's a fuzzy query.
         create_start_time: Iterable, default None
             An iterable object. For example:
-             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
+            (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
             Hour, minute and second are optional.
         create_end_time: Iterable, default None
             An iterable object. For example:
-             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
+            (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
             Hour, minute and second are optional.
         sort_by: str, default 'CREATED_AT'
             A sort field that can only choose from this list:

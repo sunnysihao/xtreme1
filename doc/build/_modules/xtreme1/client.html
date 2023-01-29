@@ -171,7 +171,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: str</span>
+<span class="sd">        dataset_id: Optional[str], default None</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
 <span class="sd">        is_sure: bool, default False</span>
@@ -261,18 +261,18 @@
 <span class="sd">            Notice that it&#39;s a fuzzy query.</span>
 <span class="sd">        create_start_time: Iterable, default None</span>
 <span class="sd">            An iterable object. For example:</span>
-<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
+<span class="sd">            (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
 <span class="sd">            Hour, minute and second are optional.</span>
 <span class="sd">        create_end_time: Iterable, default None</span>
 <span class="sd">            An iterable object. For example:</span>
-<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
+<span class="sd">            (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
 <span class="sd">            Hour, minute and second are optional.</span>
 <span class="sd">        sort_by: str, default &#39;CREATED_AT&#39;</span>
 <span class="sd">            A sort field that can only choose from this list:</span>
 <span class="sd">            [&#39;NAME&#39;, &#39;CREATED_AT&#39;, &#39;UPDATED_AT&#39;]</span>
 <span class="sd">        ascending: bool, default True</span>
 <span class="sd">            Whether the order of datasets is ascending or descending.</span>
-<span class="sd">        dataset_type: str</span>
+<span class="sd">        dataset_type: str, default None</span>
 <span class="sd">            An annotation type that can only choose from this list:</span>
 <span class="sd">            [&#39;LIDAR_FUSION&#39;, &#39;LIDAR_BASIC&#39;, &#39;IMAGE&#39;]</span>
 
@@ -333,11 +333,11 @@
 <span class="sd">            Notice that it&#39;s a fuzzy query.</span>
 <span class="sd">        create_start_time: Iterable, default None</span>
 <span class="sd">            An iterable object. For example:</span>
-<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
+<span class="sd">            (2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</span>
 <span class="sd">            Hour, minute and second are optional.</span>
 <span class="sd">        create_end_time: Iterable, default None</span>
 <span class="sd">            An iterable object. For example:</span>
-<span class="sd">             (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
+<span class="sd">            (2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</span>
 <span class="sd">            Hour, minute and second are optional.</span>
 <span class="sd">        sort_by: str, default &#39;CREATED_AT&#39;</span>
 <span class="sd">            A sort field that can only choose from this list:</span>
@@ -699,12 +699,11 @@
 <span class="sd">            It has some methods to convert the format of annotation result.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_data_and_result_info</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">data_ids</span><span class="p">)</span>
-        <span class="n">key_name</span> <span class="o">=</span> <span class="s1">&#39;id&#39;</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;dataId&#39;</span>
         <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;dataId&#39;</span><span class="p">]:</span> <span class="n">result</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">]}</span>
         <span class="n">annotation</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
-                <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key_name</span><span class="p">],</span> <span class="p">{})</span>
+                <span class="s1">&#39;result&#39;</span><span class="p">:</span> <span class="n">result_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="p">{})</span>
             <span class="p">}</span>
             <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][:</span><span class="n">limit</span><span class="p">]</span>
         <span class="p">]</span>

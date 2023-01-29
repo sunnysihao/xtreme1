@@ -93,7 +93,7 @@ class ImageModel(Model):
 
         Returns
         -------
-        List[Dict]:
+        List[Dict]
             A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
             Here's an example of objects::
 
@@ -195,7 +195,7 @@ class PointCloudModel(Model):
 
         Returns
         -------
-        List[Dict]:
+        List[Dict]
             A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
         """
 

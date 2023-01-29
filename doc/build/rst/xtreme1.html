@@ -413,7 +413,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>dataset_id: str</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
+<dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
 <code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
 <dt><strong>is_sure: bool, default False</strong></dt><dd><p>Set it to ‘True’ to delete the dataset.</p>
@@ -434,9 +434,9 @@
 <dt class="sig sig-object py" id="xtreme1.client.Client.query_dataset">
 <span class="sig-name descname"><span class="pre">query_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_no</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_end_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CREATED_AT'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#xtreme1.dataset.Dataset" title="xtreme1.dataset.Dataset"><span class="pre">Dataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/xtreme1/client.html#Client.query_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.client.Client.query_dataset" title="Permalink to this definition"></a></dt>
 <dd><p>Query a specific dataset or query several datasets with some filters.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
 <code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
@@ -448,24 +448,20 @@ This is used when you have lots of datasets and only want to check them part by 
 <dt><strong>dataset_name: str</strong></dt><dd><p>Name of the dataset you want to query.
 Notice that it’s a fuzzy query.</p>
 </dd>
-<dt><strong>create_start_time: Iterable, default None</strong></dt><dd><dl class="simple">
-<dt>An iterable object. For example:</dt><dd><p>(2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</p>
+<dt><strong>create_start_time: Iterable, default None</strong></dt><dd><p>An iterable object. For example:
+(2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
+Hour, minute and second are optional.</p>
 </dd>
-</dl>
-<p>Hour, minute and second are optional.</p>
-</dd>
-<dt><strong>create_end_time: Iterable, default None</strong></dt><dd><dl class="simple">
-<dt>An iterable object. For example:</dt><dd><p>(2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</p>
-</dd>
-</dl>
-<p>Hour, minute and second are optional.</p>
+<dt><strong>create_end_time: Iterable, default None</strong></dt><dd><p>An iterable object. For example:
+(2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
+Hour, minute and second are optional.</p>
 </dd>
 <dt><strong>sort_by: str, default ‘CREATED_AT’</strong></dt><dd><p>A sort field that can only choose from this list:
 [‘NAME’, ‘CREATED_AT’, ‘UPDATED_AT’]</p>
 </dd>
 <dt><strong>ascending: bool, default True</strong></dt><dd><p>Whether the order of datasets is ascending or descending.</p>
 </dd>
-<dt><strong>dataset_type: str</strong></dt><dd><p>An annotation type that can only choose from this list:
+<dt><strong>dataset_type: str, default None</strong></dt><dd><p>An annotation type that can only choose from this list:
 [‘LIDAR_FUSION’, ‘LIDAR_BASIC’, ‘IMAGE’]</p>
 </dd>
 </dl>
@@ -487,9 +483,9 @@ Notice that this function only returns one dataset at a time unless you change t
 Notice that ‘data’ ≠ ‘file’. For example:
 for a ‘LIDAR_FUSION’ dataset, a copy of data means:
 ‘a pcd file’ + ‘a camera config json’ + ‘several 2D images’.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>A dataset id. You can find this in the last part of the dataset url, for example:
 <code class="docutils literal notranslate"><span class="pre">https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416</span></code>.</p>
 </dd>
@@ -501,17 +497,13 @@ This is used when you have lots of data and only want to check them part by part
 <dt><strong>name: str</strong></dt><dd><p>Name of the data you want to query.
 Notice that it’s a fuzzy query.</p>
 </dd>
-<dt><strong>create_start_time: Iterable, default None</strong></dt><dd><dl class="simple">
-<dt>An iterable object. For example:</dt><dd><p>(2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</p>
+<dt><strong>create_start_time: Iterable, default None</strong></dt><dd><p>An iterable object. For example:
+(2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
+Hour, minute and second are optional.</p>
 </dd>
-</dl>
-<p>Hour, minute and second are optional.</p>
-</dd>
-<dt><strong>create_end_time: Iterable, default None</strong></dt><dd><dl class="simple">
-<dt>An iterable object. For example:</dt><dd><p>(2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</p>
-</dd>
-</dl>
-<p>Hour, minute and second are optional.</p>
+<dt><strong>create_end_time: Iterable, default None</strong></dt><dd><p>An iterable object. For example:
+(2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
+Hour, minute and second are optional.</p>
 </dd>
 <dt><strong>sort_by: str, default ‘CREATED_AT’</strong></dt><dd><p>A sort field that can only choose from this list:
 [‘NAME’, ‘CREATED_AT’, ‘UPDATED_AT’]</p>
@@ -801,9 +793,9 @@ It has some methods to convert the format of annotation result.</p>
 Notice that ‘data’ ≠ ‘file’. For example:
 for a ‘LIDAR_FUSION’ dataset, a copy of data means:
 ‘a pcd file’ + ‘a camera config json’ + ‘several 2D images’.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl>
+<dd class="field-odd"><dl class="simple">
 <dt><strong>page_no: int, default 1</strong></dt><dd><p>Page number of the total result.
 This is used when you have lots of data and only want to check them part by part.</p>
 </dd>
@@ -812,17 +804,13 @@ This is used when you have lots of data and only want to check them part by part
 <dt><strong>name: str</strong></dt><dd><p>Name of the data you want to query.
 Notice that it’s a fuzzy query.</p>
 </dd>
-<dt><strong>create_start_time: Iterable, default None</strong></dt><dd><dl class="simple">
-<dt>An iterable object. For example:</dt><dd><p>(2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.</p>
+<dt><strong>create_start_time: Iterable, default None</strong></dt><dd><p>An iterable object. For example:
+(2023, 1, 1, 12, 30, 30) means querying datasets created after 2023-01-01T12:30:30.
+Hour, minute and second are optional.</p>
 </dd>
-</dl>
-<p>Hour, minute and second are optional.</p>
-</dd>
-<dt><strong>create_end_time: Iterable, default None</strong></dt><dd><dl class="simple">
-<dt>An iterable object. For example:</dt><dd><p>(2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.</p>
-</dd>
-</dl>
-<p>Hour, minute and second are optional.</p>
+<dt><strong>create_end_time: Iterable, default None</strong></dt><dd><p>An iterable object. For example:
+(2023, 1, 1, 12, 30, 30) means querying datasets created before 2023-01-01T12:30:30.
+Hour, minute and second are optional.</p>
 </dd>
 <dt><strong>sort_by: str, default ‘CREATED_AT’</strong></dt><dd><p>A sort field that can only choose from this list:
 [‘NAME’, ‘CREATED_AT’, ‘UPDATED_AT’]</p>
@@ -1101,7 +1089,7 @@ which means the model will predict different objects in different data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl>
-<dt>List[Dict]:</dt><dd><p>A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
+<dt>List[Dict]</dt><dd><p>A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
 Here’s an example of objects:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
     <span class="p">{</span>
@@ -1180,7 +1168,7 @@ which means the model will predict different objects in different data.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>List[Dict]:</dt><dd><p>A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.</p>
+<dt>List[Dict]</dt><dd><p>A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.</p>
 </dd>
 </dl>
 </dd>
