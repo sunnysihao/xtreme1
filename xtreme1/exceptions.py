@@ -20,9 +20,7 @@ class DatasetIdException(SDKException):
 
 
 class ConverterException(SDKException):
-    """
-
-    """
+    code = 'ANNOTATIONS_DO_NOT_SUPPORT_THIS_FORMAT'
 
 
 EXCEPTIONS = {
