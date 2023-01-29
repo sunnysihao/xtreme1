@@ -69,6 +69,7 @@
   <h1>Source code for xtreme1.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">FrozenSet</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">ParamException</span>
 
@@ -108,7 +109,8 @@
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
 
-<div class="viewcode-block" id="Model.show_classes"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.Model.show_classes">[docs]</a>    <span class="k">def</span> <span class="nf">show_classes</span><span class="p">(</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_classes</span><span class="p">(</span>
             <span class="bp">self</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FrozenSet</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -120,7 +122,47 @@
 <span class="sd">            Various classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">}</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_predict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">max_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">params</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">data_id</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
+                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;You need to pass either data_id or dataset_id !!!&#39;</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">min_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="n">min_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">max_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+            <span class="n">max_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;dataId&#39;</span><span class="p">:</span> <span class="n">data_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;minConfidence&#39;</span><span class="p">:</span> <span class="n">min_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="s1">&#39;maxConfidence&#39;</span><span class="p">:</span> <span class="n">max_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="p">}</span>
+            <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+            <span class="n">total</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">total</span></div>
 
 
 <div class="viewcode-block" id="ImageModel"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.ImageModel">[docs]</a><span class="k">class</span> <span class="nc">ImageModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
@@ -134,8 +176,8 @@
 
 <div class="viewcode-block" id="ImageModel.predict"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.ImageModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">classes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">],</span>
-            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+            <span class="n">classes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span>
+            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
             <span class="n">max_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">data_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -145,16 +187,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        classes: Union[List[List[str]], List[str], str]</span>
+<span class="sd">        classes: Optional[Union[str, List[str]]]</span>
 <span class="sd">            Object classes.</span>
+<span class="sd">            If this parameter is `None`, all the classes will be predicted.</span>
 <span class="sd">            If you pass a &#39;str&#39;, the model will predict the given object in each data.</span>
 <span class="sd">            If you pass a list of &#39;str&#39;, the model will predict all the given objects in each data.</span>
-<span class="sd">            If you pass a nested list, the function will match &#39;classes&#39; and &#39;data_id&#39; first,</span>
-<span class="sd">            which means the model will predict different objects in different data.</span>
-<span class="sd">        min_confidence: Union[Union[int, float], List[Union[int, float]]]</span>
-<span class="sd">            Filter all the results that has a lower confidence than &#39;min_confidence&#39;.</span>
+<span class="sd">        min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5</span>
+<span class="sd">            Filter out all the results that has a lower confidence than &#39;min_confidence&#39;.</span>
+<span class="sd">            Range from [0.5, 1].</span>
 <span class="sd">        max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</span>
-<span class="sd">            Filter all the results that has a higher confidence than &#39;max_confidence&#39;.</span>
+<span class="sd">            Filter out all the results that has a higher confidence than &#39;max_confidence&#39;.</span>
+<span class="sd">            Range from [0.5, 1].</span>
 <span class="sd">        data_id: Optional[Union[str, List[str]]], default None</span>
 <span class="sd">            If you pass this parameter, the model will only predict the given data.</span>
 <span class="sd">        dataset_id: Optional[str], default None</span>
@@ -183,47 +226,18 @@
 <span class="sd">                    }</span>
 <span class="sd">                ]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">data_id</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
-                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;You need to pass either data_id or dataset_id !!!&#39;</span><span class="p">)</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;model/image/recognition&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">classes</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">])</span>
 
-        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">min_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-            <span class="n">min_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">max_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-            <span class="n">max_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Wrong shape of &#39;classes&#39;. Can not match &#39;data_id&#39; !!!&quot;</span><span class="p">)</span>
-
-        <span class="n">total</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;model/image/recognition&#39;</span>
-            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;dataId&#39;</span><span class="p">:</span> <span class="n">data_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;minConfidence&#39;</span><span class="p">:</span> <span class="n">min_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;maxConfidence&#39;</span><span class="p">:</span> <span class="n">max_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;classes&#39;</span><span class="p">:</span> <span class="n">classes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="p">}</span>
-
-            <span class="n">total</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">))</span>
-
-        <span class="c1"># total = [x[&#39;modelResult&#39;] for x in total]</span>
-        <span class="k">return</span> <span class="n">total</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">min_confidence</span><span class="o">=</span><span class="n">min_confidence</span><span class="p">,</span>
+            <span class="n">max_confidence</span><span class="o">=</span><span class="n">max_confidence</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="o">=</span><span class="n">dataset_id</span><span class="p">,</span>
+            <span class="n">classes</span><span class="o">=</span><span class="n">classes</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PointCloudModel"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.PointCloudModel">[docs]</a><span class="k">class</span> <span class="nc">PointCloudModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
@@ -237,8 +251,8 @@
 
 <div class="viewcode-block" id="PointCloudModel.predict"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.models.PointCloudModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">classes</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]],</span>
+            <span class="n">classes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span>
+            <span class="n">min_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
             <span class="n">max_confidence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">data_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -248,15 +262,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        classes: Union[List[List[str]], List[str], str]</span>
+<span class="sd">        classes: Optional[Union[str, List[str]]]</span>
 <span class="sd">            Object classes.</span>
+<span class="sd">            If this parameter is `None`, all the classes will be predicted.</span>
 <span class="sd">            If you pass a &#39;str&#39;, the model will predict the given object in each data.</span>
 <span class="sd">            If you pass a list of &#39;str&#39;, the model will predict all the given objects in each data.</span>
-<span class="sd">            If you pass a nested list, the function will match &#39;classes&#39; and &#39;data_id&#39; first,</span>
-<span class="sd">            which means the model will predict different objects in different data.</span>
-<span class="sd">        min_confidence: Union[Union[int, float], List[Union[int, float]]]</span>
-
+<span class="sd">        min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5</span>
+<span class="sd">            Filter out all the results that has a lower confidence than &#39;min_confidence&#39;.</span>
+<span class="sd">            Range from [0.5, 1].</span>
 <span class="sd">        max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</span>
+<span class="sd">            Filter out all the results that has a higher confidence than &#39;max_confidence&#39;.</span>
+<span class="sd">            Range from [0.5, 1].</span>
 <span class="sd">        data_id: Optional[Union[str, List[str]]], default None</span>
 <span class="sd">            If you pass this parameter, the model will only predict the given data.</span>
 <span class="sd">        dataset_id: Optional[str], default None</span>
@@ -266,46 +282,44 @@
 <span class="sd">        -------</span>
 <span class="sd">        List[Dict]</span>
 <span class="sd">            A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.</span>
+<span class="sd">            Here&#39;s an example of objects::</span>
+
+<span class="sd">                [</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &#39;size3D&#39;: {</span>
+<span class="sd">                            &#39;x&#39;: 4.305268414854595,</span>
+<span class="sd">                            &#39;y&#39;: 1.616233427608904,</span>
+<span class="sd">                            &#39;z&#39;: 1.519332468509674</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &#39;objType&#39;: &#39;3d&#39;,</span>
+<span class="sd">                        &#39;center3D&#39;: {</span>
+<span class="sd">                            &#39;x&#39;: -13.985993934930775,</span>
+<span class="sd">                            &#39;y&#39;: 9.282877771446682,</span>
+<span class="sd">                            &#39;z&#39;: 0.5724581182003021</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &#39;confidence&#39;: 0.8834354877471924,</span>
+<span class="sd">                        &#39;modelClass&#39;: &#39;Car&#39;,</span>
+<span class="sd">                        &#39;rotation3D&#39;: {</span>
+<span class="sd">                            &#39;x&#39;: 0,</span>
+<span class="sd">                            &#39;y&#39;: 0,</span>
+<span class="sd">                            &#39;z&#39;: -2.3066487312316895</span>
+<span class="sd">                        }</span>
+<span class="sd">                    },</span>
+<span class="sd">                    ...</span>
+<span class="sd">                ]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;model/pointCloud/recognition&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">classes</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">data_id</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_under_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
-                <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;You need to pass either data_id or dataset_id !!!&#39;</span><span class="p">)</span>
-
-        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">min_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-            <span class="n">min_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">max_confidence</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-            <span class="n">max_confidence</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_confidence</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">classes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-            <span class="n">classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">classes</span><span class="p">]</span> <span class="o">*</span> <span class="n">n</span>
-
-        <span class="n">total</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-            <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;model/image/recognition&#39;</span>
-            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;dataId&#39;</span><span class="p">:</span> <span class="n">data_id</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;minConfidence&#39;</span><span class="p">:</span> <span class="n">min_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;maxConfidence&#39;</span><span class="p">:</span> <span class="n">max_confidence</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                <span class="s1">&#39;classes&#39;</span><span class="p">:</span> <span class="n">classes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="p">}</span>
-
-            <span class="n">total</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">))</span>
-
-        <span class="c1"># total = [x[&#39;modelResult&#39;] for x in total]</span>
-        <span class="k">return</span> <span class="n">total</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">min_confidence</span><span class="o">=</span><span class="n">min_confidence</span><span class="p">,</span>
+            <span class="n">max_confidence</span><span class="o">=</span><span class="n">max_confidence</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="o">=</span><span class="n">dataset_id</span><span class="p">,</span>
+            <span class="n">classes</span><span class="o">=</span><span class="n">classes</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
            </div>

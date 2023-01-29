@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import List, Union, Optional, Dict, FrozenSet
+from functools import reduce
 
 from .exceptions import ParamException
 
@@ -39,7 +40,8 @@ class Model:
     ):
         self._client = client
 
-    def show_classes(
+    @property
+    def all_classes(
             self
     ) -> Dict[str, FrozenSet]:
         """
@@ -53,6 +55,46 @@ class Model:
 
         return {x.name: x.value for x in self.classes}
 
+    def _predict(
+            self,
+            endpoint: str,
+            min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
+            max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
+            data_id: Optional[Union[str, List[str]]] = None,
+            dataset_id: Optional[str] = None,
+            **params
+    ) -> List[Dict]:
+        if data_id:
+            if type(data_id) == str:
+                data_id = [data_id]
+        else:
+            if dataset_id:
+                data = self._client.query_data_under_dataset(dataset_id)
+                data_id = [x['id'] for x in data['list']]
+            else:
+                raise ParamException(message='You need to pass either data_id or dataset_id !!!')
+
+        n = len(data_id)
+
+        if type(min_confidence) in [int, float]:
+            min_confidence = [min_confidence] * n
+
+        if type(max_confidence) in [int, float]:
+            max_confidence = [max_confidence] * n
+
+        total = []
+        for i in range(n):
+            payload = {
+                'dataId': data_id[i],
+                'minConfidence': min_confidence[i],
+                'maxConfidence': max_confidence[i],
+            }
+            payload.update(params)
+
+            total.append(self._client.api.post_request(endpoint, payload=payload))
+
+        return total
+
 
 class ImageModel(Model):
     classes = ImageModelClass
@@ -65,8 +107,8 @@ class ImageModel(Model):
 
     def predict(
             self,
-            classes: Union[List[List[str]], List[str], str],
-            min_confidence: Union[Union[int, float], List[Union[int, float]]],
+            classes: Optional[Union[str, List[str]]],
+            min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
             max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
             data_id: Optional[Union[str, List[str]]] = None,
             dataset_id: Optional[str] = None
@@ -76,16 +118,17 @@ class ImageModel(Model):
 
         Parameters
         ----------
-        classes: Union[List[List[str]], List[str], str]
+        classes: Optional[Union[str, List[str]]]
             Object classes.
+            If this parameter is `None`, all the classes will be predicted.
             If you pass a 'str', the model will predict the given object in each data.
             If you pass a list of 'str', the model will predict all the given objects in each data.
-            If you pass a nested list, the function will match 'classes' and 'data_id' first,
-            which means the model will predict different objects in different data.
-        min_confidence: Union[Union[int, float], List[Union[int, float]]]
-            Filter all the results that has a lower confidence than 'min_confidence'.
+        min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5
+            Filter out all the results that has a lower confidence than 'min_confidence'.
+            Range from [0.5, 1].
         max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1
-            Filter all the results that has a higher confidence than 'max_confidence'.
+            Filter out all the results that has a higher confidence than 'max_confidence'.
+            Range from [0.5, 1].
         data_id: Optional[Union[str, List[str]]], default None
             If you pass this parameter, the model will only predict the given data.
         dataset_id: Optional[str], default None
@@ -114,47 +157,18 @@ class ImageModel(Model):
                     }
                 ]
         """
-        if data_id:
-            if type(data_id) == str:
-                data_id = [data_id]
-        else:
-            if dataset_id:
-                data = self._client.query_data_under_dataset(dataset_id)
-                data_id = [x['id'] for x in data['list']]
-            else:
-                raise ParamException(message='You need to pass either data_id or dataset_id !!!')
+        endpoint = 'model/image/recognition'
+        if not classes:
+            classes = reduce(lambda x, y: x + y, [list(c.value) for c in self.classes])
 
-        n = len(data_id)
-
-        if type(min_confidence) in [int, float]:
-            min_confidence = [min_confidence] * n
-
-        if type(max_confidence) in [int, float]:
-            max_confidence = [max_confidence] * n
-
-        if type(classes) == str:
-            classes = [classes]
-
-        if type(classes[0]) == str:
-            classes = [classes] * n
-
-        if len(classes) != n:
-            raise ParamException(message="Wrong shape of 'classes'. Can not match 'data_id' !!!")
-
-        total = []
-        for i in range(n):
-            endpoint = f'model/image/recognition'
-            payload = {
-                'dataId': data_id[i],
-                'minConfidence': min_confidence[i],
-                'maxConfidence': max_confidence[i],
-                'classes': classes[i]
-            }
-
-            total.append(self._client.api.post_request(endpoint, payload=payload))
-
-        # total = [x['modelResult'] for x in total]
-        return total
+        return self._predict(
+            endpoint=endpoint,
+            min_confidence=min_confidence,
+            max_confidence=max_confidence,
+            data_id=data_id,
+            dataset_id=dataset_id,
+            classes=classes
+        )
 
 
 class PointCloudModel(Model):
@@ -168,8 +182,8 @@ class PointCloudModel(Model):
 
     def predict(
             self,
-            classes: Union[List[List[str]], List[str]],
-            min_confidence: Union[Union[int, float], List[Union[int, float]]],
+            classes: Optional[Union[str, List[str]]],
+            min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
             max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
             data_id: Optional[Union[str, List[str]]] = None,
             dataset_id: Optional[str] = None
@@ -179,15 +193,17 @@ class PointCloudModel(Model):
 
         Parameters
         ----------
-        classes: Union[List[List[str]], List[str], str]
+        classes: Optional[Union[str, List[str]]]
             Object classes.
+            If this parameter is `None`, all the classes will be predicted.
             If you pass a 'str', the model will predict the given object in each data.
             If you pass a list of 'str', the model will predict all the given objects in each data.
-            If you pass a nested list, the function will match 'classes' and 'data_id' first,
-            which means the model will predict different objects in different data.
-        min_confidence: Union[Union[int, float], List[Union[int, float]]]
-
+        min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5
+            Filter out all the results that has a lower confidence than 'min_confidence'.
+            Range from [0.5, 1].
         max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1
+            Filter out all the results that has a higher confidence than 'max_confidence'.
+            Range from [0.5, 1].
         data_id: Optional[Union[str, List[str]]], default None
             If you pass this parameter, the model will only predict the given data.
         dataset_id: Optional[str], default None
@@ -197,43 +213,41 @@ class PointCloudModel(Model):
         -------
         List[Dict]
             A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
+            Here's an example of objects::
+
+                [
+                    {
+                        'size3D': {
+                            'x': 4.305268414854595,
+                            'y': 1.616233427608904,
+                            'z': 1.519332468509674
+                        },
+                        'objType': '3d',
+                        'center3D': {
+                            'x': -13.985993934930775,
+                            'y': 9.282877771446682,
+                            'z': 0.5724581182003021
+                        },
+                        'confidence': 0.8834354877471924,
+                        'modelClass': 'Car',
+                        'rotation3D': {
+                            'x': 0,
+                            'y': 0,
+                            'z': -2.3066487312316895
+                        }
+                    },
+                    ...
+                ]
         """
+        endpoint = 'model/pointCloud/recognition'
+        if not classes:
+            classes = reduce(lambda x, y: x + y, [list(c.value) for c in self.classes])
 
-        if data_id:
-            if type(data_id) == str:
-                data_id = [data_id]
-        else:
-            if dataset_id:
-                data = self._client.query_data_under_dataset(dataset_id)
-                data_id = [x['id'] for x in data['list']]
-            else:
-                raise ParamException(message='You need to pass either data_id or dataset_id !!!')
-
-        n = len(data_id)
-
-        if type(min_confidence) in [int, float]:
-            min_confidence = [min_confidence] * n
-
-        if type(max_confidence) in [int, float]:
-            max_confidence = [max_confidence] * n
-
-        if type(classes) == str:
-            classes = [classes]
-
-        if type(classes[0]) == str:
-            classes = [classes] * n
-
-        total = []
-        for i in range(n):
-            endpoint = f'model/image/recognition'
-            payload = {
-                'dataId': data_id[i],
-                'minConfidence': min_confidence[i],
-                'maxConfidence': max_confidence[i],
-                'classes': classes[i]
-            }
-
-            total.append(self._client.api.post_request(endpoint, payload=payload))
-
-        # total = [x['modelResult'] for x in total]
-        return total
+        return self._predict(
+            endpoint=endpoint,
+            min_confidence=min_confidence,
+            max_confidence=max_confidence,
+            data_id=data_id,
+            dataset_id=dataset_id,
+            classes=classes
+        )

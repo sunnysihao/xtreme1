@@ -166,7 +166,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#xtreme1.models.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#xtreme1.models.Model.classes"><code class="docutils literal notranslate"><span class="pre">Model.classes</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#xtreme1.models.Model.show_classes"><code class="docutils literal notranslate"><span class="pre">Model.show_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#xtreme1.models.Model.all_classes"><code class="docutils literal notranslate"><span class="pre">Model.all_classes</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#xtreme1.models.ImageModel"><code class="docutils literal notranslate"><span class="pre">ImageModel</span></code></a><ul>
@@ -999,30 +999,20 @@ If not find target data, returns ‘No data’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#xtreme1.models.Model.all_classes" title="xtreme1.models.Model.all_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_classes</span></code></a></dt><dd><p>Return all classes which are supported by a trained model as a dict.</p>
+</dd>
 <dt><strong>classes</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#xtreme1.models.Model.show_classes" title="xtreme1.models.Model.show_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_classes</span></code></a>()</p></td>
-<td><p>Return all classes which are supported by a trained model as a dict.</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="xtreme1.models.Model.classes">
 <span class="sig-name descname"><span class="pre">classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#xtreme1.models.Model.classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="xtreme1.models.Model.show_classes">
-<span class="sig-name descname"><span class="pre">show_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FrozenSet</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/xtreme1/models.html#Model.show_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.Model.show_classes" title="Permalink to this definition"></a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="xtreme1.models.Model.all_classes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FrozenSet</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#xtreme1.models.Model.all_classes" title="Permalink to this definition"></a></dt>
 <dd><p>Return all classes which are supported by a trained model as a dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1040,6 +1030,14 @@ If not find target data, returns ‘No data’.</p>
 <dt class="sig sig-object py" id="xtreme1.models.ImageModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">xtreme1.models.</span></span><span class="sig-name descname"><span class="pre">ImageModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xtreme1/models.html#ImageModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.ImageModel" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#xtreme1.models.Model" title="xtreme1.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_classes</span></code></dt><dd><p>Return all classes which are supported by a trained model as a dict.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -1050,11 +1048,8 @@ If not find target data, returns ‘No data’.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#xtreme1.models.ImageModel.classes" title="xtreme1.models.ImageModel.classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">classes</span></code></a></p></td>
 <td><p>alias of <a class="reference internal" href="#xtreme1.models.ImageModelClass" title="xtreme1.models.ImageModelClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageModelClass</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#xtreme1.models.ImageModel.predict" title="xtreme1.models.ImageModel.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(classes, min_confidence[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#xtreme1.models.ImageModel.predict" title="xtreme1.models.ImageModel.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(classes[, min_confidence, ...])</p></td>
 <td><p>Use a trained model to recognize given objects in an image.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_classes</span></code>()</p></td>
-<td><p>Return all classes which are supported by a trained model as a dict.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1066,20 +1061,21 @@ If not find target data, returns ‘No data’.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="xtreme1.models.ImageModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/xtreme1/models.html#ImageModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.ImageModel.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/xtreme1/models.html#ImageModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.ImageModel.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Use a trained model to recognize given objects in an image.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>classes: Union[List[List[str]], List[str], str]</strong></dt><dd><p>Object classes.
+<dt><strong>classes: Optional[Union[str, List[str]]]</strong></dt><dd><p>Object classes.
+If this parameter is <cite>None</cite>, all the classes will be predicted.
 If you pass a ‘str’, the model will predict the given object in each data.
-If you pass a list of ‘str’, the model will predict all the given objects in each data.
-If you pass a nested list, the function will match ‘classes’ and ‘data_id’ first,
-which means the model will predict different objects in different data.</p>
+If you pass a list of ‘str’, the model will predict all the given objects in each data.</p>
 </dd>
-<dt><strong>min_confidence: Union[Union[int, float], List[Union[int, float]]]</strong></dt><dd><p>Filter all the results that has a lower confidence than ‘min_confidence’.</p>
+<dt><strong>min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5</strong></dt><dd><p>Filter out all the results that has a lower confidence than ‘min_confidence’.
+Range from [0.5, 1].</p>
 </dd>
-<dt><strong>max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</strong></dt><dd><p>Filter all the results that has a higher confidence than ‘max_confidence’.</p>
+<dt><strong>max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</strong></dt><dd><p>Filter out all the results that has a higher confidence than ‘max_confidence’.
+Range from [0.5, 1].</p>
 </dd>
 <dt><strong>data_id: Optional[Union[str, List[str]]], default None</strong></dt><dd><p>If you pass this parameter, the model will only predict the given data.</p>
 </dd>
@@ -1121,6 +1117,14 @@ Here’s an example of objects:</p>
 <dt class="sig sig-object py" id="xtreme1.models.PointCloudModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">xtreme1.models.</span></span><span class="sig-name descname"><span class="pre">PointCloudModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xtreme1/models.html#PointCloudModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.PointCloudModel" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#xtreme1.models.Model" title="xtreme1.models.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">all_classes</span></code></dt><dd><p>Return all classes which are supported by a trained model as a dict.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -1131,11 +1135,8 @@ Here’s an example of objects:</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#xtreme1.models.PointCloudModel.classes" title="xtreme1.models.PointCloudModel.classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">classes</span></code></a></p></td>
 <td><p>alias of <a class="reference internal" href="#xtreme1.models.PointCloudModelClass" title="xtreme1.models.PointCloudModelClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PointCloudModelClass</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#xtreme1.models.PointCloudModel.predict" title="xtreme1.models.PointCloudModel.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(classes, min_confidence[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#xtreme1.models.PointCloudModel.predict" title="xtreme1.models.PointCloudModel.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(classes[, min_confidence, ...])</p></td>
 <td><p>Use a trained model to recognize given objects in a point cloud.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">show_classes</span></code>()</p></td>
-<td><p>Return all classes which are supported by a trained model as a dict.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1147,19 +1148,22 @@ Here’s an example of objects:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="xtreme1.models.PointCloudModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xtreme1/models.html#PointCloudModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.PointCloudModel.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/xtreme1/models.html#PointCloudModel.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#xtreme1.models.PointCloudModel.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Use a trained model to recognize given objects in a point cloud.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>classes: Union[List[List[str]], List[str], str]</strong></dt><dd><p>Object classes.
+<dt><strong>classes: Optional[Union[str, List[str]]]</strong></dt><dd><p>Object classes.
+If this parameter is <cite>None</cite>, all the classes will be predicted.
 If you pass a ‘str’, the model will predict the given object in each data.
-If you pass a list of ‘str’, the model will predict all the given objects in each data.
-If you pass a nested list, the function will match ‘classes’ and ‘data_id’ first,
-which means the model will predict different objects in different data.</p>
+If you pass a list of ‘str’, the model will predict all the given objects in each data.</p>
 </dd>
-<dt><strong>min_confidence: Union[Union[int, float], List[Union[int, float]]]</strong></dt><dd></dd>
-<dt><strong>max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</strong></dt><dd></dd>
+<dt><strong>min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5</strong></dt><dd><p>Filter out all the results that has a lower confidence than ‘min_confidence’.
+Range from [0.5, 1].</p>
+</dd>
+<dt><strong>max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1</strong></dt><dd><p>Filter out all the results that has a higher confidence than ‘max_confidence’.
+Range from [0.5, 1].</p>
+</dd>
 <dt><strong>data_id: Optional[Union[str, List[str]]], default None</strong></dt><dd><p>If you pass this parameter, the model will only predict the given data.</p>
 </dd>
 <dt><strong>dataset_id: Optional[str], default None</strong></dt><dd><p>If you pass this parameter, the model will predict all the data under this dataset.</p>
@@ -1167,8 +1171,34 @@ which means the model will predict different objects in different data.</p>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>List[Dict]</dt><dd><p>A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.</p>
+<dd class="field-even"><dl>
+<dt>List[Dict]</dt><dd><p>A list of data dict. Each dict represents a copy of data, containing all the boxes predicted by the model.
+Here’s an example of objects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s1">&#39;size3D&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mf">4.305268414854595</span><span class="p">,</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mf">1.616233427608904</span><span class="p">,</span>
+            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mf">1.519332468509674</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;objType&#39;</span><span class="p">:</span> <span class="s1">&#39;3d&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;center3D&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">13.985993934930775</span><span class="p">,</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mf">9.282877771446682</span><span class="p">,</span>
+            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mf">0.5724581182003021</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;confidence&#39;</span><span class="p">:</span> <span class="mf">0.8834354877471924</span><span class="p">,</span>
+        <span class="s1">&#39;modelClass&#39;</span><span class="p">:</span> <span class="s1">&#39;Car&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rotation3D&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.3066487312316895</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd>
