@@ -1,11 +1,13 @@
-from .standard import *
-from .to_coco import *
+from .standard import _to_json, _to_csv, _to_txt, _to_xml
+from .to_coco import _to_coco
+from .to_voc import _to_voc
+from .to_yolo import _to_yolo
 
 
 class Annotation:
     _SUPPORTED_FORMAT_INFO = {
-        "STANDARD_JSON": {
-            "description": 'Basic AI standard format'
+        "JSON": {
+            "description": 'Basic AI standard json format'
         },
         "CSV": {
             "description"
@@ -81,14 +83,20 @@ class Annotation:
 
         """
         format = format.upper()
-        if format == 'STANDARD_JSON':
-            self.to_standard_json(export_folder)
+        if format == 'JSON':
+            self.to_json(export_folder)
         elif format == 'CSV':
-            self.to_csv(self.annotation, export_folder)
+            self.to_csv(export_folder)
+        elif format == 'XML':
+            self.to_coco(export_folder)
+        elif format == 'TXT':
+            self.to_coco(export_folder)
         elif format == 'COCO':
             self.to_coco(export_folder)
+        elif format == 'VOC':
+            self.to_coco(export_folder)
 
-    def to_standard_json(self, export_folder):
+    def to_json(self, export_folder):
         """Convert the saved result to a json file in the xtreme1 standard format.
 
         Parameters
@@ -99,16 +107,46 @@ class Annotation:
         -------
 
         """
-        to_json(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_json(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
 
-    def to_csv(self, input_annotations, export_folder):
-        pass
+    def to_csv(self, export_folder):
+        """
 
-    def to_xml(self, input_annotations, export_folder):
-        pass
+        Parameters
+        ----------
+        export_folder
 
-    def to_txt(self, input_annotations, export_folder):
-        pass
+        Returns
+        -------
+
+        """
+        _to_csv(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+
+    def to_xml(self, export_folder):
+        """
+
+        Parameters
+        ----------
+        export_folder
+
+        Returns
+        -------
+
+        """
+        _to_xml(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+
+    def to_txt(self, export_folder):
+        """
+
+        Parameters
+        ----------
+        export_folder
+
+        Returns
+        -------
+
+        """
+        _to_txt(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
 
     def to_coco(self, export_folder):
         """
@@ -121,10 +159,30 @@ class Annotation:
         -------
 
         """
-        to_coco(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_coco(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
 
-    def to_voc(self, input_annotations, export_folder):
-        pass
+    def to_voc(self, export_folder):
+        """
 
-    def to_yolo(self, input_annotations, export_folder):
-        pass
+        Parameters
+        ----------
+        export_folder
+
+        Returns
+        -------
+
+        """
+        _to_voc(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+
+    def to_yolo(self, export_folder):
+        """
+
+        Parameters
+        ----------
+        export_folder
+
+        Returns
+        -------
+
+        """
+        _to_yolo(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
