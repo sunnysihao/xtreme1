@@ -607,7 +607,8 @@ class Client:
             self,
             dataset_id: str,
             data_ids: Union[str, List[str], None] = None,
-            limit: int = 5000
+            limit: int = 5000,
+            dropna: bool = False
     ) -> Annotation:
         """
         Query both the data information and the annotation result of a specific dataset or a list of datasets.
@@ -638,6 +639,9 @@ class Client:
             }
             for data in resp['data'][:limit]
         ]
+
+        if dropna:
+            annotation = list(filter(lambda x: x['result'], annotation))
 
         return Annotation(
             resp['version'],

@@ -194,7 +194,21 @@ class Dataset:
 
     def show_progress(
             self
-    ):
+    ) -> Pie:
+        """
+        Show an interacting progress 'echarts'.
+
+        Returns
+        -------
+        Pie
+            A pie chart, which can be saved as a html file or rendered on your jupyter notebook.
+            Use pie.render(YOUR HTML PATH) to save the progress.
+            Use pie.render_notebook() to show the progress on your jupyter notebook.
+            If `render_notebook()` doesn't work, add these codes::
+
+                from pyecharts.globals import CurrentConfig, NotebookType
+                CurrentConfig.NOTEBOOK_TYPE=NotebookType.JUPYTER_LAB
+        """
         progress_cnt = [
             ['Annotated', self.annotated_count],
             ['Not Annotated', self.unannotated_count],
