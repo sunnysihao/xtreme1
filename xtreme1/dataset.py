@@ -1,5 +1,8 @@
 from typing import List, Dict, Optional, Union
 
+from pyecharts import options as opts
+from pyecharts.charts import Pie
+
 
 class Dataset:
 
@@ -188,3 +191,28 @@ class Dataset:
             dataset_id=self.id,
             remain_directory_structure=remain_directory_structure
         )
+
+    def show_progress(
+            self
+    ):
+        progress_cnt = [
+            ['Annotated', self.annotated_count],
+            ['Not Annotated', self.unannotated_count],
+            ['Invalid', self.invalid_count],
+        ]
+        progress_pie = Pie()
+        progress_pie.add(
+            "",
+            progress_cnt,
+            radius=["50%", "70%"],
+            center=["30%", "50%"]
+        )
+
+        progress_pie.set_global_opts(
+            title_opts=opts.TitleOpts(title="Progress"),
+            legend_opts=opts.LegendOpts(orient="vertical", pos_top="50%", pos_right="20%"),
+        )
+
+        progress_pie.set_colors(['rgb(104,173,254)', 'rgb(170,170,170)', 'rgb(252,177,122)'])
+
+        return progress_pie
