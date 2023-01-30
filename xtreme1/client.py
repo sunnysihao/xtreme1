@@ -611,7 +611,7 @@ class Client:
             dropna: bool = False
     ) -> Annotation:
         """
-        Query both the data information and the annotation result of a specific dataset or a list of datasets.
+        Query both the data information and the annotation result of a specific dataset.
         Accept a 'data_ids' parameter to query specific data.
 
         Parameters
@@ -623,6 +623,8 @@ class Client:
         limit: int, default 5000
             The max number of returned annotation results.
             Change this parameter according to your system memory.
+        dropna: bool, default False
+            Whether the unannotated data is preserved or not.
 
         Returns
         -------
@@ -649,4 +651,27 @@ class Client:
             version=resp['version'],
             dataset_id=resp['datasetId'],
             export_time=resp['exportTime']
+        )
+
+    def query_classes_stat(
+            self,
+            dataset_id: str
+    ) -> Dict:
+        """
+        Query the distribution of annotated classes.
+
+        Parameters
+        ----------
+        dataset_id: str
+            The id of the dataset you want to query.
+
+        Returns
+        -------
+        Dict
+            The statistic of the annotation result.
+        """
+        endpoint = f'dataset/{dataset_id}/statistics/classObject'
+
+        return self.api.get_request(
+            endpoint=endpoint
         )
