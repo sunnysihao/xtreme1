@@ -657,6 +657,19 @@ class Client:
             self,
             dataset_id: str
     ) -> Dict:
+        """
+        Query the distribution of annotated classes.
+
+        Parameters
+        ----------
+        dataset_id: str
+            The id of the dataset you want to query.
+
+        Returns
+        -------
+        Dict
+            The statistic of the annotation result.
+        """
         endpoint = f'dataset/{dataset_id}/statistics/classObject'
 
         return self.api.get_request(

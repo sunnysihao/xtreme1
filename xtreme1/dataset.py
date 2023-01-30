@@ -5,6 +5,7 @@ from pyecharts.charts import Pie
 
 from .exporter.annotation import Annotation
 
+
 class Dataset:
 
     def __init__(
@@ -265,6 +266,20 @@ class Dataset:
 
         return progress_pie
 
+    def query_classes_stat(
+            self
+    ) -> Dict:
+        """
+        Query the distribution of annotated classes.
+
+        Returns
+        -------
+        Dict
+            The statistic of the annotation result.
+        """
+        return self._client.query_classes_stat(
+            dataset_id=self.id
+        )
     # def classes_stat(
     #         self
     # ) -> Dict[str, Dict[str, int]]:
