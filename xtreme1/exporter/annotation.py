@@ -4,44 +4,46 @@ from .to_voc import _to_voc
 from .to_yolo import _to_yolo
 
 
-class Annotation:
-    _SUPPORTED_FORMAT_INFO = {
+__supported_format__ = {
         "JSON": {
             "description": 'Basic AI standard json format'
         },
         "CSV": {
-            "description"
+            "description": ''
         },
         "XML": {
-            "description"
+            "description": ''
         },
         "TXT": {
-            "description"
+            "description": ''
         },
         "COCO": {
-            "description"
+            "description": ''
         },
         "VOC": {
-            "description"
+            "description": ''
         },
         "YOLO": {
-            "description"
+            "description": ''
         },
     }
 
+class Annotation:
+    _SUPPORTED_FORMAT_INFO = __supported_format__
+
     def __init__(
             self,
-            version,
-            dataset_id,
+            annotation,
             dataset_name,
-            export_time,
-            annotation_data
+            version=None,
+            dataset_id=None,
+            export_time=None
     ):
         self.version = version
         self.dataset_id = dataset_id
         self.dataset_name = dataset_name
         self.export_time = export_time
-        self.annotation = annotation_data
+        self.annotation = annotation
 
     def __str__(self):
         return f"Annotation(dataset_id={self.dataset_id}, dataset_name={self.dataset_name})"
@@ -88,13 +90,15 @@ class Annotation:
         elif format == 'CSV':
             self.to_csv(export_folder)
         elif format == 'XML':
-            self.to_coco(export_folder)
+            self.to_xml(export_folder)
         elif format == 'TXT':
-            self.to_coco(export_folder)
+            self.to_txt(export_folder)
         elif format == 'COCO':
             self.to_coco(export_folder)
         elif format == 'VOC':
-            self.to_coco(export_folder)
+            self.to_voc(export_folder)
+        elif format == 'YOLO':
+            self.to_yolo(export_folder)
 
     def to_json(self, export_folder):
         """Convert the saved result to a json file in the xtreme1 standard format.
@@ -107,7 +111,7 @@ class Annotation:
         -------
 
         """
-        _to_json(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_json(annotation=self.annotation, export_folder=export_folder)
 
     def to_csv(self, export_folder):
         """

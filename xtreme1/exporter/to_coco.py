@@ -84,8 +84,7 @@ def _to_coco(annotation: list, dataset_name: str, export_folder: str):
                                 "segmentation": segmentation,
                                 "area": aera,
                                 "bbox": [],
-                                "iscrowd": 0,
-                                "attributes": attributes
+                                "iscrowd": 0
                             }
                         elif tool_type == 'POLYLINE':
                             keypoints = []
