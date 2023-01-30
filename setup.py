@@ -24,9 +24,4 @@ setuptools.setup(
         'requests'
     ],
     python_requires='>=3.9',  # 对python的最低版本要求
-    install_requires=[
-        'pyecharts',
-        'rich',
-        'requests'
-    ],
 )
