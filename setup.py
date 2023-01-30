@@ -18,6 +18,11 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    install_requires=[
+        'pyecharts',
+        'rich',
+        'requests'
+    ],
     python_requires='>=3.9',  # 对python的最低版本要求
     install_requires=[
         'pyecharts',
