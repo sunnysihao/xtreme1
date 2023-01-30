@@ -6,7 +6,7 @@ from rich.progress import track
 from tqdm import tqdm
 
 
-def _to_json(annotation: dict, dataset_name: str, export_folder: str):
+def _to_json(annotation: list, dataset_name: str, export_folder: str):
     save_folder = join(export_folder, f'x1 dataset {dataset_name} annotations')
     if not exists(save_folder):
         os.makedirs(save_folder, exist_ok=True)

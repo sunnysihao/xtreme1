@@ -644,9 +644,9 @@ class Client:
             annotation = list(filter(lambda x: x['result'], annotation))
 
         return Annotation(
-            resp['version'],
-            resp['datasetId'],
-            resp['datasetName'],
-            resp['exportTime'],
-            annotation
+            annotation=annotation,
+            dataset_name=resp['datasetName'],
+            version=resp['version'],
+            dataset_id=resp['datasetId'],
+            export_time=resp['exportTime']
         )
