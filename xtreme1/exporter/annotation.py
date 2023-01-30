@@ -111,7 +111,7 @@ class Annotation:
         -------
 
         """
-        _to_json(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_json(annotation=self.annotation, export_folder=export_folder)
 
     def to_csv(self, export_folder):
         """

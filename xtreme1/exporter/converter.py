@@ -2,7 +2,7 @@ import zipfile
 import json
 from os.path import *
 from tqdm import tqdm
-from annotation import __supported_format__, Annotation
+from .annotation import __supported_format__, Annotation
 import os
 
 
@@ -70,34 +70,66 @@ class Result:
     def tail(self, count=5):
         return self.annotation[-count:]
 
-    def converter(self, format: str, export_folder: str):
+    def converter(self, format: str, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.converter(format=format, export_folder=export_folder)
 
-    def to_json(self, export_folder):
+    def to_json(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_json(export_folder=export_folder)
 
-    def to_csv(self, export_folder):
+    def to_csv(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_csv(export_folder=export_folder)
 
-    def to_xml(self, export_folder):
+    def to_xml(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_xml(export_folder=export_folder)
 
-    def to_txt(self, export_folder):
+    def to_txt(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_txt(export_folder=export_folder)
 
-    def to_coco(self, export_folder):
+    def to_coco(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_coco(export_folder=export_folder)
 
-    def to_voc(self, export_folder):
+    def to_voc(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_voc(export_folder=export_folder)
 
-    def to_yolo(self, export_folder):
+    def to_yolo(self, export_folder: str = None):
 
+        if export_folder:
+            export_folder = export_folder
+        else:
+            export_folder = self.export_folder
         self.annotation.to_yolo(export_folder=export_folder)
