@@ -611,7 +611,7 @@ class Client:
             dropna: bool = False
     ) -> Annotation:
         """
-        Query both the data information and the annotation result of a specific dataset or a list of datasets.
+        Query both the data information and the annotation result of a specific dataset.
         Accept a 'data_ids' parameter to query specific data.
 
         Parameters
@@ -651,4 +651,14 @@ class Client:
             resp['datasetName'],
             datetime.strptime(resp['exportTime'], '%Y%m%d%H%M%S'),
             annotation
+        )
+
+    def query_classes_stat(
+            self,
+            dataset_id: str
+    ) -> Dict:
+        endpoint = f'dataset/{dataset_id}/statistics/classObject'
+
+        return self.api.get_request(
+            endpoint=endpoint
         )

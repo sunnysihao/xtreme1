@@ -3,6 +3,7 @@ from typing import List, Dict, Optional, Union
 from pyecharts import options as opts
 from pyecharts.charts import Pie
 
+from .exporter.annotation import Annotation
 
 class Dataset:
 
@@ -19,7 +20,6 @@ class Dataset:
         self.unannotated_count = org_json.get('notAnnotatedCount')
         self.invalid_count = org_json.get('invalidCount')
         self.item_count = org_json.get('itemCount')
-        self.data = org_json.get('datas')
         self._client = client
 
     def __str__(self):
@@ -192,6 +192,40 @@ class Dataset:
             remain_directory_structure=remain_directory_structure
         )
 
+    def query_data_and_result(
+            self,
+            data_ids: Union[str, List[str], None] = None,
+            limit: int = 5000,
+            dropna: bool = False
+    ) -> Annotation:
+        """
+        Query both the data information and the annotation result of current dataset.
+        Accept a 'data_ids' parameter to query specific data.
+
+        Parameters
+        ----------
+        data_ids: Union[str, List[str], None], default None
+            The id or ids of the data you want to query.
+        limit: int, default 5000
+            The max number of returned annotation results.
+            Change this parameter according to your system memory.
+        dropna: bool, default False
+            Whether the unannotated data is preserved or not.
+
+        Returns
+        -------
+        Annotation
+            An instance of Annotation class.
+            It has some methods to convert the format of annotation result.
+        """
+
+        return self._client.query_data_and_result(
+            dataset_id=self.id,
+            data_ids=data_ids,
+            limit=limit,
+            dropna=dropna
+        )
+
     def show_progress(
             self
     ) -> Pie:
@@ -230,3 +264,20 @@ class Dataset:
         progress_pie.set_colors(['rgb(104,173,254)', 'rgb(170,170,170)', 'rgb(252,177,122)'])
 
         return progress_pie
+
+    # def classes_stat(
+    #         self
+    # ) -> Dict[str, Dict[str, int]]:
+    #     self.query_data_and_result(limit=1000)
+    #
+    #     class_dict = {}
+    #     for x in result:
+    #         objs = x['objects']
+    #         for obj in objs:
+    #             ann_tool = obj['type']
+    #             obj_type = obj.get('className')
+    #             if ann_tool not in class_dict:
+    #                 class_dict[ann_tool] = {}
+    #             if obj_type not in class_dict[ann_tool]:
+    #                 class_dict[ann_tool][obj_type] = 0
+    #             class_dict[ann_tool][obj_type] += int(bool(obj_type))
