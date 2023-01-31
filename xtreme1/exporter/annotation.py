@@ -62,10 +62,34 @@ class Annotation:
 
         return self._SUPPORTED_FORMAT_INFO
 
-    def head(self, count=5):
+    def head(self, count: int = 5):
+        """
+
+        Parameters
+        ----------
+        count: int
+            Displays the first n results in the list. The default number is 5
+
+        Returns
+        -------
+        list
+            Result list
+        """
         return self.annotation[:count]
 
     def tail(self, count=5):
+        """
+
+        Parameters
+        ----------
+        count: int
+            Displays the last n results in the list. The default number is 5
+
+        Returns
+        -------
+        list
+            Result list
+        """
         return self.annotation[-count:]
 
     def converter(self, format: str, export_folder: str):
@@ -75,10 +99,10 @@ class Annotation:
         Parameters
         ----------
         format: str
-            Target format
+            Target format,Optional (JSON, CSV, XML, TXT, COCO, VOC, YOLO, LABEL_ME). Case insensitive
 
         export_folder: str
-
+            The path to save the conversion result
 
         Returns
         -------
@@ -154,6 +178,9 @@ class Annotation:
 
     def to_coco(self, export_folder):
         """
+        Export data in coco format, and the resulting format varies somewhat depending on the tool type
+        (RECTANGLE,POLYGON,POLYLINE,KEYPOINTS).
+        Note that exports in this format only support image-type annotations.
 
         Parameters
         ----------

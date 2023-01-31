@@ -2,7 +2,7 @@ import os
 import json
 import cv2
 import numpy as np
-from tqdm import tqdm
+from rich.progress import track
 from datetime import datetime
 from os.path import join, exists
 from .._version import __version__
@@ -20,7 +20,7 @@ def _to_coco(annotation: list, dataset_name: str, export_folder: str):
     img_id = 0
     object_id = 0
     category_id = 1
-    for anno in tqdm(annotation, desc='progress'):
+    for anno in track(annotation, description='progress'):
         try:
             img_width = anno['data']['width']
             img_height = anno['data']['height']
