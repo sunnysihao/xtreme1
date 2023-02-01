@@ -1,9 +1,10 @@
 import zipfile
 import json
-from os.path import *
-from .annotation import __supported_format__, Annotation
 import os
-from ..exceptions import SDKException
+
+from os.path import *
+from xtreme1.exporter.annotation import __supported_format__, Annotation
+from xtreme1.exceptions import *
 
 
 class Result:
@@ -29,6 +30,12 @@ class Result:
             os.mkdir(self.export_folder)
         self.dropna = dropna
         self.annotation = Annotation(annotation=self.__reconstitution(), dataset_name=self.dataset_name)
+
+    def __setattr__(self, key, value):
+        if key == '_SUPPORTED_FORMAT':
+            raise NoPermissionException(message='You are performing an operation that is not allowed')
+        else:
+            self.__dict__[key] = value
 
     def __reconstitution(self):
         dropna = self.dropna
@@ -91,9 +98,9 @@ class Result:
             export_folder = self.export_folder
         return export_folder
 
-    def converter(self, format: str, export_folder: str = None):
+    def convert(self, format: str, export_folder: str = None):
 
-        self.annotation.converter(format=format, export_folder=self.__ensure_dir(export_folder))
+        self.annotation.convert(format=format, export_folder=self.__ensure_dir(export_folder))
 
     def to_json(self, export_folder: str = None):
 
