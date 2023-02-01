@@ -1,18 +1,26 @@
 import zipfile
 import json
 from os.path import *
-from tqdm import tqdm
 from .annotation import __supported_format__, Annotation
 import os
+from ..exceptions import SDKException
 
 
 class Result:
     _SUPPORTED_FORMAT_INFO = __supported_format__
 
-    def __init__(self, src_zipfile: str, export_folder: str = None, dropna: bool = False):
-        self.src_zipfile = src_zipfile
+    def __init__(self,
+                 src_zipfile: str,
+                 export_folder: str = None,
+                 dropna: bool = False
+                 ):
+        if zipfile.is_zipfile(src_zipfile):
+            self.src_zipfile = src_zipfile
+        else:
+            print('This is not zip')
+            raise SDKException(code='SourceError', message=f'{src_zipfile} is not zip')
         zip_name = basename(src_zipfile)
-        self.dataset_name = splitext(zip_name)[0].split('-')[0]
+        self.dataset_name = '-'.join(splitext(zip_name)[0].split('-')[:-1])
         if export_folder:
             self.export_folder = export_folder
         else:
@@ -61,7 +69,13 @@ class Result:
         return f"Offline annotation(dataset_name={self.dataset_name})"
 
     def supported_format(self):
+        """Query the supported conversion format.
 
+        Returns
+        -------
+        dict
+            Formats that support transformations
+        """
         return self._SUPPORTED_FORMAT_INFO
 
     def head(self, count=5):
@@ -70,66 +84,41 @@ class Result:
     def tail(self, count=5):
         return self.annotation[-count:]
 
-    def converter(self, format: str, export_folder: str = None):
-
-        if export_folder:
-            export_folder = export_folder
+    def __ensure_dir(self, input_dir):
+        if input_dir:
+            export_folder = input_dir
         else:
             export_folder = self.export_folder
-        self.annotation.converter(format=format, export_folder=export_folder)
+        return export_folder
+
+    def converter(self, format: str, export_folder: str = None):
+
+        self.annotation.converter(format=format, export_folder=self.__ensure_dir(export_folder))
 
     def to_json(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_json(export_folder=export_folder)
+        self.annotation.to_json(export_folder=self.__ensure_dir(export_folder))
 
     def to_csv(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_csv(export_folder=export_folder)
+        self.annotation.to_csv(export_folder=self.__ensure_dir(export_folder))
 
     def to_xml(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_xml(export_folder=export_folder)
+        self.annotation.to_xml(export_folder=self.__ensure_dir(export_folder))
 
     def to_txt(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_txt(export_folder=export_folder)
+        self.annotation.to_txt(export_folder=self.__ensure_dir(export_folder))
 
     def to_coco(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_coco(export_folder=export_folder)
+        self.annotation.to_coco(export_folder=self.__ensure_dir(export_folder))
 
     def to_voc(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_voc(export_folder=export_folder)
+        self.annotation.to_voc(export_folder=self.__ensure_dir(export_folder))
 
     def to_yolo(self, export_folder: str = None):
 
-        if export_folder:
-            export_folder = export_folder
-        else:
-            export_folder = self.export_folder
-        self.annotation.to_yolo(export_folder=export_folder)
+        self.annotation.to_yolo(export_folder=self.__ensure_dir(export_folder))

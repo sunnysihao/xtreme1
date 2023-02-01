@@ -3,13 +3,12 @@ import os
 import json
 from os.path import *
 from rich.progress import track
-from tqdm import tqdm
 
 
 def _to_json(annotation: list, export_folder: str):
     if not exists(export_folder):
         os.makedirs(export_folder, exist_ok=True)
-    for anno in tqdm(annotation, desc='progress'):
+    for anno in track(annotation, description='progress'):
         file_name = f"{anno['data'].get('name')}-{anno['data'].get('id')}"
         json_file = join(export_folder, file_name + '.json')
         with open(json_file, 'w', encoding='utf-8') as f:

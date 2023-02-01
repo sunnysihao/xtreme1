@@ -23,6 +23,10 @@ class ConverterException(SDKException):
     code = 'ANNOTATIONS_DO_NOT_SUPPORT_THIS_FORMAT'
 
 
+class SourceException(SDKException):
+    code = ''
+
+
 EXCEPTIONS = {
     ParamException.code: ParamException,
     DatasetIdException.code: DatasetIdException

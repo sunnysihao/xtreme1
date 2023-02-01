@@ -623,8 +623,6 @@ class Client:
         limit: int, default 5000
             The max number of returned annotation results.
             Change this parameter according to your system memory.
-        dropna: bool, default False
-            Whether the unannotated data is preserved or not.
 
         Returns
         -------
