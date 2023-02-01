@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List, Dict, Optional, Union, Iterable
+from typing import List, Dict, Optional, Union, Iterable, Tuple
 from datetime import datetime
 
 import requests
@@ -173,7 +173,7 @@ class Client:
             sort_by: str = 'CREATED_AT',
             ascending: Optional[bool] = True,
             dataset_type: Optional[str] = None
-    ) -> List[Dataset]:
+    ) -> Tuple[List[Dataset], int]:
         """
         Query a specific dataset or query several datasets with some filters.
 
@@ -209,7 +209,7 @@ class Client:
 
         Returns
         -------
-        List[Dataset]
+        Tuple[List[Dataset], int]
             A list of Dataset classes.
             Notice that this function only returns one dataset at a time unless you change the 'page_size' parameter.
         """
@@ -228,8 +228,9 @@ class Client:
         )
 
         datasets = [Dataset(d, self) for d in resp['list']]
+        total = resp['total']
 
-        return datasets
+        return datasets, total
 
     def query_data_under_dataset(
             self,
@@ -623,6 +624,8 @@ class Client:
         limit: int, default 5000
             The max number of returned annotation results.
             Change this parameter according to your system memory.
+        dropna: bool, default False
+            Whether drop no result data or not.
 
         Returns
         -------
@@ -673,6 +676,27 @@ class Client:
         return self.api.get_request(
             endpoint=endpoint
         )
+
+    def query_ontology_class(
+            self,
+            dataset_id,
+            page_no: int = 1,
+            page_size: int = 100,
+    ) -> Tuple[Dict, int]:
+        endpoint = 'datasetClass/findByPage'
+
+        params = {
+            'datasetId': dataset_id,
+            'pageNo': page_no,
+            'pageSize': page_size
+        }
+
+        resp = self.api.get_request(
+            endpoint=endpoint,
+            params=params
+        )
+
+        return resp['list'], resp['total']
 
     def import_ontology(
             self,

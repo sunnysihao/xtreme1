@@ -91,7 +91,7 @@ class AttrsNode(Node):
             name,
             options: Optional[List] = None,
             input_type: str = 'RADIO',
-            required: bool = True
+            required: bool = False
     ):
         super().__init__(
             name=name,
@@ -151,7 +151,7 @@ def _to_dict(
         node
 ):
     result = {}
-    attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes', 'options', 'type']
+    attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes', 'options', 'type', 'required']
     for attr_ in attrs:
         value = getattr(node, attr_, None)
         attr = _to_camel(attr_)
@@ -183,3 +183,35 @@ def gen_ontology(
         result['classifications'].append(_to_dict(cf))
 
     return result
+
+
+def _to_node(
+        ontos
+):
+    total = []
+    for node in ontos:
+        if 'toolType' in node:
+            cur_node = ClassRoot(
+                name=node['name'],
+                color=node['color'],
+                tool_type=node['toolType'],
+                tool_type_options=node['toolTypeOptions'],
+                attrs=_to_node(node['attributes'])
+            )
+        else:
+            if 'options' in node:
+                cur_node = AttrsNode(
+                    name=node['name'],
+                    input_type=node['type'],
+                    required=node['required'],
+                    options=_to_node(node['options'])
+                )
+            else:
+                cur_node = OptionNode(
+                    name=node['name'],
+                    attrs=_to_node(node['attributes'])
+                )
+
+        total.append(cur_node)
+
+    return total
