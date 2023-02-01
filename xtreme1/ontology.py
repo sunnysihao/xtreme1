@@ -1,6 +1,6 @@
 import warnings
 from functools import reduce
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 
 class Nodes:
@@ -168,17 +168,21 @@ def _to_dict(
 
 
 def gen_ontology(
-        classes: List[ClassRoot] = None,
-        classifications: List = None
+        classes: Union[ClassRoot, List[ClassRoot]] = None,
+        classifications: Union[AttrsNode, List[AttrsNode]] = None
 ):
     result = {
         'classes': [],
         'classifications': []
     }
 
+    if type(classes) == ClassRoot:
+        classes = [classes]
+    if type(classifications) == AttrsNode:
+        classifications = [classifications]
+
     for c in classes:
         result['classes'].append(_to_dict(c))
-
     for cf in classifications:
         result['classifications'].append(_to_dict(cf))
 
