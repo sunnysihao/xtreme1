@@ -93,6 +93,7 @@ class Api:
             self,
             endpoint: str,
             payload: Optional[Dict] = None,
+            data: Optional[Dict] = None,
             files: Optional[Dict] = None,
             headers: bool = True,
             full_url: Optional[str] = None
@@ -106,6 +107,8 @@ class Api:
             The endpoint of current api url.
         payload: Optional[Dict], default None
             Parameters to add in 'POST' request.
+        data: Optional[Dict], default None
+            Data to add in 'POST' request.
         files: Optional[Dict], default None
             Files to upload.
         headers: bool, default True
@@ -124,6 +127,7 @@ class Api:
             method='POST',
             headers=headers,
             endpoint=endpoint,
+            data=data,
             json=payload,
             files=files,
             full_url=full_url

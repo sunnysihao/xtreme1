@@ -675,3 +675,27 @@ class Client:
         return self.api.get_request(
             endpoint=endpoint
         )
+
+    def import_ontology(
+            self,
+            json_path,
+            des_id: str,
+            des_type: str = 'DATASET',
+    ):
+        endpoint = 'ontology/importByJson'
+
+        data = {
+            'desType': des_type,
+            'desId': des_id,
+            'file': (os.path.split(json_path)[1], open(json_path, 'rb'))
+        }
+
+        files = {
+            'file': (os.path.split(json_path)[1], open(json_path, 'rb'))
+        }
+
+        return self.api.post_request(
+            endpoint=endpoint,
+            data=data,
+            files=files
+        )
