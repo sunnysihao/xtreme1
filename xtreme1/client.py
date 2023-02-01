@@ -1,4 +1,6 @@
 import os
+import json
+from io import BytesIO
 from pathlib import Path
 from typing import List, Dict, Optional, Union, Iterable, Tuple
 from datetime import datetime
@@ -701,7 +703,7 @@ class Client:
 
     def import_ontology(
             self,
-            json_path,
+            onto,
             des_id: str,
             des_type: str = 'DATASET',
     ):
@@ -709,12 +711,16 @@ class Client:
 
         data = {
             'desType': des_type,
-            'desId': des_id,
-            'file': (os.path.split(json_path)[1], open(json_path, 'rb'))
+            'desId': des_id
         }
 
+        if type(onto) == str:
+            file = open(onto, 'rb')
+        else:
+            file = BytesIO(json.dumps(onto).encode())
+
         files = {
-            'file': (os.path.split(json_path)[1], open(json_path, 'rb'))
+            'file': ('ontology.json', file)
         }
 
         return self.api.post_request(
