@@ -11,6 +11,7 @@ from .dataset import Dataset
 from .exceptions import SDKException, ParamException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
+from .ontology import _to_node
 
 
 class Client:
@@ -696,7 +697,7 @@ class Client:
             params=params
         )
 
-        return resp['list'], resp['total']
+        return _to_node(resp['list']), resp['total']
 
     def import_ontology(
             self,
