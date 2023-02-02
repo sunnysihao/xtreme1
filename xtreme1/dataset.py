@@ -4,7 +4,7 @@ from pyecharts import options as opts
 from pyecharts.charts import Pie
 
 from .exporter.annotation import Annotation
-
+from .ontology import Ontology
 
 class Dataset:
 
@@ -280,19 +280,11 @@ class Dataset:
         return self._client.query_classes_stat(
             dataset_id=self.id
         )
-    # def classes_stat(
-    #         self
-    # ) -> Dict[str, Dict[str, int]]:
-    #     self.query_data_and_result(limit=1000)
-    #
-    #     class_dict = {}
-    #     for x in result:
-    #         objs = x['objects']
-    #         for obj in objs:
-    #             ann_tool = obj['type']
-    #             obj_type = obj.get('className')
-    #             if ann_tool not in class_dict:
-    #                 class_dict[ann_tool] = {}
-    #             if obj_type not in class_dict[ann_tool]:
-    #                 class_dict[ann_tool][obj_type] = 0
-    #             class_dict[ann_tool][obj_type] += int(bool(obj_type))
+
+    def query_ontology(
+            self
+    ) -> Ontology:
+        return self._client.query_ontology(
+            des_id=self.id,
+            source='dataset'
+        )

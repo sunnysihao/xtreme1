@@ -680,40 +680,28 @@ class Client:
             endpoint=endpoint
         )
 
-    def _query_ontology_class(
+    def _query_ontology(
             self,
-            dataset_id,
+            endpoint: str,
+            des_id: str,
             page_no: int = 1,
             page_size: int = 100,
-    ) -> List[Dict]:
-        endpoint = 'datasetClass/findByPage'
+    ):
+        if 'dataset' not in endpoint:
+            params = {
+                'ontologyId': des_id,
+            }
+        else:
+            params = {
+                'datasetId': des_id,
+            }
 
-        params = {
-            'datasetId': dataset_id,
-            'pageNo': page_no,
-            'pageSize': page_size
-        }
-
-        resp = self.api.get_request(
-            endpoint=endpoint,
-            params=params
+        params.update(
+            {
+                'pageNo': page_no,
+                'pageSize': page_size
+            }
         )
-
-        return resp['list']
-
-    def _query_ontology_classification(
-            self,
-            dataset_id,
-            page_no: int = 1,
-            page_size: int = 100,
-    ) -> List[Dict]:
-        endpoint = 'datasetClassification/findByPage'
-
-        params = {
-            'datasetId': dataset_id,
-            'pageNo': page_no,
-            'pageSize': page_size
-        }
 
         resp = self.api.get_request(
             endpoint=endpoint,
@@ -724,27 +712,64 @@ class Client:
 
     def query_ontology(
             self,
-            dataset_id
+            des_id: str,
+            source: str = 'dataset'
     ):
-        classes = self._query_ontology_class(
-            dataset_id=dataset_id
+        source = source.lower()
+        classes = self._query_ontology(
+            endpoint='class/findByPage' if 'ontology' in source else 'datasetClass/findByPage',
+            des_id=des_id
         )
-        # classifications = self._query_ontology_classification(
-        #     dataset_id=dataset_id
+
+        # classifications = self._query_ontology(
+        #     endpoint = 'classification/findByPage' if 'ontology' in source.lower() else 'datasetClassification/findByPage',
+        #     des_id = des_id
         # )
 
         return Ontology(
-            self,
+            client=self,
+            source=source,
             classes=classes,
-            classifications=[]
+            classifications=[],
+            des_id=des_id
         )
 
-    def gen_ontology(
-            self
-    ) -> Ontology:
-        return Ontology(self)
+    def del_ontology_cls(
+            self,
+            onto_type: str,
+            cls_id,
+            source: str = 'dataset'
+    ):
+        onto_type = onto_type.lower()
+        endpoint = (f'{onto_type}' if 'ontology' in source else f'dataset{onto_type.capitalize()}') + f'/delete/{cls_id}'
 
-    def import_ontology(
+        resp = self.api.post_request(
+            endpoint=endpoint
+        )
+
+        return resp
+
+    def gen_ontology(
+            self,
+            source: str = 'dataset',
+            onto_path: str = None
+    ) -> Ontology:
+        onto = {
+            'classes': [],
+            'classifications': []
+        }
+
+        if onto_path:
+            onto = json.load(open(onto_path, 'r', encoding='utf-8-sig'))
+
+        return Ontology(
+            client=self,
+            source=source,
+            classes=onto['classes'],
+            classifications=onto['classifications']
+        )
+
+    def _import_ontology(
             self,
             onto,
             des_id: str,
@@ -757,13 +782,7 @@ class Client:
             'desId': des_id
         }
 
-        if type(onto) == str:
-            file = open(onto, 'rb')
-        elif type(onto) == Ontology:
-            file = BytesIO(json.dumps(onto.to_dict()).encode())
-        else:
-            file = BytesIO(json.dumps(onto).encode())
-
+        file = BytesIO(json.dumps(onto.to_dict()).encode())
         files = {
             'file': ('ontology.json', file)
         }
