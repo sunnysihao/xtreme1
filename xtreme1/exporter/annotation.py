@@ -1,35 +1,40 @@
-from .standard import _to_json, _to_csv, _to_txt, _to_xml
-from .to_coco import _to_coco
-from .to_voc import _to_voc
-from .to_yolo import _to_yolo
-
+from xtreme1.exporter.standard import _to_json, _to_csv, _to_txt, _to_xml
+from xtreme1.exporter.popular import _to_coco, _to_voc, _to_yolo, _to_labelme, _to_kitti
+from xtreme1.exceptions import *
 
 __supported_format__ = {
-        "JSON": {
-            "description": 'Basic AI standard json format'
-        },
-        "CSV": {
-            "description": ''
-        },
-        "XML": {
-            "description": ''
-        },
-        "TXT": {
-            "description": ''
-        },
-        "COCO": {
-            "description": ''
-        },
-        "VOC": {
-            "description": ''
-        },
-        "YOLO": {
-            "description": ''
-        },
+    "JSON": {
+        "description": 'Basic AI standard json format'
+    },
+    "CSV": {
+        "description": ''
+    },
+    "XML": {
+        "description": ''
+    },
+    "TXT": {
+        "description": ''
+    },
+    "COCO": {
+        "description": ''
+    },
+    "VOC": {
+        "description": ''
+    },
+    "YOLO": {
+        "description": ''
+    },
+    "LABELME":{
+        "description": ''
+    },
+    "KITTI": {
+        "description": ''
     }
+}
+
 
 class Annotation:
-    _SUPPORTED_FORMAT_INFO = __supported_format__
+    _SUPPORTED_FORMAT = __supported_format__
 
     def __init__(
             self,
@@ -51,6 +56,12 @@ class Annotation:
     def __repr__(self):
         return f"Annotation(dataset_id={self.dataset_id}, dataset_name={self.dataset_name})"
 
+    def __setattr__(self, key, value):
+        if key == '_SUPPORTED_FORMAT':
+            raise NoPermissionException(message='You are performing an operation that is not allowed')
+        else:
+            self.__dict__[key] = value
+
     def supported_format(self):
         """Query the supported conversion format.
 
@@ -60,7 +71,7 @@ class Annotation:
             Formats that support transformations
         """
 
-        return self._SUPPORTED_FORMAT_INFO
+        return self._SUPPORTED_FORMAT
 
     def head(self, count: int = 5):
         """
@@ -92,7 +103,7 @@ class Annotation:
         """
         return self.annotation[-count:]
 
-    def converter(self, format: str, export_folder: str):
+    def convert(self, format: str, export_folder: str):
         """Convert the saved result to a target format.
         Find more info, see `description <https://docs.xtreme1.io/xtreme1-docs>`_.
 
@@ -123,6 +134,10 @@ class Annotation:
             self.to_voc(export_folder)
         elif format == 'YOLO':
             self.to_yolo(export_folder)
+        elif format == 'LABELME':
+            self.to_yolo(export_folder)
+        elif format == 'KITTI':
+            self.to_kitti(export_folder)
 
     def to_json(self, export_folder):
         """Convert the saved result to a json file in the xtreme1 standard format.
@@ -217,3 +232,20 @@ class Annotation:
 
         """
         _to_yolo(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+
+    def to_labelme(self, export_folder):
+        _to_labelme(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+
+    def to_kitti(self, export_folder):
+        """
+
+        Parameters
+        ----------
+        export_folder
+
+        Returns
+        -------
+
+        """
+        _to_kitti(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+

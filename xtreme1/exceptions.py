@@ -26,6 +26,9 @@ class ConverterException(SDKException):
 class SourceException(SDKException):
     code = ''
 
+class NoPermissionException(SDKException):
+    code = 'NO_PERMISSION'
+
 
 EXCEPTIONS = {
     ParamException.code: ParamException,
