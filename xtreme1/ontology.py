@@ -20,28 +20,146 @@ class Nodes:
             self
     ):
         members = {f'<{n.__class__.__name__}> {n.name}' for n in self.nodes}
-        return f'<Nodes> members: {members}'
+        return f'<{self.__class__.__name__}> members: {members}'
 
     def __str__(
             self
     ):
         members = {f'<{n.__class__.__name__}> {n.name}' for n in self.nodes}
-        return f'<Nodes> members: {members}'
+        return f'<{self.__class__.__name__}> members: {members}'
+
+    def get(
+            self,
+            name
+    ):
+        for node in self.nodes:
+            if node.name == name:
+                return node
 
     def append(
             self,
             node
     ):
-        rela_dict = {
-            'ClassRoot': 'AttrsNode',
-            'AttrsNode': 'OptionNode',
-            'OptionNode': 'AttrsNode'
-        }
-        assert rela_dict[self._parent.__class__.__name__] == node.__class__.__name__
+        assert isinstance(node, RELA_DICT[self._parent.__class__])
 
         self.nodes.add(node)
         node._parent = self._parent
-        setattr(self, node.name, node)
+
+    def remove(
+            self,
+            name
+    ):
+        self.nodes.remove(self.get(name))
+
+    def gen_node(
+            self,
+            **kwargs
+    ):
+        node = RELA_DICT[self._parent.__class__](**kwargs)
+        self.append(node)
+
+        return node
+
+
+class Ontology:
+    __slots__ = ['classes', 'classifications', '_client']
+
+    def __init__(
+            self,
+            client,
+            classes: Optional[List] = None,
+            classifications: Optional[List] = None
+    ):
+        self._client = client
+        if classes is None:
+            classes = []
+        if classifications is None:
+            classifications = []
+        self.classes = Nodes(self._to_node(classes), self)
+        self.classifications = Nodes(self._to_node(classifications), self)
+
+    def __str__(
+            self
+    ):
+        classes = {f'<{n.__class__.__name__}> {n.name}' for n in self.classes.nodes}
+        classifications = {f'<{n.__class__.__name__}> {n.name}' for n in self.classifications.nodes}
+        return f'<{self.__class__.__name__}> classes: {classes}, classifications: {classifications}'
+
+    @staticmethod
+    def _to_node(
+            ontos,
+            client=None
+    ):
+        total = []
+        for node in ontos:
+            if 'toolType' in node:
+                cur_node = RootNode(
+                    name=node['name'],
+                    color=node['color'],
+                    tool_type=node['toolType'],
+                    tool_type_options=node['toolTypeOptions'],
+                    attrs=Ontology._to_node(node['attributes']),
+                    id_=node['id']
+                )
+            else:
+                if 'options' in node:
+                    cur_node = AttrsNode(
+                        name=node['name'],
+                        input_type=node['type'],
+                        required=node['required'],
+                        options=Ontology._to_node(node['options'])
+                    )
+                else:
+                    cur_node = OptionNode(
+                        name=node['name'],
+                        attrs=Ontology._to_node(node['attributes'])
+                    )
+
+            total.append(cur_node)
+
+        return total
+
+    @staticmethod
+    def _to_camel(
+            var
+    ):
+        parts = var.split('_')
+        return reduce(lambda x, y: x + y.capitalize(), parts)
+
+    @staticmethod
+    def _to_dict(
+            node
+    ):
+        result = {}
+        attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes', 'options', 'type', 'required']
+        for attr_ in attrs:
+            value = getattr(node, attr_, None)
+            attr = Ontology._to_camel(attr_)
+            if value is None:
+                continue
+            if type(value).__name__ == 'Nodes':
+                result[attr] = []
+                for child in value.nodes:
+                    result[attr].append(Ontology._to_dict(child))
+            else:
+                result[attr] = value
+
+        return result
+
+    def to_dict(
+            self
+    ):
+        result = {
+            'classes': [],
+            'classifications': []
+        }
+
+        for c in self.classes.nodes:
+            result['classes'].append(self._to_dict(c))
+        for cf in self.classifications.nodes:
+            result['classifications'].append(self._to_dict(cf))
+
+        return result
 
 
 class Node:
@@ -70,17 +188,6 @@ class Node:
             self
     ):
         return f'<{self.__class__.__name__}> {self.name}'
-
-    def update(
-            self,
-            new_attrs
-    ):
-        for k, v in new_attrs.items():
-            if k == 'name':
-                if self._parent:
-                    delattr(self._parent._nodes, self.name)
-                    setattr(self._parent._nodes, v, self)
-            setattr(self, k, v)
 
 
 class AttrsNode(Node):
@@ -117,20 +224,23 @@ class OptionNode(Node):
         self.attributes = self._nodes
 
 
-class ClassRoot(Node):
-    __slots__ = ['name', 'color', 'tool_type', '_nodes', 'tool_type_options', 'attributes']
+class RootNode(Node):
+    __slots__ = ['_id', 'name', 'color', 'tool_type', '_nodes', 'tool_type_options', 'attributes', '_client']
 
     def __init__(
             self,
             name,
-            color,
             tool_type,
             tool_type_options: Optional[Dict] = None,
-            attrs: Optional[List] = None
+            color: str = '#7dfaf2',
+            attrs: Optional[List] = None,
+            parent: Optional[Ontology] = None,
+            id_: Optional[int] = None,
     ):
         super().__init__(
             name=name,
-            nodes=attrs
+            nodes=attrs,
+            parent=parent
         )
         self.color = color
         self.tool_type = tool_type
@@ -138,84 +248,12 @@ class ClassRoot(Node):
             tool_type_options = {}
         self.tool_type_options = tool_type_options
         self.attributes = self._nodes
+        self._id = id_
 
 
-def _to_camel(
-        var
-):
-    parts = var.split('_')
-    return reduce(lambda x, y: x + y.capitalize(), parts)
-
-
-def _to_dict(
-        node
-):
-    result = {}
-    attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes', 'options', 'type', 'required']
-    for attr_ in attrs:
-        value = getattr(node, attr_, None)
-        attr = _to_camel(attr_)
-        if value is None:
-            continue
-        if type(value).__name__ == 'Nodes':
-            result[attr] = []
-            for child in value.nodes:
-                result[attr].append(_to_dict(child))
-        else:
-            result[attr] = value
-
-    return result
-
-
-def gen_ontology(
-        classes: Union[ClassRoot, List[ClassRoot]] = None,
-        classifications: Union[AttrsNode, List[AttrsNode]] = None
-):
-    result = {
-        'classes': [],
-        'classifications': []
-    }
-
-    if type(classes) == ClassRoot:
-        classes = [classes]
-    if type(classifications) == AttrsNode:
-        classifications = [classifications]
-
-    for c in classes:
-        result['classes'].append(_to_dict(c))
-    for cf in classifications:
-        result['classifications'].append(_to_dict(cf))
-
-    return result
-
-
-def _to_node(
-        ontos
-):
-    total = []
-    for node in ontos:
-        if 'toolType' in node:
-            cur_node = ClassRoot(
-                name=node['name'],
-                color=node['color'],
-                tool_type=node['toolType'],
-                tool_type_options=node['toolTypeOptions'],
-                attrs=_to_node(node['attributes'])
-            )
-        else:
-            if 'options' in node:
-                cur_node = AttrsNode(
-                    name=node['name'],
-                    input_type=node['type'],
-                    required=node['required'],
-                    options=_to_node(node['options'])
-                )
-            else:
-                cur_node = OptionNode(
-                    name=node['name'],
-                    attrs=_to_node(node['attributes'])
-                )
-
-        total.append(cur_node)
-
-    return total
+RELA_DICT = {
+    Ontology: RootNode,
+    RootNode: AttrsNode,
+    AttrsNode: OptionNode,
+    OptionNode: AttrsNode
+}

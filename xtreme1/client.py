@@ -13,7 +13,7 @@ from .dataset import Dataset
 from .exceptions import SDKException, ParamException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
-from .ontology import _to_node
+from .ontology import Ontology
 
 
 class Client:
@@ -680,12 +680,12 @@ class Client:
             endpoint=endpoint
         )
 
-    def query_ontology_class(
+    def _query_ontology_class(
             self,
             dataset_id,
             page_no: int = 1,
             page_size: int = 100,
-    ) -> Tuple[Dict, int]:
+    ) -> List[Dict]:
         endpoint = 'datasetClass/findByPage'
 
         params = {
@@ -699,7 +699,50 @@ class Client:
             params=params
         )
 
-        return _to_node(resp['list']), resp['total']
+        return resp['list']
+
+    def _query_ontology_classification(
+            self,
+            dataset_id,
+            page_no: int = 1,
+            page_size: int = 100,
+    ) -> List[Dict]:
+        endpoint = 'datasetClassification/findByPage'
+
+        params = {
+            'datasetId': dataset_id,
+            'pageNo': page_no,
+            'pageSize': page_size
+        }
+
+        resp = self.api.get_request(
+            endpoint=endpoint,
+            params=params
+        )
+
+        return resp['list']
+
+    def query_ontology(
+            self,
+            dataset_id
+    ):
+        classes = self._query_ontology_class(
+            dataset_id=dataset_id
+        )
+        # classifications = self._query_ontology_classification(
+        #     dataset_id=dataset_id
+        # )
+
+        return Ontology(
+            self,
+            classes=classes,
+            classifications=[]
+        )
+
+    def gen_ontology(
+            self
+    ) -> Ontology:
+        return Ontology(self)
 
     def import_ontology(
             self,
@@ -716,6 +759,8 @@ class Client:
 
         if type(onto) == str:
             file = open(onto, 'rb')
+        elif type(onto) == Ontology:
+            file = BytesIO(json.dumps(onto.to_dict()).encode())
         else:
             file = BytesIO(json.dumps(onto).encode())
 
