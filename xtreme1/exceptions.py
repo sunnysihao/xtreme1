@@ -19,6 +19,10 @@ class DatasetIdException(SDKException):
     code = 'DATASET_NOT_FOUND'
 
 
+class NameDuplicatedException(SDKException):
+    code = 'NAME_DUPLICATED'
+
+
 class ConverterException(SDKException):
     code = 'ANNOTATIONS_DO_NOT_SUPPORT_THIS_FORMAT'
 
@@ -26,11 +30,13 @@ class ConverterException(SDKException):
 class SourceException(SDKException):
     code = ''
 
+
 class NoPermissionException(SDKException):
     code = 'NO_PERMISSION'
 
 
 EXCEPTIONS = {
     ParamException.code: ParamException,
-    DatasetIdException.code: DatasetIdException
+    DatasetIdException.code: DatasetIdException,
+    NameDuplicatedException.code: NameDuplicatedException
 }

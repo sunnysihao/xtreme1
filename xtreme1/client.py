@@ -13,7 +13,7 @@ from .dataset import Dataset
 from .exceptions import SDKException, ParamException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
-from .ontology import Ontology
+from .ontology import Ontology, RootNode
 
 
 class Client:
@@ -406,14 +406,14 @@ class Client:
             self,
             url: str,
             dataset_id: str,
-            source: str
+            des_type: str
     ) -> str:
         endpoint = 'data/upload'
 
         payload = {
             'fileUrl': url,
             'datasetId': dataset_id,
-            'source': source
+            'des_type': des_type
         }
 
         resp = self.api.post_request(endpoint=endpoint, payload=payload)
@@ -713,35 +713,43 @@ class Client:
     def query_ontology(
             self,
             des_id: str,
-            source: str = 'dataset'
+            des_type: str = 'dataset'
     ):
-        source = source.lower()
+        des_type = des_type.lower()
+
+        endpoint1 = ('class' if 'ontology' in des_type else 'datasetClass') + '/findByPage'
         classes = self._query_ontology(
-            endpoint='class/findByPage' if 'ontology' in source else 'datasetClass/findByPage',
+            endpoint=endpoint1,
             des_id=des_id
         )
 
-        # classifications = self._query_ontology(
-        #     endpoint = 'classification/findByPage' if 'ontology' in source.lower() else 'datasetClassification/findByPage',
-        #     des_id = des_id
-        # )
+        endpoint2 = ('classification' if 'ontology' in des_type.lower() else 'datasetClassification') + '/findByPage'
+        classifications = self._query_ontology(
+            endpoint=endpoint2,
+            des_id=des_id
+        )
+
+        classifications = []
 
         return Ontology(
             client=self,
-            source=source,
+            des_type=des_type,
             classes=classes,
-            classifications=[],
+            classifications=classifications,
             des_id=des_id
         )
 
     def del_ontology_cls(
             self,
             onto_type: str,
-            cls_id,
-            source: str = 'dataset'
+            cls_id: str,
+            des_type: str = 'dataset'
     ):
         onto_type = onto_type.lower()
-        endpoint = (f'{onto_type}' if 'ontology' in source else f'dataset{onto_type.capitalize()}') + f'/delete/{cls_id}'
+
+        endpoint = (
+                       f'{onto_type}' if 'ontology' in des_type else f'dataset{onto_type.capitalize()}'
+                   ) + f'/delete/{cls_id}'
 
         resp = self.api.post_request(
             endpoint=endpoint
@@ -751,7 +759,8 @@ class Client:
 
     def gen_ontology(
             self,
-            source: str = 'dataset',
+            des_id: str,
+            des_type: str = 'dataset',
             onto_path: str = None
     ) -> Ontology:
         onto = {
@@ -764,21 +773,22 @@ class Client:
 
         return Ontology(
             client=self,
-            source=source,
+            des_type=des_type,
             classes=onto['classes'],
-            classifications=onto['classifications']
+            classifications=onto['classifications'],
+            des_id=des_id
         )
 
-    def _import_ontology(
+    def import_ontology(
             self,
             onto,
             des_id: str,
-            des_type: str = 'DATASET',
+            des_type: str = 'dataset',
     ):
         endpoint = 'ontology/importByJson'
 
         data = {
-            'desType': des_type,
+            'desType': des_type.upper(),
             'desId': des_id
         }
 
@@ -792,3 +802,34 @@ class Client:
             data=data,
             files=files
         )
+
+    def update_ontology(
+            self,
+            onto: RootNode,
+            onto_type: str,
+            des_id: str,
+            des_type: str = 'dataset',
+            onto_id: Optional[str] = None,
+    ):
+        if not onto_id:
+            onto_id = onto.id
+
+        des_type = des_type.lower()
+        onto_type = onto_type.lower()
+
+        onto_dict = Ontology.to_dict(onto)
+
+        if 'ontology' in des_type:
+            endpoint = f'{onto_type}/update/{onto_id}'
+            onto_dict['ontologyId'] = des_id
+        else:
+            endpoint = f'dataset{onto_type.capitalize()}/update/{onto_id}'
+            onto_dict['datasetId'] = des_id
+
+        resp = self.api.post_request(
+            endpoint=endpoint,
+            payload=onto_dict
+
+        )
+
+        return resp

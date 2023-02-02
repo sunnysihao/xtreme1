@@ -14,7 +14,7 @@ class Nodes:
         self._parent = parent
         if len(nodes) != len(set([n.name for n in nodes])):
             warnings.warn(
-                f'Detect duplicated nodes in <{self._parent.__class__.__name__}> {self._parent.name}. \
+                f'Detect duplicated nodes in <{self._parent}>. \
                 Only the last one will be stored in nodes.'
             )
         self.nodes = []
@@ -45,7 +45,7 @@ class Nodes:
             self,
             node
     ):
-        assert isinstance(node, RELA_DICT[self._parent.__class__])
+        assert isinstance(node, RELA_DICT[self._parent.__class__])  # noqa
 
         self.nodes.append(node)
         node._parent = self._parent
@@ -67,7 +67,7 @@ class Nodes:
 
 
 class Node:
-    __slots__ = ['name', '_nodes', '_parent', '_id']
+    __slots__ = ['name', '_nodes', '_parent', 'id']
 
     def __init__(
             self,
@@ -83,7 +83,7 @@ class Node:
         if type(nodes) == list:
             nodes = Nodes(nodes, self)
         self._nodes = nodes
-        self._id = id_
+        self.id = id_
 
     def __repr__(
             self
@@ -174,20 +174,19 @@ class RootNode(Node):
 
 
 class Ontology:
-    __slots__ = ['classes', 'classifications', 'des_id', 'name', '_client', '_source']
+    __slots__ = ['classes', 'classifications', 'des_id', 'name', '_client', '_des_type']
 
     def __init__(
             self,
             client,
-            source: str,
+            des_type: str,
             classes: Optional[List] = None,
             classifications: Optional[List] = None,
             des_id: str = None
     ):
         self.des_id = des_id
-        self.name = f'The ontology of {self.des_id}'
         self._client = client
-        self._source = source
+        self._des_type = des_type
         if classes is None:
             classes = []
         if classifications is None:
@@ -198,7 +197,7 @@ class Ontology:
     def __repr__(
             self
     ):
-        return f'<{self.__class__.__name__}> {self.name}'
+        return f'<{self.__class__.__name__}> The ontology of {self.des_id}'
 
     def __str__(
             self
@@ -253,38 +252,23 @@ class Ontology:
         return reduce(lambda x, y: x + y.capitalize(), parts)
 
     @staticmethod
-    def _to_dict(
+    def to_dict(
             node
     ):
         result = {}
-        attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes', 'options', 'type', 'required', '_id']
+        attrs = ['classes', 'classifications', 'name', 'color', 'tool_type', 'tool_type_options', 'attributes',
+                 'options', 'type', 'required']
         for attr_ in attrs:
             value = getattr(node, attr_, None)
             attr = Ontology._to_camel(attr_)
-            attr = 'id' if attr_ == '_id' else attr
             if value is None:
                 continue
             if type(value).__name__ == 'Nodes':
                 result[attr] = []
                 for child in value.nodes:
-                    result[attr].append(Ontology._to_dict(child))
+                    result[attr].append(Ontology.to_dict(child))
             else:
                 result[attr] = value
-
-        return result
-
-    def to_dict(
-            self
-    ):
-        result = {
-            'classes': [],
-            'classifications': []
-        }
-
-        for c in self.classes.nodes:
-            result['classes'].append(self._to_dict(c))
-        for cf in self.classifications.nodes:
-            result['classifications'].append(self._to_dict(cf))
 
         return result
 
@@ -305,8 +289,8 @@ class Ontology:
 
         return self._client.del_ontology_cls(
             onto_type=onto_type,
-            cls_id=root_node._id,
-            source=self._source
+            cls_id=root_node.id,
+            des_type=self._des_type
         )
 
 
