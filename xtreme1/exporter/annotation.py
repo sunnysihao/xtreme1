@@ -1,3 +1,7 @@
+import os
+import json
+from rich import print_json
+from os.path import join, exists
 from xtreme1.exporter.standard import _to_json, _to_csv, _to_txt, _to_xml
 from xtreme1.exporter.popular import _to_coco, _to_voc, _to_yolo, _to_labelme, _to_kitti
 from xtreme1.exceptions import *
@@ -64,6 +68,15 @@ class Annotation:
         else:
             self.__dict__[key] = value
 
+    def __gen_dir(self, input_dir):
+        save_folder = join(input_dir, f'x1 dataset {self.dataset_name} annotations')
+        if not exists(save_folder):
+            os.makedirs(save_folder, exist_ok=True)
+        return save_folder
+
+    def view(self, count: int = 5):
+        print_json(json.dumps(self.annotation[:count]))
+
     def supported_format(self):
         """Query the supported conversion format.
 
@@ -105,6 +118,9 @@ class Annotation:
         """
         return self.annotation[-count:]
 
+    def to_dict(self):
+        return self.annotation
+
     def convert(self, format: str, export_folder: str):
         """Convert the saved result to a target format.
         Find more info, see `description <https://docs.xtreme1.io/xtreme1-docs>`_.
@@ -112,7 +128,7 @@ class Annotation:
         Parameters
         ----------
         format: str
-            Target format,Optional (JSON, CSV, XML, TXT, COCO, VOC, YOLO, LABEL_ME). Case insensitive
+            Target format,Optional (JSON, CSV, XML, TXT, COCO, VOC, YOLO, LABEL_ME). Case-insensitive
 
         export_folder: str
             The path to save the conversion result
@@ -123,23 +139,23 @@ class Annotation:
         """
         format = format.upper()
         if format == 'JSON':
-            self.to_json(export_folder)
+            self.to_json(self.__gen_dir(export_folder))
         elif format == 'CSV':
-            self.to_csv(export_folder)
+            self.to_csv(self.__gen_dir(export_folder))
         elif format == 'XML':
-            self.to_xml(export_folder)
+            self.to_xml(self.__gen_dir(export_folder))
         elif format == 'TXT':
-            self.to_txt(export_folder)
+            self.to_txt(self.__gen_dir(export_folder))
         elif format == 'COCO':
-            self.to_coco(export_folder)
+            self.to_coco(self.__gen_dir(export_folder))
         elif format == 'VOC':
-            self.to_voc(export_folder)
+            self.to_voc(self.__gen_dir(export_folder))
         elif format == 'YOLO':
-            self.to_yolo(export_folder)
+            self.to_yolo(self.__gen_dir(export_folder))
         elif format == 'LABELME':
-            self.to_yolo(export_folder)
+            self.to_yolo(self.__gen_dir(export_folder))
         elif format == 'KITTI':
-            self.to_kitti(export_folder)
+            self.to_kitti(self.__gen_dir(export_folder))
 
     def to_json(self, export_folder):
         """Convert the saved result to a json file in the xtreme1 standard format.
@@ -152,10 +168,11 @@ class Annotation:
         -------
 
         """
-        _to_json(annotation=self.annotation, export_folder=export_folder)
+        _to_json(annotation=self.annotation,
+                 export_folder=self.__gen_dir(export_folder))
 
     def to_csv(self, export_folder):
-        """
+        """Convert the saved result to a csv file in the xtreme1 standard format.
 
         Parameters
         ----------
@@ -165,10 +182,12 @@ class Annotation:
         -------
 
         """
-        _to_csv(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_csv(annotation=self.annotation,
+                dataset_name=self.dataset_name,
+                export_folder=self.__gen_dir(export_folder))
 
     def to_xml(self, export_folder):
-        """
+        """Convert the saved result to a xml file in the xtreme1 standard format.
 
         Parameters
         ----------
@@ -178,10 +197,12 @@ class Annotation:
         -------
 
         """
-        _to_xml(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_xml(annotation=self.annotation,
+                dataset_name=self.dataset_name,
+                export_folder=self.__gen_dir(export_folder))
 
     def to_txt(self, export_folder):
-        """
+        """Convert the saved result to a txt file in the xtreme1 standard format.
 
         Parameters
         ----------
@@ -191,7 +212,9 @@ class Annotation:
         -------
 
         """
-        _to_txt(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_txt(annotation=self.annotation,
+                dataset_name=self.dataset_name,
+                export_folder=self.__gen_dir(export_folder))
 
     def to_coco(self, export_folder):
         """
@@ -207,7 +230,9 @@ class Annotation:
         -------
 
         """
-        _to_coco(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_coco(annotation=self.annotation,
+                 dataset_name=self.dataset_name,
+                 export_folder=self.__gen_dir(export_folder))
 
     def to_voc(self, export_folder):
         """
@@ -220,7 +245,9 @@ class Annotation:
         -------
 
         """
-        _to_voc(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_voc(annotation=self.annotation,
+                dataset_name=self.dataset_name,
+                export_folder=self.__gen_dir(export_folder))
 
     def to_yolo(self, export_folder):
         """
@@ -233,10 +260,24 @@ class Annotation:
         -------
 
         """
-        _to_yolo(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_yolo(annotation=self.annotation,
+                 dataset_name=self.dataset_name,
+                 export_folder=self.__gen_dir(export_folder))
 
     def to_labelme(self, export_folder):
-        _to_labelme(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        """Export data in label_me format.
+        Note that exports in this format only support image-type annotations.
+
+        Parameters
+        ----------
+        export_folder
+
+        Returns
+        -------
+
+        """
+        _to_labelme(annotation=self.annotation,
+                    export_folder=self.__gen_dir(export_folder))
 
     def to_kitti(self, export_folder):
         """
@@ -249,4 +290,6 @@ class Annotation:
         -------
 
         """
-        _to_kitti(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
+        _to_kitti(annotation=self.annotation,
+                  dataset_name=self.dataset_name,
+                  export_folder=self.__gen_dir(export_folder))

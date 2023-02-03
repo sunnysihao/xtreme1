@@ -18,14 +18,13 @@ class Result:
         if zipfile.is_zipfile(src_zipfile):
             self.src_zipfile = src_zipfile
         else:
-            print('This is not zip')
             raise SDKException(code='SourceError', message=f'{src_zipfile} is not zip')
         zip_name = basename(src_zipfile)
         self.dataset_name = '-'.join(splitext(zip_name)[0].split('-')[:-1])
         if export_folder:
             self.export_folder = export_folder
         else:
-            self.export_folder = join(dirname(self.src_zipfile), f'x1 dataset {self.dataset_name} annotations')
+            self.export_folder = dirname(self.src_zipfile)
         if not exists(self.export_folder):
             os.mkdir(self.export_folder)
         self.dropna = dropna
@@ -75,6 +74,13 @@ class Result:
     def __repr__(self):
         return f"Offline annotation(dataset_name={self.dataset_name})"
 
+    def __ensure_dir(self, input_dir):
+        if input_dir:
+            export_folder = input_dir
+        else:
+            export_folder = self.export_folder
+        return export_folder
+
     def supported_format(self):
         """Query the supported conversion format.
 
@@ -86,17 +92,16 @@ class Result:
         return self._SUPPORTED_FORMAT_INFO
 
     def head(self, count=5):
-        return self.annotation[:count]
+        self.annotation.head(count)
 
     def tail(self, count=5):
-        return self.annotation[-count:]
+        self.annotation.tail(count)
 
-    def __ensure_dir(self, input_dir):
-        if input_dir:
-            export_folder = input_dir
-        else:
-            export_folder = self.export_folder
-        return export_folder
+    def view(self, count: int = 5):
+        self.annotation.view(count)
+
+    def to_dict(self):
+        self.annotation.to_dict()
 
     def convert(self, format: str, export_folder: str = None):
 
@@ -129,3 +134,7 @@ class Result:
     def to_yolo(self, export_folder: str = None):
 
         self.annotation.to_yolo(export_folder=self.__ensure_dir(export_folder))
+
+    def to_labelme(self, export_folder: str = None):
+
+        self.annotation.to_labelme(export_folder=self.__ensure_dir(export_folder))

@@ -6,13 +6,13 @@ __supported_source_type__ = {
         "description": 'Coco dataset'
     },
     "VOC": {
-        "description": 'Kitti dataset'
+        "description": 'Voc dataset'
     },
     "YOLO": {
-        "description": 'Kitti dataset'
+        "description": 'Yolo dataset'
     },
     "LABELME": {
-        "description": 'Kitti dataset'
+        "description": 'LabelMe dataset'
     },
     "KITTI": {
         "description": 'Kitti dataset'
@@ -62,17 +62,46 @@ class Display:
             self.parse_kitti()
 
     def parse_coco(self):
+        """
+
+        Returns
+        -------
+
+        """
         _coco_to_x1(source=self.source)
 
     def parse_voc(self):
-        _kitti_to_x1(source=self.source)
+        """
+
+        Returns
+        -------
+
+        """
+        _voc_to_x1(source=self.source)
 
     def parse_yolo(self):
-        _kitti_to_x1(source=self.source)
+        """
+
+        Returns
+        -------
+
+        """
+        _yolo_to_x1(source=self.source)
 
     def parse_labelme(self):
-        _kitti_to_x1(source=self.source)
+        """
+
+        Returns
+        -------
+
+        """
+        _labelme_to_x1(source=self.source)
 
     def parse_kitti(self):
-        _kitti_to_x1(source=self.source)
+        """
 
+        Returns
+        -------
+
+        """
+        _kitti_to_x1(source=self.source)
