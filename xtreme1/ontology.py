@@ -2,7 +2,7 @@ import warnings
 from functools import reduce
 from typing import List, Dict, Optional
 
-from .exceptions import ParamException
+from .exceptions import ParamException, NameDuplicatedException
 
 
 class Nodes:
@@ -14,12 +14,11 @@ class Nodes:
         self._parent = parent
         if len(nodes) != len(set([n.name for n in nodes])):
             warnings.warn(
-                f'Detect duplicated nodes in <{self._parent}>. \
-                Only the last one will be stored in nodes.'
+                f'Detect duplicated nodes.'
             )
         self.nodes = []
         for node in nodes:
-            self.append(node)
+            self._append(node)
 
     def __repr__(
             self
@@ -41,11 +40,27 @@ class Nodes:
             if node.name == name:
                 return node
 
-    def append(
+    def _check_duplicated(
             self,
             node
     ):
-        assert isinstance(node, RELA_DICT[self._parent.__class__])  # noqa
+        check_node = self.get(node.name)
+        if check_node:
+            sus_exception = NameDuplicatedException(
+                message='This node already exists!'
+            )
+            if isinstance(node, RootNode):
+                if check_node.tool_type == node.tool_type:
+                    raise sus_exception
+            else:
+                raise sus_exception
+
+    def _append(
+            self,
+            node
+    ):
+        assert isinstance(node, NODE_DICT[self._parent.__class__])  # noqa
+        self._check_duplicated(node=node)
 
         self.nodes.append(node)
         node._parent = self._parent
@@ -56,12 +71,98 @@ class Nodes:
     ):
         self.nodes.remove(self.get(name))
 
-    def gen_node(
+    def _gen_node(
             self,
             **kwargs
     ):
-        node = RELA_DICT[self._parent.__class__](**kwargs)
-        self.append(node)
+        node = NODE_DICT[self._parent.__class__](**kwargs)
+        self._append(node)
+
+        return node
+
+
+class AttrNodes(Nodes):
+    def __init__(
+            self,
+            nodes,
+            parent
+    ):
+        super().__init__(
+            nodes=nodes,
+            parent=parent
+        )
+
+    def gen_node(
+            self,
+            name: str,
+            options: List[str],
+            input_type: str = 'RADIO',
+            required: bool = False,
+    ):
+        node = self._gen_node(
+            name=name,
+            input_type=input_type,
+            required=required
+        )
+
+        for opt in options:
+            opt_node = OptionNode(
+                name=opt
+            )
+            node.options._append(opt_node)
+
+        return node
+
+
+class OptionNodes(Nodes):
+    def __init__(
+            self,
+            nodes,
+            parent
+    ):
+        super().__init__(
+            nodes=nodes,
+            parent=parent
+        )
+
+    def gen_node(
+            self,
+            name: str
+    ):
+        node = self._gen_node(
+            name=name
+        )
+
+        return node
+
+
+class RootNodes(Nodes):
+    def __init__(
+            self,
+            nodes,
+            parent,
+            onto_type
+    ):
+        super().__init__(
+            nodes=nodes,
+            parent=parent
+        )
+        self.onto_type = onto_type
+
+    def gen_node(
+            self,
+            name: str,
+            tool_type: str,
+            color: str = '#7dfaf2',
+            required: bool = False,
+    ):
+        node = self._gen_node(
+            name=name,
+            tool_type=tool_type,
+            onto_type=self.onto_type,
+            color=color,
+            required=required
+        )
 
         return node
 
@@ -80,8 +181,6 @@ class Node:
         self._parent = parent
         if nodes is None:
             nodes = []
-        if type(nodes) == list:
-            nodes = Nodes(nodes, self)
         self._nodes = nodes
         self.id = id_
 
@@ -96,8 +195,8 @@ class Node:
         return f'<{self.__class__.__name__}> {self.name}'
 
 
-class AttrsNode(Node):
-    __slots__ = ['name', 'options', '_nodes', 'type', 'required']
+class AttrNode(Node):
+    __slots__ = ['name', '_parent', 'id', 'options', '_nodes', 'type', 'required']
 
     def __init__(
             self,
@@ -114,11 +213,14 @@ class AttrsNode(Node):
         )
         self.type = input_type
         self.required = required
-        self.options = self._nodes
+        self.options = OptionNodes(
+            nodes=self._nodes,
+            parent=self
+        )
 
 
 class OptionNode(Node):
-    __slots__ = ['name', 'attributes', '_nodes']
+    __slots__ = ['name', 'id', 'attributes', '_nodes', '_parent']
 
     def __init__(
             self,
@@ -131,7 +233,10 @@ class OptionNode(Node):
             nodes=attrs,
             id_=id_
         )
-        self.attributes = self._nodes
+        self.attributes = AttrNodes(
+            nodes=self._nodes,
+            parent=self
+        )
 
 
 class RootNode(Node):
@@ -141,18 +246,16 @@ class RootNode(Node):
     def __init__(
             self,
             name,
-            onto_type: str,
             tool_type: str,
-            tool_type_options: Optional[Dict] = None,
+            onto_type: str = 'class',
             color: str = '#7dfaf2',
             attrs: Optional[List] = None,
-            parent=None,
+            tool_type_options: Optional[Dict] = None,
             id_: Optional[int] = None,
     ):
         super().__init__(
             name=name,
             nodes=attrs,
-            parent=parent,
             id_=id_
         )
         self.color = color
@@ -169,8 +272,39 @@ class RootNode(Node):
                     "isConstraints": False
                 }
         self.tool_type_options = tool_type_options
-        self.attributes = self._nodes
+        self.attributes = AttrNodes(
+            nodes=self._nodes,
+            parent=self
+        )
+        onto_type = onto_type.lower()
+        self._check_onto_type(onto_type)
         self.onto_type = onto_type
+
+    @staticmethod
+    def _check_onto_type(
+            onto_type
+    ):
+        if onto_type not in ['class', 'classification']:
+            raise ParamException(message="Ontology type can only be either 'class' or 'classification'")
+
+    def delete(
+            self
+    ):
+        if 'dataset' in self._parent.des_type:
+            endpoint = f'dataset{self.onto_type.capitalize()}/delete/{self.id}'
+        else:
+            endpoint = f'{self.onto_type.capitalize()}/delete/{self.id}'
+
+        resp = self._parent._client.api.post_request(
+            endpoint=endpoint
+        )
+
+        if self.onto_type == 'class':
+            self._parent.classes.remove(self.name)
+        else:
+            self._parent.classifications.remove(self.name)
+
+        return resp
 
 
 class Ontology:
@@ -191,13 +325,21 @@ class Ontology:
             classes = []
         if classifications is None:
             classifications = []
-        self.classes = Nodes(self._to_node(classes, onto_type='class'), self)
-        self.classifications = Nodes(self._to_node(classifications, onto_type='classification'), self)
+        self.classes = RootNodes(
+            nodes=self._to_node(classes, onto_type='class'),
+            parent=self,
+            onto_type='class'
+        )
+        self.classifications = RootNodes(
+            nodes=self._to_node(classifications, onto_type='classification'),
+            parent=self,
+            onto_type='classification'
+        )
 
     def __repr__(
             self
     ):
-        return f'<{self.__class__.__name__}> The ontology of {self.des_id}'
+        return f'<{self.__class__.__name__}> The ontology of {self.des_type} {self.des_id}'
 
     def __str__(
             self
@@ -226,7 +368,7 @@ class Ontology:
                 )
             else:
                 if 'options' in node:
-                    cur_node = AttrsNode(
+                    cur_node = AttrNode(
                         name=node['name'],
                         input_type=node['type'],
                         required=node['required'],
@@ -271,27 +413,6 @@ class Ontology:
                 result[attr] = value
 
         return result
-
-    def del_ontology_cls(
-            self,
-            onto_type: str,
-            name
-    ):
-        try:
-            if 'class' in onto_type:
-                root_node = self.classes.get(name)
-                self.classes.remove(name)
-            else:
-                root_node = self.classifications.get(name)
-                self.classifications.remove(name)
-        except ValueError:
-            raise ParamException(message='This node is already deleted.')
-
-        return self._client.del_ontology_cls(
-            onto_type=onto_type,
-            cls_id=root_node.id,
-            des_type=self._des_type
-        )
 
     # def update_ontology(
     #         self,
@@ -347,9 +468,9 @@ class Ontology:
     #     )
 
 
-RELA_DICT = {
+NODE_DICT = {
     Ontology: RootNode,
-    RootNode: AttrsNode,
-    AttrsNode: OptionNode,
-    OptionNode: AttrsNode
+    RootNode: AttrNode,
+    AttrNode: OptionNode,
+    OptionNode: AttrNode
 }

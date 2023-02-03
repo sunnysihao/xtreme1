@@ -681,7 +681,7 @@ class Client:
             endpoint=endpoint
         )
 
-    def _query_ontology(
+    def _query_complete_ontology(
             self,
             endpoint: str,
             des_id: str,
@@ -711,20 +711,40 @@ class Client:
 
         return resp['list']
 
-    def query_ontology(
+    def _query_ontology_list(
             self,
-            des_id: str,
-            des_type='ontology_center'
+            name,
+            page_no: int = 1,
+            page_size: int = 100
     ):
+        endpoint = 'ontology/findByPage'
 
+        params = {
+            'name': name,
+            'page_no': page_no,
+            'page_size': page_size
+        }
+
+        resp = self.api.get_request(
+            endpoint=endpoint,
+            params=params
+        )
+
+        return resp
+
+    def _query_a_single_ontology(
+            self,
+            des_id,
+            des_type,
+    ):
         endpoint1 = ('class' if 'dataset' not in des_type else 'datasetClass') + '/findByPage'
-        classes = self._query_ontology(
+        classes = self._query_complete_ontology(
             endpoint=endpoint1,
             des_id=des_id
         )
 
         endpoint2 = ('classification' if 'dataset' not in des_type else 'datasetClassification') + '/findByPage'
-        classifications = self._query_ontology(
+        classifications = self._query_complete_ontology(
             endpoint=endpoint2,
             des_id=des_id
         )
@@ -739,28 +759,64 @@ class Client:
             des_id=des_id
         )
 
-    # def create_ontology(
-    #         self,
-    #         ontology_name: str,
-    #         dataset_type: str,
-    # ) -> Ontology:
-    #     endpoint = 'ontology/create'
-    #
-    #     payload = {
-    #         'name': ontology_name,
-    #         'type': dataset_type
-    #     }
-    #
-    #     self.api.post_request(
-    #         endpoint=endpoint
-    #     )
-    #
-    #     des_type = ''
-    #
-    #     return Ontology(
-    #         client=self,
-    #         des_type=des_type,
-    #         classes=onto['classes'],
-    #         classifications=onto['classifications'],
-    #         des_id=des_id
-    #     )
+    def query_ontology(
+            self,
+            des_id: Optional[str] = None,
+            name: Optional[str] = None,
+            des_type='ontology_center',
+            page_no: int = 1,
+            page_size: int = 100
+    ):
+        if not des_id and not name:
+            raise ParamException(message="Can't miss both des_id and name!")
+
+        if name and (not des_id):
+            onto_list = self._query_ontology_list(
+                name=name,
+                page_no=page_no,
+                page_size=page_size
+            )
+            total = onto_list['total']
+            onto_ids = [onto['id'] for onto in onto_list['list']]
+            result = []
+            for onto_id in onto_ids:
+                onto = self._query_a_single_ontology(
+                    des_id=onto_id,
+                    des_type=des_type
+                )
+                result.append(onto)
+
+            return result, total
+
+        return self._query_a_single_ontology(
+            des_id=des_id,
+            des_type=des_type
+        )
+
+    def create_ontology(
+            self,
+            ontology_name: str,
+            dataset_type: str,
+    ) -> Ontology:
+        endpoint = 'ontology/create'
+
+        payload = {
+            'name': ontology_name,
+            'type': dataset_type
+        }
+
+        resp = self.api.post_request(
+            endpoint=endpoint,
+            payload=payload
+        )
+
+        des_type = 'ontology_center'
+        des_id = resp
+
+        return Ontology(
+            client=self,
+            des_type=des_type,
+            classes=[],
+            classifications=[],
+            des_id=des_id
+        )

@@ -287,5 +287,6 @@ class Dataset:
     ) -> Ontology:
         return self._client.query_ontology(
             des_id=self.id,
-            des_type='dataset'
+            des_type='dataset',
+            name=None
         )
