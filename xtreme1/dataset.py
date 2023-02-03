@@ -25,10 +25,10 @@ class Dataset:
         self._client = client
 
     def __str__(self):
-        return f"BFDataset(id={self.id}, name={self.name})"
+        return f"<{self.__class__.__name__}> id={self.id}, name={self.name}"
 
     def __repr__(self):
-        return f"BFDataset(id={self.id}, name={self.name})"
+        return f"<{self.__class__.__name__}> id={self.id}, name={self.name}"
 
     def show_attrs(
             self,
@@ -287,50 +287,5 @@ class Dataset:
     ) -> Ontology:
         return self._client.query_ontology(
             des_id=self.id,
-            source='dataset'
-        )
-
-    def gen_ontology(
-            self,
-            onto_path: str = None
-    ):
-        return self._client.gen_ontology(
-            des_type='dataset',
-            des_id=self.id,
-            onto_path=onto_path
-        )
-
-    def del_ontology_cls(
-            self,
-            onto_type: str,
-            cls_id: str
-    ):
-        return self._client.del_ontology_cls(
-            onto_type=onto_type,
-            cls_id=cls_id,
             des_type='dataset'
-        )
-
-    def import_ontology(
-            self,
-            onto,
-    ):
-        return self._client.import_ontology(
-            onto=onto,
-            des_id=self.id,
-            des_type='dataset'
-        )
-
-    def update_ontology(
-            self,
-            onto: RootNode,
-            onto_type: str,
-            onto_id: Optional[str] = None,
-    ):
-        return self._client.update_ontology(
-            onto=onto,
-            onto_type=onto_type,
-            des_id=self.id,
-            des_type='dataset',
-            onto_id=onto_id
         )

@@ -650,6 +650,7 @@ class Client:
             annotation = list(filter(lambda x: x['result'], annotation))
 
         return Annotation(
+            client=self,
             annotation=annotation,
             dataset_name=resp['datasetName'],
             version=resp['version'],
@@ -713,17 +714,16 @@ class Client:
     def query_ontology(
             self,
             des_id: str,
-            des_type: str = 'dataset'
+            des_type='ontology_center'
     ):
-        des_type = des_type.lower()
 
-        endpoint1 = ('class' if 'ontology' in des_type else 'datasetClass') + '/findByPage'
+        endpoint1 = ('class' if 'dataset' not in des_type else 'datasetClass') + '/findByPage'
         classes = self._query_ontology(
             endpoint=endpoint1,
             des_id=des_id
         )
 
-        endpoint2 = ('classification' if 'ontology' in des_type.lower() else 'datasetClassification') + '/findByPage'
+        endpoint2 = ('classification' if 'dataset' not in des_type else 'datasetClassification') + '/findByPage'
         classifications = self._query_ontology(
             endpoint=endpoint2,
             des_id=des_id
@@ -739,97 +739,28 @@ class Client:
             des_id=des_id
         )
 
-    def del_ontology_cls(
-            self,
-            onto_type: str,
-            cls_id: str,
-            des_type: str = 'dataset'
-    ):
-        onto_type = onto_type.lower()
-
-        endpoint = (
-                       f'{onto_type}' if 'ontology' in des_type else f'dataset{onto_type.capitalize()}'
-                   ) + f'/delete/{cls_id}'
-
-        resp = self.api.post_request(
-            endpoint=endpoint
-        )
-
-        return resp
-
-    def gen_ontology(
-            self,
-            des_id: str,
-            des_type: str = 'dataset',
-            onto_path: str = None
-    ) -> Ontology:
-        onto = {
-            'classes': [],
-            'classifications': []
-        }
-
-        if onto_path:
-            onto = json.load(open(onto_path, 'r', encoding='utf-8-sig'))
-
-        return Ontology(
-            client=self,
-            des_type=des_type,
-            classes=onto['classes'],
-            classifications=onto['classifications'],
-            des_id=des_id
-        )
-
-    def import_ontology(
-            self,
-            onto,
-            des_id: str,
-            des_type: str = 'dataset',
-    ):
-        endpoint = 'ontology/importByJson'
-
-        data = {
-            'desType': des_type.upper(),
-            'desId': des_id
-        }
-
-        file = BytesIO(json.dumps(onto.to_dict()).encode())
-        files = {
-            'file': ('ontology.json', file)
-        }
-
-        return self.api.post_request(
-            endpoint=endpoint,
-            data=data,
-            files=files
-        )
-
-    def update_ontology(
-            self,
-            onto: RootNode,
-            onto_type: str,
-            des_id: str,
-            des_type: str = 'dataset',
-            onto_id: Optional[str] = None,
-    ):
-        if not onto_id:
-            onto_id = onto.id
-
-        des_type = des_type.lower()
-        onto_type = onto_type.lower()
-
-        onto_dict = Ontology.to_dict(onto)
-
-        if 'ontology' in des_type:
-            endpoint = f'{onto_type}/update/{onto_id}'
-            onto_dict['ontologyId'] = des_id
-        else:
-            endpoint = f'dataset{onto_type.capitalize()}/update/{onto_id}'
-            onto_dict['datasetId'] = des_id
-
-        resp = self.api.post_request(
-            endpoint=endpoint,
-            payload=onto_dict
-
-        )
-
-        return resp
+    # def create_ontology(
+    #         self,
+    #         ontology_name: str,
+    #         dataset_type: str,
+    # ) -> Ontology:
+    #     endpoint = 'ontology/create'
+    #
+    #     payload = {
+    #         'name': ontology_name,
+    #         'type': dataset_type
+    #     }
+    #
+    #     self.api.post_request(
+    #         endpoint=endpoint
+    #     )
+    #
+    #     des_type = ''
+    #
+    #     return Ontology(
+    #         client=self,
+    #         des_type=des_type,
+    #         classes=onto['classes'],
+    #         classifications=onto['classifications'],
+    #         des_id=des_id
+    #     )

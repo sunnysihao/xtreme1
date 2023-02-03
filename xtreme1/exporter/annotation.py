@@ -24,7 +24,7 @@ __supported_format__ = {
     "YOLO": {
         "description": ''
     },
-    "LABELME":{
+    "LABELME": {
         "description": ''
     },
     "KITTI": {
@@ -38,6 +38,7 @@ class Annotation:
 
     def __init__(
             self,
+            client,
             annotation,
             dataset_name,
             version=None,
@@ -49,6 +50,7 @@ class Annotation:
         self.dataset_name = dataset_name
         self.export_time = export_time
         self.annotation = annotation
+        self._client = client
 
     def __str__(self):
         return f"Annotation(dataset_id={self.dataset_id}, dataset_name={self.dataset_name})"
@@ -248,4 +250,3 @@ class Annotation:
 
         """
         _to_kitti(annotation=self.annotation, dataset_name=self.dataset_name, export_folder=export_folder)
-

@@ -136,7 +136,7 @@ class OptionNode(Node):
 
 class RootNode(Node):
     __slots__ = ['_id', 'name', 'color', 'tool_type', '_nodes', 'tool_type_options',
-                 'attributes', '_client', '_onto_type']
+                 'attributes', '_client', 'onto_type']
 
     def __init__(
             self,
@@ -170,23 +170,23 @@ class RootNode(Node):
                 }
         self.tool_type_options = tool_type_options
         self.attributes = self._nodes
-        self._onto_type = onto_type
+        self.onto_type = onto_type
 
 
 class Ontology:
-    __slots__ = ['classes', 'classifications', 'des_id', 'name', '_client', '_des_type']
+    __slots__ = ['classes', 'classifications', 'des_id', 'name', '_client', 'des_type']
 
     def __init__(
             self,
             client,
             des_type: str,
+            des_id: str,
             classes: Optional[List] = None,
-            classifications: Optional[List] = None,
-            des_id: str = None
+            classifications: Optional[List] = None
     ):
         self.des_id = des_id
         self._client = client
-        self._des_type = des_type
+        self.des_type = des_type
         if classes is None:
             classes = []
         if classifications is None:
@@ -292,6 +292,59 @@ class Ontology:
             cls_id=root_node.id,
             des_type=self._des_type
         )
+
+    # def update_ontology(
+    #         self,
+    #         onto: RootNode,
+    #         des_id: str,
+    #         des_type: str = 'dataset',
+    #         onto_id: Optional[str] = None,
+    # ):
+    #     if not onto_id:
+    #         onto_id = onto.id
+    #
+    #     des_type = des_type.lower()
+    #     onto_type = onto.onto_type
+    #     onto_dict = Ontology.to_dict(onto)
+    #
+    #     if 'ontology' in des_type:
+    #         endpoint = f'{onto_type}/update/{onto_id}'
+    #         onto_dict['ontologyId'] = des_id
+    #     else:
+    #         endpoint = f'dataset{onto_type.capitalize()}/update/{onto_id}'
+    #         onto_dict['datasetId'] = des_id
+    #
+    #     resp = self.api.post_request(
+    #         endpoint=endpoint,
+    #         payload=onto_dict
+    #
+    #     )
+    #
+    #     return resp
+    #
+    # def import_ontology(
+    #         self,
+    #         onto,
+    #         des_id: str,
+    #         des_type: str = 'dataset',
+    # ):
+    #     endpoint = 'ontology/importByJson'
+    #
+    #     data = {
+    #         'desType': des_type.upper(),
+    #         'desId': des_id
+    #     }
+    #
+    #     file = BytesIO(json.dumps(onto.to_dict()).encode())
+    #     files = {
+    #         'file': ('ontology.json', file)
+    #     }
+    #
+    #     return self.api.post_request(
+    #         endpoint=endpoint,
+    #         data=data,
+    #         files=files
+    #     )
 
 
 RELA_DICT = {
