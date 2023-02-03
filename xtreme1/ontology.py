@@ -153,15 +153,13 @@ class RootNodes(Nodes):
             self,
             name: str,
             tool_type: str,
-            color: str = '#7dfaf2',
-            required: bool = False,
+            color: str = '#7dfaf2'
     ):
         node = self._gen_node(
             name=name,
             tool_type=tool_type,
             onto_type=self.onto_type,
-            color=color,
-            required=required
+            color=color
         )
 
         return node
