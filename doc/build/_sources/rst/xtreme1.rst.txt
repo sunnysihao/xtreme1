@@ -1,6 +1,15 @@
 xtreme1 package
 ===============
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   xtreme1.exporter
+   xtreme1.importer
+
 Submodules
 ----------
 
@@ -48,6 +57,14 @@ xtreme1.models module
 ---------------------
 
 .. automodule:: xtreme1.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+xtreme1.ontology module
+-----------------------
+
+.. automodule:: xtreme1.ontology
    :members:
    :undoc-members:
    :show-inheritance:

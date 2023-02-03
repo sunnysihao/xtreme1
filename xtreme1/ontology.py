@@ -1,8 +1,8 @@
 import warnings
-from functools import reduce
 from typing import List, Dict, Optional
 
 from .exceptions import ParamException, NameDuplicatedException
+from ._others import _to_camel
 
 
 class Nodes:
@@ -192,6 +192,26 @@ class Node:
     ):
         return f'<{self.__class__.__name__}> {self.name}'
 
+    def to_dict(
+            self
+    ):
+        result = {}
+        attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes',
+                 'options', 'type', 'required']
+        for attr_ in attrs:
+            value = getattr(self, attr_, None)
+            attr = _to_camel(attr_)
+            if value is None:
+                continue
+            if type(value).__name__ == 'Nodes':
+                result[attr] = []
+                for child in value.nodes:
+                    result[attr].append(child.to_dict())
+            else:
+                result[attr] = value
+
+        return result
+
 
 class AttrNode(Node):
     __slots__ = ['name', '_parent', 'id', 'options', '_nodes', 'type', 'required']
@@ -244,6 +264,7 @@ class RootNode(Node):
     def __init__(
             self,
             name,
+            client,
             tool_type: str,
             onto_type: str = 'class',
             color: str = '#7dfaf2',
@@ -277,6 +298,7 @@ class RootNode(Node):
         onto_type = onto_type.lower()
         self._check_onto_type(onto_type)
         self.onto_type = onto_type
+        self._client = client
 
     @staticmethod
     def _check_onto_type(
@@ -285,7 +307,7 @@ class RootNode(Node):
         if onto_type not in ['class', 'classification']:
             raise ParamException(message="Ontology type can only be either 'class' or 'classification'")
 
-    def delete(
+    def delete_cls(
             self
     ):
         if 'dataset' in self._parent.des_type:
@@ -303,6 +325,29 @@ class RootNode(Node):
             self._parent.classifications.remove(self.name)
 
         return resp
+
+    # def update_cls(
+    #         self,
+    #         des_id: str,
+    #         des_type: str = 'dataset',
+    #         onto_id: Optional[str] = None,
+    # ):
+    #     onto_dict = Ontology.to_dict(onto)
+    #
+    #     if 'ontology' in des_type:
+    #         endpoint = f'{onto_type}/update/{onto_id}'
+    #         onto_dict['ontologyId'] = des_id
+    #     else:
+    #         endpoint = f'dataset{onto_type.capitalize()}/update/{onto_id}'
+    #         onto_dict['datasetId'] = des_id
+    #
+    #     resp = self.api.post_request(
+    #         endpoint=endpoint,
+    #         payload=onto_dict
+    #
+    #     )
+    #
+    #     return resp
 
 
 class Ontology:
@@ -346,8 +391,9 @@ class Ontology:
         classifications = {f'<{n.__class__.__name__}> {n.name}' for n in self.classifications.nodes}
         return f'<{self.__class__.__name__}> classes: {classes}, classifications: {classifications}'
 
-    @staticmethod
+    @classmethod
     def _to_node(
+            cls,
             ontos,
             onto_type=None
     ):
@@ -362,7 +408,8 @@ class Ontology:
                     tool_type_options=node['toolTypeOptions'],
                     attrs=Ontology._to_node(node['attributes']),
                     id_=node.get('id'),
-                    onto_type=onto_type
+                    onto_type=onto_type,
+                    client=cls._client
                 )
             else:
                 if 'options' in node:
@@ -370,13 +417,13 @@ class Ontology:
                         name=node['name'],
                         input_type=node['type'],
                         required=node['required'],
-                        options=Ontology._to_node(node['options']),
+                        options=cls._to_node(node['options']),
                         id_=node.get('id')
                     )
                 else:
                     cur_node = OptionNode(
                         name=node['name'],
-                        attrs=Ontology._to_node(node['attributes']),
+                        attrs=cls._to_node(node['attributes']),
                         id_=node.get('id')
                     )
 
@@ -384,86 +431,48 @@ class Ontology:
 
         return total
 
-    @staticmethod
-    def _to_camel(
-            var
-    ):
-        parts = var.split('_')
-        return reduce(lambda x, y: x + y.capitalize(), parts)
-
-    @staticmethod
     def to_dict(
-            node
+            self
     ):
-        result = {}
-        attrs = ['classes', 'classifications', 'name', 'color', 'tool_type', 'tool_type_options', 'attributes',
-                 'options', 'type', 'required']
-        for attr_ in attrs:
-            value = getattr(node, attr_, None)
-            attr = Ontology._to_camel(attr_)
-            if value is None:
-                continue
-            if type(value).__name__ == 'Nodes':
-                result[attr] = []
-                for child in value.nodes:
-                    result[attr].append(Ontology.to_dict(child))
-            else:
-                result[attr] = value
+        result = {
+            'classes': [cls.to_dict() for cls in self.classes.nodes],
+            'classifications': [cls.to_dict() for cls in self.classifications.nodes]
+        }
 
         return result
 
-    # def update_ontology(
-    #         self,
-    #         onto: RootNode,
-    #         des_id: str,
-    #         des_type: str = 'dataset',
-    #         onto_id: Optional[str] = None,
-    # ):
-    #     if not onto_id:
-    #         onto_id = onto.id
-    #
-    #     des_type = des_type.lower()
-    #     onto_type = onto.onto_type
-    #     onto_dict = Ontology.to_dict(onto)
-    #
-    #     if 'ontology' in des_type:
-    #         endpoint = f'{onto_type}/update/{onto_id}'
-    #         onto_dict['ontologyId'] = des_id
-    #     else:
-    #         endpoint = f'dataset{onto_type.capitalize()}/update/{onto_id}'
-    #         onto_dict['datasetId'] = des_id
-    #
-    #     resp = self.api.post_request(
-    #         endpoint=endpoint,
-    #         payload=onto_dict
-    #
-    #     )
-    #
-    #     return resp
-    #
-    # def import_ontology(
-    #         self,
-    #         onto,
-    #         des_id: str,
-    #         des_type: str = 'dataset',
-    # ):
-    #     endpoint = 'ontology/importByJson'
-    #
-    #     data = {
-    #         'desType': des_type.upper(),
-    #         'desId': des_id
-    #     }
-    #
-    #     file = BytesIO(json.dumps(onto.to_dict()).encode())
-    #     files = {
-    #         'file': ('ontology.json', file)
-    #     }
-    #
-    #     return self.api.post_request(
-    #         endpoint=endpoint,
-    #         data=data,
-    #         files=files
-    #     )
+    def delete_ontology(
+            self
+    ):
+        return self._client.delete_ontology(
+            des_id=self.des_id
+        )
+
+
+#
+# def import_ontology(
+#         self,
+#         onto,
+#         des_id: str,
+#         des_type: str = 'dataset',
+# ):
+#     endpoint = 'ontology/importByJson'
+#
+#     data = {
+#         'desType': des_type.upper(),
+#         'desId': des_id
+#     }
+#
+#     file = BytesIO(json.dumps(onto.to_dict()).encode())
+#     files = {
+#         'file': ('ontology.json', file)
+#     }
+#
+#     return self.api.post_request(
+#         endpoint=endpoint,
+#         data=data,
+#         files=files
+#     )
 
 
 NODE_DICT = {

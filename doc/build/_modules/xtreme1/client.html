@@ -36,10 +36,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../rst/xtreme1.html">xtreme1 package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../md/README.html">README</a></li>
 </ul>
 
         </div>
@@ -68,8 +67,10 @@
              
   <h1>Source code for xtreme1.client</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">requests</span>
@@ -80,6 +81,8 @@
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">SDKException</span><span class="p">,</span> <span class="n">ParamException</span>
 <span class="kn">from</span> <span class="nn">.exporter.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">ImageModel</span><span class="p">,</span> <span class="n">PointCloudModel</span>
+<span class="kn">from</span> <span class="nn">.ontology</span> <span class="kn">import</span> <span class="n">Ontology</span>
+<span class="kn">from</span> <span class="nn">._others</span> <span class="kn">import</span> <span class="n">_to_single</span>
 
 
 <div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
@@ -235,14 +238,14 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
             <span class="n">dataset_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">create_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">create_end_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CREATED_AT&#39;</span><span class="p">,</span>
             <span class="n">ascending</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">dataset_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dataset</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dataset</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Query a specific dataset or query several datasets with some filters.</span>
 
@@ -278,7 +281,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        List[Dataset]</span>
+<span class="sd">        Tuple[List[Dataset], int]</span>
 <span class="sd">            A list of Dataset classes.</span>
 <span class="sd">            Notice that this function only returns one dataset at a time unless you change the &#39;page_size&#39; parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -297,8 +300,9 @@
         <span class="p">)</span>
 
         <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">datasets</span></div>
+        <span class="k">return</span> <span class="n">_to_single</span><span class="p">((</span><span class="n">datasets</span><span class="p">,</span> <span class="n">total</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Client.query_data_under_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data_under_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_under_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -471,14 +475,14 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="n">des_type</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/upload&#39;</span>
 
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;fileUrl&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
             <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
-            <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="n">source</span>
+            <span class="s1">&#39;des_type&#39;</span><span class="p">:</span> <span class="n">des_type</span>
         <span class="p">}</span>
 
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
@@ -676,10 +680,11 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+            <span class="n">dropna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Query both the data information and the annotation result of a specific dataset or a list of datasets.</span>
+<span class="sd">        Query both the data information and the annotation result of a specific dataset.</span>
 <span class="sd">        Accept a &#39;data_ids&#39; parameter to query specific data.</span>
 
 <span class="sd">        Parameters</span>
@@ -691,6 +696,8 @@
 <span class="sd">        limit: int, default 5000</span>
 <span class="sd">            The max number of returned annotation results.</span>
 <span class="sd">            Change this parameter according to your system memory.</span>
+<span class="sd">        dropna: bool, default False</span>
+<span class="sd">            Whether drop no result data or not.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -708,13 +715,192 @@
             <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][:</span><span class="n">limit</span><span class="p">]</span>
         <span class="p">]</span>
 
+        <span class="k">if</span> <span class="n">dropna</span><span class="p">:</span>
+            <span class="n">annotation</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">],</span> <span class="n">annotation</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="n">Annotation</span><span class="p">(</span>
-            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span>
-            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;datasetId&#39;</span><span class="p">],</span>
-            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;datasetName&#39;</span><span class="p">],</span>
-            <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;exportTime&#39;</span><span class="p">],</span>
-            <span class="n">annotation</span>
-        <span class="p">)</span></div></div>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">annotation</span><span class="o">=</span><span class="n">annotation</span><span class="p">,</span>
+            <span class="n">dataset_name</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;datasetName&#39;</span><span class="p">],</span>
+            <span class="n">version</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span>
+            <span class="n">dataset_id</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;datasetId&#39;</span><span class="p">],</span>
+            <span class="n">export_time</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;exportTime&#39;</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.query_classes_stat"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_classes_stat">[docs]</a>    <span class="k">def</span> <span class="nf">query_classes_stat</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query the distribution of annotated classes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset_id: str</span>
+<span class="sd">            The id of the dataset you want to query.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            The statistic of the annotation result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">/statistics/classObject&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_query_complete_ontology</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">endpoint</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;ontologyId&#39;</span><span class="p">:</span> <span class="n">des_id</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">des_id</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s1">&#39;pageNo&#39;</span><span class="p">:</span> <span class="n">page_no</span><span class="p">,</span>
+                <span class="s1">&#39;pageSize&#39;</span><span class="p">:</span> <span class="n">page_size</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_query_ontology_list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="p">):</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;ontology/findByPage&#39;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s1">&#39;page_no&#39;</span><span class="p">:</span> <span class="n">page_no</span><span class="p">,</span>
+            <span class="s1">&#39;page_size&#39;</span><span class="p">:</span> <span class="n">page_size</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="k">def</span> <span class="nf">_query_a_single_ontology</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">endpoint1</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;class&#39;</span> <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">des_type</span> <span class="k">else</span> <span class="s1">&#39;datasetClass&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/findByPage&#39;</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_complete_ontology</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint1</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
+        <span class="p">)</span>
+
+        <span class="n">endpoint2</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;classification&#39;</span> <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">des_type</span> <span class="k">else</span> <span class="s1">&#39;datasetClassification&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/findByPage&#39;</span>
+        <span class="n">classifications</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_complete_ontology</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint2</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
+        <span class="p">)</span>
+
+        <span class="n">classifications</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="n">Ontology</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="o">=</span><span class="n">des_type</span><span class="p">,</span>
+            <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">,</span>
+            <span class="n">classifications</span><span class="o">=</span><span class="n">classifications</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Client.query_ontology"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">query_ontology</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="o">=</span><span class="s1">&#39;ontology_center&#39;</span><span class="p">,</span>
+            <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">des_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Can&#39;t miss both des_id and name!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">des_id</span><span class="p">):</span>
+            <span class="n">onto_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_ontology_list</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">page_no</span><span class="o">=</span><span class="n">page_no</span><span class="p">,</span>
+                <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span>
+            <span class="p">)</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">onto_list</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
+            <span class="n">onto_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">onto</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">onto</span> <span class="ow">in</span> <span class="n">onto_list</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">onto_id</span> <span class="ow">in</span> <span class="n">onto_ids</span><span class="p">:</span>
+                <span class="n">onto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_a_single_ontology</span><span class="p">(</span>
+                    <span class="n">des_id</span><span class="o">=</span><span class="n">onto_id</span><span class="p">,</span>
+                    <span class="n">des_type</span><span class="o">=</span><span class="n">des_type</span>
+                <span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">onto</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">_to_single</span><span class="p">((</span><span class="n">result</span><span class="p">,</span> <span class="n">total</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_a_single_ontology</span><span class="p">(</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="o">=</span><span class="n">des_type</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.create_ontology"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.create_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">create_ontology</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">ontology_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ontology</span><span class="p">:</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;ontology/create&#39;</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">ontology_name</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">dataset_type</span>
+        <span class="p">}</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">payload</span><span class="o">=</span><span class="n">payload</span>
+        <span class="p">)</span>
+
+        <span class="n">des_type</span> <span class="o">=</span> <span class="s1">&#39;ontology_center&#39;</span>
+        <span class="n">des_id</span> <span class="o">=</span> <span class="n">resp</span>
+
+        <span class="k">return</span> <span class="n">Ontology</span><span class="p">(</span>
+            <span class="n">client</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="o">=</span><span class="n">des_type</span><span class="p">,</span>
+            <span class="n">classes</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">classifications</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Client.delete_ontology"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.delete_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">delete_ontology</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">des_id</span>
+    <span class="p">):</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ontology/delete/</span><span class="si">{</span><span class="n">des_id</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span></div></div>
 </pre></div>
 
            </div>

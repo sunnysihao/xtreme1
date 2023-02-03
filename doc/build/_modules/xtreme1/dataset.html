@@ -36,10 +36,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../rst/xtreme1.html">xtreme1 package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../md/README.html">README</a></li>
 </ul>
 
         </div>
@@ -69,6 +68,12 @@
   <h1>Source code for xtreme1.dataset</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">from</span> <span class="nn">pyecharts</span> <span class="kn">import</span> <span class="n">options</span> <span class="k">as</span> <span class="n">opts</span>
+<span class="kn">from</span> <span class="nn">pyecharts.charts</span> <span class="kn">import</span> <span class="n">Pie</span>
+
+<span class="kn">from</span> <span class="nn">.exporter.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
+<span class="kn">from</span> <span class="nn">.ontology</span> <span class="kn">import</span> <span class="n">Ontology</span><span class="p">,</span> <span class="n">RootNode</span>
+
 
 <div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">:</span>
 
@@ -85,14 +90,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">unannotated_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;notAnnotatedCount&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">invalid_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;invalidCount&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">item_count</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;itemCount&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">org_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;datas&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;BFDataset(id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&gt; id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;BFDataset(id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&gt; id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Dataset.show_attrs"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.show_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">show_attrs</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -256,6 +260,103 @@
             <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">,</span>
             <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
             <span class="n">remain_directory_structure</span><span class="o">=</span><span class="n">remain_directory_structure</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.query_data_and_result"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.query_data_and_result">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_and_result</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+            <span class="n">dropna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query both the data information and the annotation result of current dataset.</span>
+<span class="sd">        Accept a &#39;data_ids&#39; parameter to query specific data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_ids: Union[str, List[str], None], default None</span>
+<span class="sd">            The id or ids of the data you want to query.</span>
+<span class="sd">        limit: int, default 5000</span>
+<span class="sd">            The max number of returned annotation results.</span>
+<span class="sd">            Change this parameter according to your system memory.</span>
+<span class="sd">        dropna: bool, default False</span>
+<span class="sd">            Whether the unannotated data is preserved or not.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Annotation</span>
+<span class="sd">            An instance of Annotation class.</span>
+<span class="sd">            It has some methods to convert the format of annotation result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_data_and_result</span><span class="p">(</span>
+            <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">data_ids</span><span class="o">=</span><span class="n">data_ids</span><span class="p">,</span>
+            <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span>
+            <span class="n">dropna</span><span class="o">=</span><span class="n">dropna</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.show_progress"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.show_progress">[docs]</a>    <span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span>
+            <span class="bp">self</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pie</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Show an interacting progress &#39;echarts&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Pie</span>
+<span class="sd">            A pie chart, which can be saved as a html file or rendered on your jupyter notebook.</span>
+<span class="sd">            Use pie.render(YOUR HTML PATH) to save the progress.</span>
+<span class="sd">            Use pie.render_notebook() to show the progress on your jupyter notebook.</span>
+<span class="sd">            If `render_notebook()` doesn&#39;t work, add these codes::</span>
+
+<span class="sd">                from pyecharts.globals import CurrentConfig, NotebookType</span>
+<span class="sd">                CurrentConfig.NOTEBOOK_TYPE=NotebookType.JUPYTER_LAB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">progress_cnt</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="s1">&#39;Annotated&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotated_count</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Not Annotated&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unannotated_count</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;Invalid&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">invalid_count</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="n">progress_pie</span> <span class="o">=</span> <span class="n">Pie</span><span class="p">()</span>
+        <span class="n">progress_pie</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">progress_cnt</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;50%&quot;</span><span class="p">,</span> <span class="s2">&quot;70%&quot;</span><span class="p">],</span>
+            <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;30%&quot;</span><span class="p">,</span> <span class="s2">&quot;50%&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">progress_pie</span><span class="o">.</span><span class="n">set_global_opts</span><span class="p">(</span>
+            <span class="n">title_opts</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">TitleOpts</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Progress&quot;</span><span class="p">),</span>
+            <span class="n">legend_opts</span><span class="o">=</span><span class="n">opts</span><span class="o">.</span><span class="n">LegendOpts</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="n">pos_top</span><span class="o">=</span><span class="s2">&quot;50%&quot;</span><span class="p">,</span> <span class="n">pos_right</span><span class="o">=</span><span class="s2">&quot;20%&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">progress_pie</span><span class="o">.</span><span class="n">set_colors</span><span class="p">([</span><span class="s1">&#39;rgb(104,173,254)&#39;</span><span class="p">,</span> <span class="s1">&#39;rgb(170,170,170)&#39;</span><span class="p">,</span> <span class="s1">&#39;rgb(252,177,122)&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">progress_pie</span></div>
+
+<div class="viewcode-block" id="Dataset.query_classes_stat"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.query_classes_stat">[docs]</a>    <span class="k">def</span> <span class="nf">query_classes_stat</span><span class="p">(</span>
+            <span class="bp">self</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query the distribution of annotated classes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            The statistic of the annotation result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_classes_stat</span><span class="p">(</span>
+            <span class="n">dataset_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dataset.query_ontology"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.dataset.Dataset.query_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">query_ontology</span><span class="p">(</span>
+            <span class="bp">self</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ontology</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">query_ontology</span><span class="p">(</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="o">=</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span></div></div>
 </pre></div>
 

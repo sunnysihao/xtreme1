@@ -36,10 +36,9 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../rst/xtreme1.html">xtreme1 package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../md/README.html">README</a></li>
 </ul>
 
         </div>
@@ -162,6 +161,7 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">payload</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">headers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">full_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -175,6 +175,8 @@
 <span class="sd">            The endpoint of current api url.</span>
 <span class="sd">        payload: Optional[Dict], default None</span>
 <span class="sd">            Parameters to add in &#39;POST&#39; request.</span>
+<span class="sd">        data: Optional[Dict], default None</span>
+<span class="sd">            Data to add in &#39;POST&#39; request.</span>
 <span class="sd">        files: Optional[Dict], default None</span>
 <span class="sd">            Files to upload.</span>
 <span class="sd">        headers: bool, default True</span>
@@ -193,6 +195,7 @@
             <span class="n">method</span><span class="o">=</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
             <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
             <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
             <span class="n">full_url</span><span class="o">=</span><span class="n">full_url</span>

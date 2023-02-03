@@ -13,7 +13,8 @@ from .dataset import Dataset
 from .exceptions import SDKException, ParamException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
-from .ontology import Ontology, RootNode
+from .ontology import Ontology
+from ._others import _to_single
 
 
 class Client:
@@ -169,7 +170,7 @@ class Client:
             self,
             dataset_id: Optional[str] = None,
             page_no: int = 1,
-            page_size: int = 1,
+            page_size: int = 10,
             dataset_name: Optional[str] = None,
             create_start_time: Optional[Iterable] = None,
             create_end_time: Optional[Iterable] = None,
@@ -233,7 +234,7 @@ class Client:
         datasets = [Dataset(d, self) for d in resp['list']]
         total = resp['total']
 
-        return datasets, total
+        return _to_single((datasets, total))
 
     def query_data_under_dataset(
             self,
@@ -786,7 +787,7 @@ class Client:
                 )
                 result.append(onto)
 
-            return result, total
+            return _to_single((result, total))
 
         return self._query_a_single_ontology(
             des_id=des_id,
@@ -820,3 +821,15 @@ class Client:
             classifications=[],
             des_id=des_id
         )
+
+    def delete_ontology(
+            self,
+            des_id
+    ):
+        endpoint = f'ontology/delete/{des_id}'
+
+        resp = self.api.post_request(
+            endpoint=endpoint
+        )
+
+        return resp
