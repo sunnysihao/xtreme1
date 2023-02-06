@@ -13,7 +13,7 @@ from .dataset import Dataset
 from .exceptions import SDKException, ParamException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
-from .ontology import Ontology
+from .ontology.ontology import Ontology
 from ._others import _to_single
 
 
@@ -407,14 +407,14 @@ class Client:
             self,
             url: str,
             dataset_id: str,
-            des_type: str
+            source: str
     ) -> str:
         endpoint = 'data/upload'
 
         payload = {
             'fileUrl': url,
             'datasetId': dataset_id,
-            'des_type': des_type
+            'source': source
         }
 
         resp = self.api.post_request(endpoint=endpoint, payload=payload)
@@ -819,7 +819,8 @@ class Client:
             des_type=des_type,
             classes=[],
             classifications=[],
-            des_id=des_id
+            des_id=des_id,
+            dataset_type=dataset_type
         )
 
     def delete_ontology(
