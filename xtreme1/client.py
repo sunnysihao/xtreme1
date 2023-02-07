@@ -744,18 +744,36 @@ class Client:
 
         return resp
 
+    def _query_ontology_info(
+            self,
+            des_id
+    ):
+        endpoint = f'ontology/info/{des_id}'
+
+        resp = self.api.get_request(
+            endpoint=endpoint
+        )
+
+        return resp
+
     def _query_a_single_ontology(
             self,
             des_id,
             des_type,
     ):
-        endpoint1 = ('class' if 'dataset' not in des_type else 'datasetClass') + '/findByPage'
+        if 'dataset' in des_type:
+            endpoint1 = 'datasetClass/findByPage'
+            endpoint2 = 'datasetClassification/findByPage'
+            dataset_type = self._query_a_single_dataset(des_id)['type']
+        else:
+            endpoint1 = 'class/findByPage'
+            endpoint2 = 'classification/findByPage'
+            dataset_type = self._query_ontology_info(des_id)['type']
+
         classes = self._query_complete_ontology(
             endpoint=endpoint1,
             des_id=des_id
         )
-
-        endpoint2 = ('classification' if 'dataset' not in des_type else 'datasetClassification') + '/findByPage'
         classifications = self._query_complete_ontology(
             endpoint=endpoint2,
             des_id=des_id
@@ -768,7 +786,8 @@ class Client:
             des_type=des_type,
             classes=classes,
             classifications=classifications,
-            des_id=des_id
+            des_id=des_id,
+            dataset_type=dataset_type
         )
 
     def query_ontology(

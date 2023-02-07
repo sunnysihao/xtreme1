@@ -4,7 +4,7 @@ from pyecharts import options as opts
 from pyecharts.charts import Pie
 
 from .exporter.annotation import Annotation
-from .ontology import Ontology, RootNode
+from .ontology.ontology import Ontology
 
 
 class Dataset:
