@@ -1,6 +1,7 @@
+import json
 from typing import List, Optional
 
-from .node import ImageRootNode, LidarBasicRootNode, LidarFusionRootNode
+from .node import ImageRootNode, LidarBasicRootNode, LidarFusionRootNode, INDENT
 
 
 class Ontology:
@@ -27,14 +28,12 @@ class Ontology:
             classifications = []
         for c in classes:
             new_class = DATASET_DICT[self.dataset_type].to_node(
-                node_dict=c,
-                client=self._client
+                org_dict=c,
             )
             self.classes.append(new_class)
         # for cf in classifications:
         #     new_classification = DATASET_DICT[self.dataset_type].to_node(
-        #                 node_dict=cf,
-        #                 client=self._client
+        #                 org_dict=cf,
         #     )
         #     self.classifications.append(new_classification)
 
@@ -46,9 +45,13 @@ class Ontology:
     def __str__(
             self
     ):
-        classes = {f'<{n.__class__.__name__}> {n.name}' for n in self.classes}
-        classifications = {f'<{n.__class__.__name__}> {n.name}' for n in self.classifications}
-        return f'<{self.__class__.__name__}> classes: {classes}, classifications: {classifications}'
+        self_intro = {
+            'classes': [f'<{n.__class__.__name__}> {n.name}' for n in self.classes],
+            'classifications': [f'<{n.__class__.__name__}> {n.name}' for n in self.classifications],
+        }
+        self_intro = json.dumps(self_intro, indent=' ' * INDENT)
+
+        return f"<{self.__class__.__name__}>\n{self_intro}"
 
     def to_dict(
             self
@@ -60,20 +63,83 @@ class Ontology:
 
         return result
 
-    def delete_ontology(
+    @staticmethod
+    def _get(
+            nodes,
+            target
+    ):
+        for node in nodes:
+            if node.name == target:
+                return node
+
+    def get_class(
+            self,
+            name
+    ):
+        return self._get(
+            nodes=self.classes,
+            target=name
+        )
+
+    def get_classification(
+            self,
+            name
+    ):
+        return self._get(
+            nodes=self.classifications,
+            target=name
+        )
+
+    def delete_online_ontology(
             self
     ):
         return self._client.delete_ontology(
             des_id=self.des_id
         )
 
-    def add_class(
+    def delete_online_class(
             self,
             name
     ):
+        target_node = self.get_class(name)
+        if not target_node:
+            return False
+
+        self.classes.remove(target_node)
+
+        part1 = 'datasetClass' if 'dataset' in self.des_type else 'class'
+        endpoint = f'{part1}/delete/{target_node.id}'
+
+        self._client.api.post_request(
+            endpoint=endpoint
+        )
+
+    def delete_online_classification(
+            self,
+            name
+    ):
+        target_node = self.get_classification(name)
+        if not target_node:
+            return False
+
+        self.classifications.remove(target_node)
+
+        part1 = 'datasetClassification' if 'dataset' in self.des_type else 'classification'
+        endpoint = f'{part1}/delete/{target_node.id}'
+
+        self._client.api.post_request(
+            endpoint=endpoint
+        )
+
+    def add_class(
+            self,
+            name,
+            **kwargs
+    ):
         new_class = DATASET_DICT[self.dataset_type](
             name=name,
-            client=self._client
+            client=self._client,
+            **kwargs
         )
 
         self.classes.append(new_class)
@@ -81,7 +147,6 @@ class Ontology:
         return new_class
 
 
-#
 # def import_ontology(
 #         self,
 #         onto,

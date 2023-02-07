@@ -1,4 +1,6 @@
 from functools import reduce
+
+
 # from typing import Union, List, Dict, Optional
 # from rich.table import Table
 # from rich import box
@@ -107,13 +109,6 @@ def _to_single(query_result):
     return query_result
 
 
-def _to_camel(
-        var
-):
-    parts = var.split('_')
-    return reduce(lambda x, y: x + y.capitalize(), parts)
-
-
 def _parse_data_info(data_content: list):
     datas = []
     for data in data_content:
@@ -123,5 +118,3 @@ def _parse_data_info(data_content: list):
         }
         datas.append(one_data)
     return datas
-
-

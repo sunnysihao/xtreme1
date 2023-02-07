@@ -1,8 +1,7 @@
 import json
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
-from .._others import _to_camel
 from ..exceptions import NameDuplicatedException
 
 INDENT = 4
@@ -10,6 +9,9 @@ INDENT = 4
 
 class Node:
     __slots__ = ['name', '_parent', 'id', '_nodes']
+
+    total_attrs = []
+    total_keys = []
 
     def __init__(
             self,
@@ -28,25 +30,24 @@ class Node:
     ):
         return f'<{self.__class__.__name__}> {self.name}'
 
-    # def to_dict(
-    #         self
-    # ):
-    #     result = {}
-    #     attrs = ['name', 'color', 'tool_type', 'tool_type_options', 'attributes',
-    #              'options', 'type', 'required']
-    #     for attr_ in attrs:
-    #         value = getattr(self, attr_, None)
-    #         attr = _to_camel(attr_)
-    #         if value is None:
-    #             continue
-    #         if type(value).__name__ == 'Nodes':
-    #             result[attr] = []
-    #             for child in value.nodes:
-    #                 result[attr].append(child.to_dict())
-    #         else:
-    #             result[attr] = value
-    #
-    #     return result
+    def to_dict(
+            self
+    ):
+        result = {}
+        for i in range(len(self.total_attrs)):
+            attr = self.total_attrs[i]
+            k = self.total_keys[i]
+            value = getattr(self, attr, None)
+            if value is None:
+                continue
+            if attr == '_nodes':
+                result[k] = []
+                for node in value:
+                    result[k].append(node.to_dict())
+            else:
+                result[k] = value
+
+        return result
 
     def _check_dup(
             self,
@@ -56,9 +57,34 @@ class Node:
         if new_name in names:
             raise NameDuplicatedException(message='This label already exists!')
 
+    @staticmethod
+    def _parse_dict(
+            node_dict
+    ):
+        return {}, []
+
+    @classmethod
+    def to_node(
+            cls,
+            org_dict
+    ):
+        cur_args, cur_child_nodes = cls._parse_dict(org_dict)
+        new_node = cls(
+            **cur_args
+        )
+
+        for child in cur_child_nodes:
+            new_child_node = NODE_MAP[cls].to_node(child)
+            new_node._nodes.append(new_child_node)
+
+        return new_node
+
 
 class AttrNode(Node):
     __slots__ = ['name', '_nodes', 'id', 'type', 'required']
+
+    total_attrs = ['name', 'id', 'type', 'required', '_nodes']
+    total_keys = ['name', 'id', 'type', 'required', 'options']
 
     def __init__(
             self,
@@ -66,7 +92,7 @@ class AttrNode(Node):
             options: Optional[List[str]] = None,
             input_type: str = 'RADIO',
             required: bool = False,
-            id_: Optional[int] = None,
+            id_: Optional[str] = None,
     ):
         super().__init__(
             name=name,
@@ -100,44 +126,48 @@ class AttrNode(Node):
 
     def add_option(
             self,
-            name
+            name: Union[str, List[str]]
     ):
-        self._check_dup(
-            new_name=name
-        )
+        if type(name) == str:
+            name = [name]
 
-        new_opt = OptionNode(
-            name=name
-        )
-        self._nodes.append(new_opt)
+        for single in name:
+            self._check_dup(
+                new_name=single
+            )
 
-        return new_opt
+            new_opt = OptionNode(
+                name=single
+            )
+            self._nodes.append(new_opt)
+
+        return self._nodes
 
     @staticmethod
-    def to_node(
+    def _parse_dict(
             node_dict
     ):
-        new_attr_node = AttrNode(
-            name=node_dict['name'],
-            input_type=node_dict['type'],
-            required=node_dict['required']
-        )
+        kwargs = {
+            'name': node_dict['name'],
+            'input_type': node_dict['type'],
+            'required': node_dict['required'],
+        }
 
-        options = node_dict['options']
-        for opt in options:
-            new_opt_node = OptionNode.to_node(opt)
-            new_attr_node.options.append(new_opt_node)
+        child_nodes = node_dict['options']
 
-        return new_attr_node
+        return kwargs, child_nodes
 
 
 class OptionNode(Node):
     __slots__ = ['name', 'id', '_nodes']
 
+    total_attrs = ['name', 'id', '_nodes']
+    total_keys = ['name', 'id', 'attributes']
+
     def __init__(
             self,
             name,
-            id_: Optional[int] = None
+            id_: Optional[str] = None
     ):
         super().__init__(
             name=name,
@@ -182,28 +212,24 @@ class OptionNode(Node):
         return new_attr
 
     @staticmethod
-    def to_node(
+    def _parse_dict(
             node_dict
     ):
-        new_opt_node = OptionNode(
-            name=node_dict['name']
-        )
+        kwargs = {
+            'name': node_dict['name']
+        }
 
-        attrs = node_dict['attributes']
-        for attr in attrs:
-            new_attr_node = AttrNode.to_node(attr)
-            new_opt_node._nodes.append(new_attr_node)
+        child_nodes = node_dict['attributes']
 
-        return new_opt_node
+        return kwargs, child_nodes
 
 
 class RootNode(Node):
-    __slots__ = ['_id', 'name', '_nodes', '_client', 'onto_type']
+    __slots__ = ['id', 'name', '_nodes', 'onto_type']
 
     def __init__(
             self,
             name,
-            client,
             attrs,
             onto_type: str = 'class',
             id_: Optional[int] = None,
@@ -215,7 +241,6 @@ class RootNode(Node):
         )
         onto_type = onto_type.lower()
         self.onto_type = onto_type
-        self._client = client
 
     @property
     def attributes(
@@ -242,25 +267,6 @@ class RootNode(Node):
 
         return new_attr
 
-        # def delete_cls(
-        #         self
-        # ):
-        #     if 'dataset' in self._parent.des_type:
-        #         endpoint = f'dataset{self.onto_type.capitalize()}/delete/{self.id}'
-        #     else:
-        #         endpoint = f'{self.onto_type.capitalize()}/delete/{self.id}'
-        #
-        #     resp = self._parent._client.api.post_request(
-        #         endpoint=endpoint
-        #     )
-        #
-        #     if self.onto_type == 'class':
-        #         self._parent.classes.remove(self.name)
-        #     else:
-        #         self._parent.classifications.remove(self.name)
-        #
-        #     return resp
-
         # def update_cls(
         #         self,
         #         des_id: str,
@@ -286,13 +292,15 @@ class RootNode(Node):
 
 
 class ImageRootNode(RootNode):
-    __slots__ = ['_id', 'name', 'color', 'tool_type', 'tool_type_options',
-                 '_nodes', '_client', 'onto_type']
+    __slots__ = ['id', 'name', 'color', 'tool_type', 'tool_type_options',
+                 '_nodes', 'onto_type']
+
+    total_attrs = ['name', 'id', 'tool_type', 'tool_type_options', '_nodes']
+    total_keys = ['name', 'id', 'toolType', 'toolTypeOptions', 'attributes']
 
     def __init__(
             self,
             name,
-            client,
             tool_type: str = 'BOUNDING_BOX',
             attrs: Optional[List] = None,
             color: str = '#7dfaf2',
@@ -300,7 +308,6 @@ class ImageRootNode(RootNode):
     ):
         super().__init__(
             name=name,
-            client=client,
             attrs=attrs,
             onto_type='class',
             id_=id_
@@ -324,34 +331,31 @@ class ImageRootNode(RootNode):
         return f"<{self.__class__.__name__}>\n{self_intro}"
 
     @staticmethod
-    def to_node(
-            node_dict,
-            client
+    def _parse_dict(
+            node_dict
     ):
-        new_root = ImageRootNode(
-            name=node_dict['name'],
-            client=client,
-            tool_type=node_dict['toolType'],
-            color=node_dict['color'],
-            id_=node_dict['id']
-        )
+        kwargs = {
+            'name': node_dict['name'],
+            'tool_type': node_dict['toolType'],
+            'color': node_dict['color'],
+            'id_': node_dict['id']
+        }
 
-        attrs = node_dict['attributes']
-        for attr in attrs:
-            new_attr_node = AttrNode.to_node(attr)
-            new_root._nodes.append(new_attr_node)
+        child_nodes = node_dict['attributes']
 
-        return new_root
+        return kwargs, child_nodes
 
 
 class LidarBasicRootNode(RootNode):
-    __slots__ = ['_id', 'name', 'color', 'tool_type', 'tool_type_options',
-                 '_nodes', '_client', 'onto_type']
+    __slots__ = ['id', 'name', 'color', 'tool_type', 'tool_type_options',
+                 '_nodes', 'onto_type']
+
+    total_attrs = ['name', 'id', 'tool_type', 'tool_type_options', '_nodes']
+    total_keys = ['name', 'id', 'toolType', 'toolTypeOptions', 'attributes']
 
     def __init__(
             self,
             name,
-            client,
             tool_type: str = 'CUBOID',
             tool_type_options: Optional[Dict] = None,
             attrs: Optional[List] = None,
@@ -360,7 +364,6 @@ class LidarBasicRootNode(RootNode):
     ):
         super().__init__(
             name=name,
-            client=client,
             attrs=attrs,
             onto_type='class',
             id_=id_
@@ -395,35 +398,32 @@ class LidarBasicRootNode(RootNode):
         return f"<{self.__class__.__name__}>\n{self_intro}"
 
     @staticmethod
-    def to_node(
-            node_dict,
-            client
+    def _parse_dict(
+            node_dict
     ):
-        new_root = LidarBasicRootNode(
-            name=node_dict['name'],
-            client=client,
-            tool_type=node_dict['toolType'],
-            tool_type_options=node_dict['toolTypeOptions'],
-            color=node_dict['color'],
-            id_=node_dict['id']
-        )
+        kwargs = {
+            'name': node_dict['name'],
+            'tool_type': node_dict['toolType'],
+            'tool_type_options': node_dict['toolTypeOptions'],
+            'color': node_dict['color'],
+            'id_': node_dict['id']
+        }
 
-        attrs = node_dict['attributes']
-        for attr in attrs:
-            new_attr_node = AttrNode.to_node(attr)
-            new_root._nodes.append(new_attr_node)
+        child_nodes = node_dict['attributes']
 
-        return new_root
+        return kwargs, child_nodes
 
 
 class LidarFusionRootNode(RootNode):
-    __slots__ = ['_id', 'name', 'color', 'tool_type', 'tool_type_options',
-                 '_nodes', '_client', 'onto_type']
+    __slots__ = ['id', 'name', 'color', 'tool_type', 'tool_type_options',
+                 '_nodes', 'onto_type']
+
+    total_attrs = ['name', 'id', 'tool_type', 'tool_type_options', '_nodes']
+    total_keys = ['name', 'id', 'toolType', 'toolTypeOptions', 'attributes']
 
     def __init__(
             self,
             name,
-            client,
             tool_type: str = 'CUBOID',
             tool_type_options: Optional[Dict] = None,
             attrs: Optional[List] = None,
@@ -432,7 +432,6 @@ class LidarFusionRootNode(RootNode):
     ):
         super().__init__(
             name=name,
-            client=client,
             attrs=attrs,
             onto_type='class',
             id_=id_
@@ -467,22 +466,27 @@ class LidarFusionRootNode(RootNode):
         return f"<{self.__class__.__name__}>\n{self_intro}"
 
     @staticmethod
-    def to_node(
-            node_dict,
-            client
+    def _parse_dict(
+            node_dict
     ):
-        new_root = LidarFusionRootNode(
-            name=node_dict['name'],
-            client=client,
-            tool_type=node_dict['toolType'],
-            tool_type_options=node_dict['toolTypeOptions'],
-            color=node_dict['color'],
-            id_=node_dict['id']
-        )
+        kwargs = {
+            'name': node_dict['name'],
+            'tool_type': node_dict['toolType'],
+            'tool_type_options': node_dict['toolTypeOptions'],
+            'color': node_dict['color'],
+            'id_': node_dict['id']
+        }
 
-        attrs = node_dict['attributes']
-        for attr in attrs:
-            new_attr_node = AttrNode.to_node(attr)
-            new_root._nodes.append(new_attr_node)
+        child_nodes = node_dict['attributes']
 
-        return new_root
+        return kwargs, child_nodes
+
+
+NODE_MAP = {
+    Node: None,
+    ImageRootNode: AttrNode,
+    LidarBasicRootNode: AttrNode,
+    LidarFusionRootNode: AttrNode,
+    AttrNode: OptionNode,
+    OptionNode: AttrNode
+}
