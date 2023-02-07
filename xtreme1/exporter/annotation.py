@@ -55,6 +55,11 @@ class Annotation:
         self.export_time = export_time
         self.annotation = annotation
         self._client = client
+        self.anno_type = self.__query_dataset_type()
+
+    def __query_dataset_type(self):
+
+        return self._client.query_dataset(self.dataset_id).type
 
     def __str__(self):
         return f"Annotation(dataset_id={self.dataset_id}, dataset_name={self.dataset_name})"
@@ -146,16 +151,28 @@ class Annotation:
             self.to_xml(self.__gen_dir(export_folder))
         elif format == 'TXT':
             self.to_txt(self.__gen_dir(export_folder))
-        elif format == 'COCO':
-            self.to_coco(self.__gen_dir(export_folder))
-        elif format == 'VOC':
-            self.to_voc(self.__gen_dir(export_folder))
-        elif format == 'YOLO':
-            self.to_yolo(self.__gen_dir(export_folder))
-        elif format == 'LABELME':
-            self.to_yolo(self.__gen_dir(export_folder))
-        elif format == 'KITTI':
-            self.to_kitti(self.__gen_dir(export_folder))
+        elif format in ['COCO', 'VOC', 'YOLO', 'LABELME']:
+            if self.anno_type == 'IMAGE':
+                if format == 'COCO':
+                    self.to_coco(self.__gen_dir(export_folder))
+                elif format == 'VOC':
+                    self.to_voc(self.__gen_dir(export_folder))
+                elif format == 'YOLO':
+                    self.to_yolo(self.__gen_dir(export_folder))
+                else:
+                    self.to_labelme(self.__gen_dir(export_folder))
+            else:
+                raise ConverterException(message='Annotations do not support this format')
+        elif format in ['KITTI']:
+            if self.anno_type == 'LIDAR_FUSION':
+                if format == 'KITTI':
+                    self.to_kitti(self.__gen_dir(export_folder))
+            else:
+                raise ConverterException(message='Annotations do not support this format')
+        elif self.anno_type == 'LIDAR_BASIC':
+            pass
+        else:
+            raise ConverterException(message='Annotations do not support this format')
 
     def to_json(self, export_folder):
         """Convert the saved result to a json file in the xtreme1 standard format.
@@ -230,9 +247,12 @@ class Annotation:
         -------
 
         """
-        _to_coco(annotation=self.annotation,
-                 dataset_name=self.dataset_name,
-                 export_folder=self.__gen_dir(export_folder))
+        if self.anno_type == 'IMAGE':
+            _to_coco(annotation=self.annotation,
+                     dataset_name=self.dataset_name,
+                     export_folder=self.__gen_dir(export_folder))
+        else:
+            raise ConverterException(message='This annotations do not support export to coco format')
 
     def to_voc(self, export_folder):
         """
@@ -245,9 +265,12 @@ class Annotation:
         -------
 
         """
-        _to_voc(annotation=self.annotation,
-                dataset_name=self.dataset_name,
-                export_folder=self.__gen_dir(export_folder))
+        if self.anno_type == 'IMAGE':
+            _to_voc(annotation=self.annotation,
+                    dataset_name=self.dataset_name,
+                    export_folder=self.__gen_dir(export_folder))
+        else:
+            raise ConverterException(message='This annotations do not support export to voc format')
 
     def to_yolo(self, export_folder):
         """
@@ -260,9 +283,12 @@ class Annotation:
         -------
 
         """
-        _to_yolo(annotation=self.annotation,
-                 dataset_name=self.dataset_name,
-                 export_folder=self.__gen_dir(export_folder))
+        if self.anno_type == 'IMAGE':
+            _to_yolo(annotation=self.annotation,
+                     dataset_name=self.dataset_name,
+                     export_folder=self.__gen_dir(export_folder))
+        else:
+            raise ConverterException(message='This annotations do not support export to yolo format')
 
     def to_labelme(self, export_folder):
         """Export data in label_me format.
@@ -276,8 +302,11 @@ class Annotation:
         -------
 
         """
-        _to_labelme(annotation=self.annotation,
-                    export_folder=self.__gen_dir(export_folder))
+        if self.anno_type == 'IMAGE':
+            _to_labelme(annotation=self.annotation,
+                        export_folder=self.__gen_dir(export_folder))
+        else:
+            raise ConverterException(message='This annotations do not support export to labelme format')
 
     def to_kitti(self, export_folder):
         """
@@ -290,6 +319,9 @@ class Annotation:
         -------
 
         """
-        _to_kitti(annotation=self.annotation,
-                  dataset_name=self.dataset_name,
-                  export_folder=self.__gen_dir(export_folder))
+        if self.anno_type == 'LIDAR_FUSION':
+            _to_kitti(annotation=self.annotation,
+                      dataset_name=self.dataset_name,
+                      export_folder=self.__gen_dir(export_folder))
+        else:
+            raise ConverterException(message='This annotations do not support export to kitti format')

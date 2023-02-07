@@ -70,7 +70,7 @@ class Model:
         else:
             if dataset_id:
                 data = self._client.query_data_under_dataset(dataset_id)
-                data_id = [x['id'] for x in data['list']]
+                data_id = [x['id'] for x in data['datas']]
             else:
                 raise ParamException(message='You need to pass either data_id or dataset_id !!!')
 
@@ -107,11 +107,11 @@ class ImageModel(Model):
 
     def predict(
             self,
-            classes: Optional[Union[str, List[str]]],
             min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
             max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
-            data_id: Optional[Union[str, List[str]]] = None,
-            dataset_id: Optional[str] = None
+            classes: Optional[Union[str, List[str]]] = None,
+            data_id: Optional[Union[int, List[int]]] = None,
+            dataset_id: Optional[int] = None
     ) -> List[Dict]:
         """
         Use a trained model to recognize given objects in an image.
@@ -129,9 +129,9 @@ class ImageModel(Model):
         max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1
             Filter out all the results that has a higher confidence than 'max_confidence'.
             Range from [0.5, 1].
-        data_id: Optional[Union[str, List[str]]], default None
+        data_id: Optional[Union[int, List[int]]], default None
             If you pass this parameter, the model will only predict the given data.
-        dataset_id: Optional[str], default None
+        dataset_id: Optional[int], default None
             If you pass this parameter, the model will predict all the data under this dataset.
 
         Returns
@@ -160,6 +160,8 @@ class ImageModel(Model):
         endpoint = 'model/image/recognition'
         if not classes:
             classes = reduce(lambda x, y: x + y, [list(c.value) for c in self.classes])
+        if isinstance(data_id, int):
+            data_id = [data_id]
 
         return self._predict(
             endpoint=endpoint,

@@ -24,11 +24,11 @@ class NameDuplicatedException(SDKException):
 
 
 class ConverterException(SDKException):
-    code = 'ANNOTATIONS_DO_NOT_SUPPORT_THIS_FORMAT'
+    code = 'NOT_SUPPORT'
 
 
 class SourceException(SDKException):
-    code = ''
+    code = 'UNPARSEABLE'
 
 
 class NoPermissionException(SDKException):
@@ -38,5 +38,6 @@ class NoPermissionException(SDKException):
 EXCEPTIONS = {
     ParamException.code: ParamException,
     DatasetIdException.code: DatasetIdException,
-    NameDuplicatedException.code: NameDuplicatedException
+    NameDuplicatedException.code: NameDuplicatedException,
+    ConverterException.code: ConverterException
 }

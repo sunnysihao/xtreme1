@@ -95,7 +95,7 @@ This method is similar to the above one.
 It returns a long dict. If you want to simplify this dict, use 'get_values()' to select specific keys in the dict. After that, you can use 'as_table()' to show the data in tabular form and use 'rich.print()' to print this table.
 
 ```python
-from xtreme1.array_funcs import get_values, as_table
+from xtreme1._others import get_values, as_table
 from rich import print as rprint
 
 data_dict = client.query_data_under_dataset(

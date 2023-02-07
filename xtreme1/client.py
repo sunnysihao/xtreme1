@@ -14,7 +14,7 @@ from .exceptions import SDKException, ParamException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
 from .ontology.ontology import Ontology
-from ._others import _to_single
+from ._others import _to_single, _parse_data_info
 
 
 class Client:
@@ -54,7 +54,7 @@ class Client:
         endpoint = 'dataset/create'
         payload = {
             'name': name,
-            'type': annotation_type,
+            'type': annotation_type.upper(),
             'description': description
         }
 
@@ -308,12 +308,19 @@ class Client:
 
         resp = self.api.get_request(endpoint=endpoint, params=params)
 
-        return resp
+        rps_dict = {
+            "pageSize": resp.get('pageSize'),
+            "pageNo": resp.get('pageNo'),
+            "total": resp.get('total'),
+            "datas": _parse_data_info(resp.get('list'))
+        }
+
+        return rps_dict
 
     def delete_data(
             self,
-            dataset_id: str,
-            data_id: Union[str, List[str]],
+            dataset_id: int,
+            data_id: Union[int, List[int]],
             is_sure: bool = False
     ) -> str:
         """
@@ -324,10 +331,10 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: str
+        dataset_id: int
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
-        data_id: Union[str, List[str]]
+        data_id: Union[int, List[int]]
             An id or list of ids of the data you want to delete.
         is_sure: bool, default False
             Set it to 'True' to delete the data.
@@ -342,6 +349,8 @@ class Client:
             return 'Unsure'
 
         if type(data_id) == str:
+            data_id = int(data_id)
+        if not isinstance(data_id, list):
             data_id = [data_id]
 
         endpoint = 'data/deleteBatch'
@@ -357,7 +366,7 @@ class Client:
 
     def query_data(
             self,
-            data_id: Union[str, List[str]]
+            data_id: Union[int, List[int]]
     ) -> List[Dict]:
         """
         Use a specific id or a list of ids to delete data.
@@ -378,6 +387,8 @@ class Client:
         endpoint = 'data/listByIds'
 
         if type(data_id) == str:
+            data_id = int(data_id)
+        if not isinstance(data_id, list):
             data_id = [data_id]
         params = {
             'dataIds': data_id
@@ -385,7 +396,7 @@ class Client:
 
         resp = self.api.get_request(endpoint=endpoint, params=params)
 
-        return resp
+        return _parse_data_info(resp)
 
     def _generate_data_direct_upload_address(
             self,
@@ -594,8 +605,8 @@ class Client:
 
     def _get_data_and_result_info(
             self,
-            dataset_id: str,
-            data_ids: Union[str, List[str], None] = None
+            dataset_id: int,
+            data_ids: Union[int, List[int], None] = None
     ) -> Dict:
         endpoint = 'data/getDataAndResult'
 
@@ -610,8 +621,8 @@ class Client:
 
     def query_data_and_result(
             self,
-            dataset_id: str,
-            data_ids: Union[str, List[str], None] = None,
+            dataset_id: int,
+            data_ids: Union[int, List[int], None] = None,
             limit: int = 5000,
             dropna: bool = False
     ) -> Annotation:
@@ -621,9 +632,9 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: str
+        dataset_id: int
             The id of the dataset you want to query.
-        data_ids: Union[str, List[str], None], default None
+        data_ids: Union[int, List[int], None], default None
             The id or ids of the data you want to query.
         limit: int, default 5000
             The max number of returned annotation results.

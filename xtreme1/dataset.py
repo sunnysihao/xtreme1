@@ -196,7 +196,7 @@ class Dataset:
 
     def query_data_and_result(
             self,
-            data_ids: Union[str, List[str], None] = None,
+            data_ids: Union[int, List[int], None] = None,
             limit: int = 5000,
             dropna: bool = False
     ) -> Annotation:
@@ -206,7 +206,7 @@ class Dataset:
 
         Parameters
         ----------
-        data_ids: Union[str, List[str], None], default None
+        data_ids: Union[int, List[int], None], default None
             The id or ids of the data you want to query.
         limit: int, default 5000
             The max number of returned annotation results.
