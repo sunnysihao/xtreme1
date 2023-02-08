@@ -2,13 +2,22 @@ import json
 
 from typing import List, Dict, Optional, Union
 
-from ..exceptions import NameDuplicatedException
+from ..exceptions import NameDuplicatedException, ParamException
 
 INDENT = 4
 
 
+def _check_dup(
+        nodes,
+        new_name
+):
+    names = [x.name for x in nodes]
+    if new_name in names:
+        raise NameDuplicatedException(message='This label already exists!')
+
+
 class Node:
-    __slots__ = ['name', '_parent', 'id', '_nodes']
+    __slots__ = ['name', '_parent', '_nodes']
 
     total_attrs = []
     total_keys = []
@@ -16,11 +25,9 @@ class Node:
     def __init__(
             self,
             name,
-            nodes: Optional[List] = None,
-            id_: Optional[int] = None,
+            nodes: Optional[List] = None
     ):
         self.name = name
-        self.id = id_
         if not nodes:
             nodes = []
         self._nodes = nodes
@@ -29,6 +36,14 @@ class Node:
             self
     ):
         return f'<{self.__class__.__name__}> {self.name}'
+
+    # def __setattr__(
+    #         self,
+    #         key,
+    #         value
+    # ):
+    #     if key in ['tool_type']:
+    #         return value.upper()
 
     def to_dict(
             self
@@ -41,6 +56,8 @@ class Node:
             if value is None:
                 continue
             if attr == '_nodes':
+                if (not value) and isinstance(self, AttrNode):
+                    raise ParamException(message=f"Options of attribute '{self.name}' can not be null!")
                 result[k] = []
                 for node in value:
                     result[k].append(node.to_dict())
@@ -48,14 +65,6 @@ class Node:
                 result[k] = value
 
         return result
-
-    def _check_dup(
-            self,
-            new_name
-    ):
-        names = [x.name for x in self._nodes]
-        if new_name in names:
-            raise NameDuplicatedException(message='This label already exists!')
 
     @staticmethod
     def _parse_dict(
@@ -81,22 +90,20 @@ class Node:
 
 
 class AttrNode(Node):
-    __slots__ = ['name', '_nodes', 'id', 'type', 'required']
+    __slots__ = ['name', '_nodes', 'type', 'required']
 
-    total_attrs = ['name', 'id', 'type', 'required', '_nodes']
-    total_keys = ['name', 'id', 'type', 'required', 'options']
+    total_attrs = ['name', 'type', 'required', '_nodes']
+    total_keys = ['name', 'type', 'required', 'options']
 
     def __init__(
             self,
             name,
             options: Optional[List[str]] = None,
             input_type: str = 'RADIO',
-            required: bool = False,
-            id_: Optional[str] = None,
+            required: bool = False
     ):
         super().__init__(
-            name=name,
-            id_=id_
+            name=name
         )
         self.type = input_type
         self.required = required
@@ -132,7 +139,8 @@ class AttrNode(Node):
             name = [name]
 
         for single in name:
-            self._check_dup(
+            _check_dup(
+                nodes=self._nodes,
                 new_name=single
             )
 
@@ -159,19 +167,17 @@ class AttrNode(Node):
 
 
 class OptionNode(Node):
-    __slots__ = ['name', 'id', '_nodes']
+    __slots__ = ['name', '_nodes']
 
-    total_attrs = ['name', 'id', '_nodes']
-    total_keys = ['name', 'id', 'attributes']
+    total_attrs = ['name', '_nodes']
+    total_keys = ['name', 'attributes']
 
     def __init__(
             self,
-            name,
-            id_: Optional[str] = None
+            name
     ):
         super().__init__(
-            name=name,
-            id_=id_
+            name=name
         )
         self._nodes = []
 
@@ -198,7 +204,8 @@ class OptionNode(Node):
             input_type: str = 'RADIO',
             required: bool = False
     ):
-        self._check_dup(
+        _check_dup(
+            nodes=self._nodes,
             new_name=name
         )
 
@@ -225,7 +232,7 @@ class OptionNode(Node):
 
 
 class RootNode(Node):
-    __slots__ = ['id', 'name', '_nodes', 'onto_type']
+    __slots__ = ['__id', 'name', '_nodes', 'onto_type']
 
     def __init__(
             self,
@@ -236,11 +243,15 @@ class RootNode(Node):
     ):
         super().__init__(
             name=name,
-            nodes=attrs,
-            id_=id_
+            nodes=attrs
         )
         onto_type = onto_type.lower()
         self.onto_type = onto_type
+        self.__id = id_
+
+    @property
+    def id(self):
+        return self.__id
 
     @property
     def attributes(
@@ -254,7 +265,8 @@ class RootNode(Node):
             input_type: str = 'RADIO',
             required: bool = False
     ):
-        self._check_dup(
+        _check_dup(
+            nodes=self._nodes,
             new_name=name
         )
 
@@ -267,36 +279,13 @@ class RootNode(Node):
 
         return new_attr
 
-        # def update_cls(
-        #         self,
-        #         des_id: str,
-        #         des_type: str = 'dataset',
-        #         onto_id: Optional[str] = None,
-        # ):
-        #     onto_dict = Ontology.to_dict(onto)
-        #
-        #     if 'ontology' in des_type:
-        #         endpoint = f'{onto_type}/update/{onto_id}'
-        #         onto_dict['ontologyId'] = des_id
-        #     else:
-        #         endpoint = f'dataset{onto_type.capitalize()}/update/{onto_id}'
-        #         onto_dict['datasetId'] = des_id
-        #
-        #     resp = self.api.post_request(
-        #         endpoint=endpoint,
-        #         payload=onto_dict
-        #
-        #     )
-        #
-        #     return resp
-
 
 class ImageRootNode(RootNode):
-    __slots__ = ['id', 'name', 'color', 'tool_type', 'tool_type_options',
+    __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
                  '_nodes', 'onto_type']
 
-    total_attrs = ['name', 'id', 'tool_type', 'tool_type_options', '_nodes']
-    total_keys = ['name', 'id', 'toolType', 'toolTypeOptions', 'attributes']
+    total_attrs = ['name', 'tool_type', 'tool_type_options', '_nodes', 'color']
+    total_keys = ['name', 'toolType', 'toolTypeOptions', 'attributes', 'color']
 
     def __init__(
             self,
@@ -347,11 +336,11 @@ class ImageRootNode(RootNode):
 
 
 class LidarBasicRootNode(RootNode):
-    __slots__ = ['id', 'name', 'color', 'tool_type', 'tool_type_options',
+    __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
                  '_nodes', 'onto_type']
 
-    total_attrs = ['name', 'id', 'tool_type', 'tool_type_options', '_nodes']
-    total_keys = ['name', 'id', 'toolType', 'toolTypeOptions', 'attributes']
+    total_attrs = ['name', 'tool_type', 'tool_type_options', '_nodes', 'color']
+    total_keys = ['name', 'toolType', 'toolTypeOptions', 'attributes', 'color']
 
     def __init__(
             self,
@@ -415,11 +404,11 @@ class LidarBasicRootNode(RootNode):
 
 
 class LidarFusionRootNode(RootNode):
-    __slots__ = ['id', 'name', 'color', 'tool_type', 'tool_type_options',
+    __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
                  '_nodes', 'onto_type']
 
-    total_attrs = ['name', 'id', 'tool_type', 'tool_type_options', '_nodes']
-    total_keys = ['name', 'id', 'toolType', 'toolTypeOptions', 'attributes']
+    total_attrs = ['name', 'tool_type', 'tool_type_options', '_nodes', 'color']
+    total_keys = ['name', 'toolType', 'toolTypeOptions', 'attributes', 'color']
 
     def __init__(
             self,
