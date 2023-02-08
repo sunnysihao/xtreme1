@@ -39,7 +39,15 @@ class Node:
 
     def to_dict(
             self
-    ):
+    ) -> Dict:
+        """
+        Turn this node into `dict` form.
+
+        Returns
+        -------
+        Dict
+            A standard `dict` of ontology.
+        """
         result = {}
         for i in range(len(self.total_attrs)):
             attr = self.total_attrs[i]
@@ -67,8 +75,21 @@ class Node:
     @classmethod
     def to_node(
             cls,
-            org_dict
+            org_dict: Dict
     ):
+        """
+        Turn a `dict` into a `Node` object.
+
+        Parameters
+        ----------
+        org_dict: Dict
+            The `dict` of an ontology class/classification or attribute/option.
+
+        Returns
+        -------
+        Node
+            A `Node` object.
+        """
         cur_args, cur_child_nodes = cls._parse_dict(org_dict)
         new_node = cls(
             **cur_args
@@ -101,8 +122,7 @@ class AttrNode(Node):
         self.required = required
         if not options:
             options = []
-        for opt in options:
-            self.add_option(opt)
+        self.add_options(options)
 
     def __str__(
             self
@@ -123,10 +143,24 @@ class AttrNode(Node):
     ):
         return self._nodes
 
-    def add_option(
+    def add_options(
             self,
             name: Union[str, List[str]]
-    ):
+    ) -> List:
+        """
+        Add one or several `OptionNode` to the options of an `AttrNode`.
+
+        Parameters
+        ----------
+        name: Union[str, List[str]]
+            The name(s) of new option(s).
+
+        Returns
+        -------
+        List
+            All `OptionNode` of this `AttrNode`.
+            Notice that these options are already in its parent node.
+        """
         if type(name) == str:
             name = [name]
 
@@ -194,8 +228,30 @@ class OptionNode(Node):
             self,
             name,
             input_type: str = 'RADIO',
-            required: bool = False
+            required: bool = False,
+            options: Union[str, List[str]] = None
     ):
+        """
+        Add an `AttrNode` to the attributes of an `OptionNode`.
+
+        Parameters
+        ----------
+        name: Union[str, List[str]]
+            The name(s) of new option(s).
+        input_type: str, default 'RADIO'
+            The input type of this attribute.
+            Options: ['RADIO', 'MULTI_SELECTION', 'DROPDOWN', 'TEXT']
+        required: bool, default 'False'
+            Whether this attribute is mandatory or optional.
+        options: Union[str, List[str]], default 'None'
+            The options of this attribute.
+
+        Returns
+        -------
+        List
+            The new `AttrNode`.
+            Notice that it's already in its parent node.
+        """
         _check_dup(
             nodes=self._nodes,
             new_name=name
@@ -204,7 +260,8 @@ class OptionNode(Node):
         new_attr = AttrNode(
             name=name,
             input_type=input_type,
-            required=required
+            required=required,
+            options=options
         )
         self._nodes.append(new_attr)
 
@@ -255,7 +312,8 @@ class RootNode(Node):
             self,
             name,
             input_type: str = 'RADIO',
-            required: bool = False
+            required: bool = False,
+            options: Union[str, List[str]] = None
     ):
         _check_dup(
             nodes=self._nodes,
@@ -265,7 +323,8 @@ class RootNode(Node):
         new_attr = AttrNode(
             name=name,
             input_type=input_type,
-            required=required
+            required=required,
+            options=options
         )
         self._nodes.append(new_attr)
 

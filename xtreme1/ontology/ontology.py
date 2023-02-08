@@ -7,7 +7,7 @@ from .node import _check_dup, ImageRootNode, LidarBasicRootNode, LidarFusionRoot
 
 
 class Ontology:
-    __slots__ = ['classes', 'classifications', '_des_id', '_des_type', 'dataset_type', 'name', '_client']
+    __slots__ = ['classes', 'classifications', '_des_id', '_des_type', '_dataset_type', 'name', '_client']
 
     def __init__(
             self,
@@ -21,7 +21,7 @@ class Ontology:
         self._client = client
         self._des_id = des_id
         self._des_type = des_type
-        self.dataset_type = dataset_type.upper()
+        self._dataset_type = dataset_type.upper()
         self.classes = []
         self.classifications = []
         if classes is None:
@@ -29,7 +29,7 @@ class Ontology:
         if classifications is None:
             classifications = []
         for c in classes:
-            new_class = DATASET_DICT[self.dataset_type].to_node(
+            new_class = DATASET_DICT[self._dataset_type].to_node(
                 org_dict=c,
             )
             self.classes.append(new_class)
@@ -75,7 +75,7 @@ class Ontology:
             new_name=name
         )
 
-        new_class = DATASET_DICT[self.dataset_type](
+        new_class = DATASET_DICT[self._dataset_type](
             name=name,
             **kwargs
         )
@@ -85,9 +85,14 @@ class Ontology:
         return new_class
 
     def copy(self):
-        new_onto = deepcopy(self)
-        new_onto.classes = []
-        new_onto.classifications = []
+        new_onto = Ontology(
+            client=None,
+            des_type='',
+            des_id='',
+            dataset_type='',
+            classes=[],
+            classifications=[]
+        )
 
         for c in self.classes:
             new_onto.classes.append(c.copy())
@@ -165,7 +170,7 @@ class Ontology:
         )
 
     def _split_dup_nodes(
-            self
+            self,
     ):
         existing_onto = self._client.query_ontology(
             des_id=self._des_id,
@@ -191,20 +196,29 @@ class Ontology:
 
     def import_ontology(
             self,
+            ontology=None,
             replace=False
     ):
-        no_dup_classes, no_dup_classifications, dup_classes, dup_classifications = self._split_dup_nodes()
+        if ontology:
+            ontology._des_id = self._des_id
+            ontology._des_type = self._des_type
+            ontology._dataset_type = self._dataset_type
+            ontology._client = self._client
+            cur_onto = ontology
+        else:
+            cur_onto = self
 
-        new_onto = deepcopy(self)
+        no_dup_classes, no_dup_classifications, dup_classes, dup_classifications = cur_onto._split_dup_nodes()
+        new_onto = deepcopy(cur_onto)
         new_onto.classes = no_dup_classes
         new_onto.classifications = no_dup_classifications
         new_onto._import_ontology()
 
         if replace:
             for c in dup_classes:
-                self.update_online_rootnode(c)
+                cur_onto.update_online_rootnode(c)
             for cf in dup_classifications:
-                self.update_online_rootnode(cf)
+                cur_onto.update_online_rootnode(cf)
 
         return 'Success'
 
