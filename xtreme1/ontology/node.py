@@ -101,6 +101,11 @@ class Node:
 
         return new_node
 
+    def copy(
+            self
+    ):
+        return deepcopy(self)
+
 
 class AttrNode(Node):
     __slots__ = ['name', '_nodes', 'type', 'required']
@@ -315,6 +320,27 @@ class RootNode(Node):
             required: bool = False,
             options: Union[str, List[str]] = None
     ):
+        """
+        Add an `AttrNode` to the attributes of an `RootNode`.
+
+        Parameters
+        ----------
+        name: Union[str, List[str]]
+            The name(s) of new option(s).
+        input_type: str, default 'RADIO'
+            The input type of this attribute.
+            Options: ['RADIO', 'MULTI_SELECTION', 'DROPDOWN', 'TEXT']
+        required: bool, default 'False'
+            Whether this attribute is mandatory or optional.
+        options: Union[str, List[str]], default 'None'
+            The options of this attribute.
+
+        Returns
+        -------
+        List
+            The new `AttrNode`.
+            Notice that it's already in its parent node.
+        """
         _check_dup(
             nodes=self._nodes,
             new_name=name
@@ -330,7 +356,17 @@ class RootNode(Node):
 
         return new_attr
 
-    def copy(self):
+    def copy(
+            self
+    ):
+        """
+        Copy this `RootNode` with its `id` put to 'None'.
+
+        Returns
+        -------
+        RootNode
+            A copy of this `RootNode`.
+        """
         new_root = deepcopy(self)
         new_root.__id = None
 
