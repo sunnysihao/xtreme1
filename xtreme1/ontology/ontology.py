@@ -1,12 +1,13 @@
 import json
 from io import BytesIO
 from typing import List, Optional
+from copy import deepcopy
 
 from .node import _check_dup, ImageRootNode, LidarBasicRootNode, LidarFusionRootNode, INDENT
 
 
 class Ontology:
-    __slots__ = ['classes', 'classifications', 'des_id', 'des_type', 'dataset_type', 'name', '_client']
+    __slots__ = ['classes', 'classifications', '_des_id', '_des_type', 'dataset_type', 'name', '_client']
 
     def __init__(
             self,
@@ -17,9 +18,9 @@ class Ontology:
             classes: Optional[List] = None,
             classifications: Optional[List] = None,
     ):
-        self.des_id = des_id
         self._client = client
-        self.des_type = des_type
+        self._des_id = des_id
+        self._des_type = des_type
         self.dataset_type = dataset_type.upper()
         self.classes = []
         self.classifications = []
@@ -41,7 +42,7 @@ class Ontology:
     def __repr__(
             self
     ):
-        return f'<{self.__class__.__name__}> The ontology of {self.des_type} {self.des_id}'
+        return f'<{self.__class__.__name__}> The ontology of {self._des_type} {self._des_id}'
 
     def __str__(
             self
@@ -83,11 +84,23 @@ class Ontology:
 
         return new_class
 
+    def copy(self):
+        new_onto = deepcopy(self)
+        new_onto.classes = []
+        new_onto.classifications = []
+
+        for c in self.classes:
+            new_onto.classes.append(c.copy())
+        for cf in self.classifications:
+            new_onto.classifications.append(cf.copy())
+
+        return new_onto
+
     def delete_online_ontology(
             self
     ):
         return self._client.delete_ontology(
-            des_id=self.des_id
+            des_id=self._des_id
         )
 
     def delete_online_rootnode(
@@ -96,10 +109,10 @@ class Ontology:
     ):
         if root_node.onto_type == 'class':
             self.classes.remove(root_node)
-            part1 = 'datasetClass' if 'dataset' in self.des_type else 'class'
+            part1 = 'datasetClass' if 'dataset' in self._des_type else 'class'
         else:
             self.classifications.remove(root_node)
-            part1 = 'datasetClassification' if 'dataset' in self.des_type else 'classification'
+            part1 = 'datasetClassification' if 'dataset' in self._des_type else 'classification'
 
         endpoint = f'{part1}/delete/{root_node.id}'
         resp = self._client.api.post_request(
@@ -116,20 +129,19 @@ class Ontology:
         onto_type = root_node.onto_type
         node_id = root_node.id
 
-        if 'ontology' in self.des_type:
+        if 'ontology' in self._des_type:
             endpoint = f'{onto_type}/update/{node_id}'
-            onto_dict['ontologyId'] = self.des_id
+            onto_dict['ontologyId'] = self._des_id
         else:
             endpoint = f'dataset{onto_type.capitalize()}/update/{node_id}'
-            onto_dict['datasetId'] = self.des_id
+            onto_dict['datasetId'] = self._des_id
 
-        resp = self._client.api.post_request(
+        self._client.api.post_request(
             endpoint=endpoint,
             payload=onto_dict
-
         )
 
-        return resp
+        return 'Success'
 
     def _import_ontology(
             self
@@ -137,8 +149,8 @@ class Ontology:
         endpoint = 'ontology/importByJson'
 
         data = {
-            'desType': self.des_type.upper(),
-            'desId': self.des_id
+            'desType': self._des_type.upper(),
+            'desId': self._des_id
         }
 
         file = BytesIO(json.dumps(self.to_dict()).encode())
@@ -156,34 +168,37 @@ class Ontology:
             self
     ):
         existing_onto = self._client.query_ontology(
-            des_id=self.des_id,
-            des_type=self.des_type
+            des_id=self._des_id,
+            des_type=self._des_type
         )
 
         existing_class_ids = [x.id for x in existing_onto.classes]
         existing_classification_ids = [x.id for x in existing_onto.classifications]
 
         dup_classes = []
-        cur_classes = self.classes
+        cur_classes = deepcopy(self.classes)
         for i in range(-len(cur_classes), 0):
             if cur_classes[i].id in existing_class_ids:
                 dup_classes.append(cur_classes.pop(i))
 
         dup_classifications = []
-        cur_classifications = self.classifications
+        cur_classifications = deepcopy(self.classifications)
         for i in range(-len(cur_classifications), 0):
             if cur_classifications[i].id in existing_classification_ids:
                 dup_classifications.append(cur_classifications.pop(i))
 
-        return dup_classes, dup_classifications
+        return cur_classes, cur_classifications, dup_classes, dup_classifications
 
     def import_ontology(
             self,
             replace=False
     ):
-        dup_classes, dup_classifications = self._split_dup_nodes()
+        no_dup_classes, no_dup_classifications, dup_classes, dup_classifications = self._split_dup_nodes()
 
-        self._import_ontology()
+        new_onto = deepcopy(self)
+        new_onto.classes = no_dup_classes
+        new_onto.classifications = no_dup_classifications
+        new_onto._import_ontology()
 
         if replace:
             for c in dup_classes:
@@ -191,7 +206,7 @@ class Ontology:
             for cf in dup_classifications:
                 self.update_online_rootnode(cf)
 
-        return True
+        return 'Success'
 
 
 DATASET_DICT = {

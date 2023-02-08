@@ -1,5 +1,5 @@
 import json
-
+from copy import deepcopy
 from typing import List, Dict, Optional, Union
 
 from ..exceptions import NameDuplicatedException, ParamException
@@ -36,14 +36,6 @@ class Node:
             self
     ):
         return f'<{self.__class__.__name__}> {self.name}'
-
-    # def __setattr__(
-    #         self,
-    #         key,
-    #         value
-    # ):
-    #     if key in ['tool_type']:
-    #         return value.upper()
 
     def to_dict(
             self
@@ -279,6 +271,12 @@ class RootNode(Node):
 
         return new_attr
 
+    def copy(self):
+        new_root = deepcopy(self)
+        new_root.__id = None
+
+        return new_root
+
 
 class ImageRootNode(RootNode):
     __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
@@ -313,11 +311,21 @@ class ImageRootNode(RootNode):
             'color': self.color,
             'toolType': self.tool_type,
             'toolTypeOptions': self.tool_type_options,
-            'attributes': [n.name for n in self._nodes],
+            'attributes': [f"<{n.__class__.__name__}> {n.name}" for n in self._nodes],
         }
         self_intro = json.dumps(self_intro, indent=' ' * INDENT)
 
         return f"<{self.__class__.__name__}>\n{self_intro}"
+
+    def __setattr__(
+            self,
+            key,
+            value
+    ):
+        if key == 'tool_type':
+            value = value.upper()
+
+        super().__setattr__(key, value)
 
     @staticmethod
     def _parse_dict(
@@ -380,11 +388,21 @@ class LidarBasicRootNode(RootNode):
             'color': self.color,
             'toolType': self.tool_type,
             'toolTypeOptions': self.tool_type_options,
-            'attributes': [n.name for n in self._nodes],
+            'attributes': [f"<{n.__class__.__name__}> {n.name}" for n in self._nodes],
         }
         self_intro = json.dumps(self_intro, indent=' ' * INDENT)
 
         return f"<{self.__class__.__name__}>\n{self_intro}"
+
+    def __setattr__(
+            self,
+            key,
+            value
+    ):
+        if key == 'tool_type':
+            value = value.upper()
+
+        super().__setattr__(key, value)
 
     @staticmethod
     def _parse_dict(
@@ -448,11 +466,21 @@ class LidarFusionRootNode(RootNode):
             'color': self.color,
             'toolType': self.tool_type,
             'toolTypeOptions': self.tool_type_options,
-            'attributes': [n.name for n in self._nodes],
+            'attributes': [f"<{n.__class__.__name__}> {n.name}" for n in self._nodes],
         }
         self_intro = json.dumps(self_intro, indent=' ' * INDENT)
 
         return f"<{self.__class__.__name__}>\n{self_intro}"
+
+    def __setattr__(
+            self,
+            key,
+            value
+    ):
+        if key == 'tool_type':
+            value = value.upper()
+
+        super().__setattr__(key, value)
 
     @staticmethod
     def _parse_dict(
