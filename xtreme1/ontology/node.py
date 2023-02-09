@@ -41,7 +41,7 @@ class Node:
             self
     ) -> Dict:
         """
-        Turn this node into `dict` form.
+        Turn this `Node` object into `dict` form.
 
         Returns
         -------
@@ -127,7 +127,8 @@ class AttrNode(Node):
         self.required = required
         if not options:
             options = []
-        self.add_options(options)
+        for opt in options:
+            self.add_option(opt)
 
     def __str__(
             self
@@ -148,39 +149,35 @@ class AttrNode(Node):
     ):
         return self._nodes
 
-    def add_options(
+    def add_option(
             self,
-            name: Union[str, List[str]]
-    ) -> List:
+            name: str
+    ):
         """
-        Add one or several `OptionNode` to the options of an `AttrNode`.
+        Add an `OptionNode` object to the options of an `AttrNode` object.
 
         Parameters
         ----------
-        name: Union[str, List[str]]
-            The name(s) of new option(s).
+        name: str
+            The name of new option.
 
         Returns
         -------
-        List
-            All `OptionNode` of this `AttrNode`.
-            Notice that these options are already in its parent node.
+        OptionNode
+            An `OptionNode` of this `AttrNode`.
+            Notice that it's already in its parent node.
         """
-        if type(name) == str:
-            name = [name]
+        _check_dup(
+            nodes=self._nodes,
+            new_name=name
+        )
 
-        for single in name:
-            _check_dup(
-                nodes=self._nodes,
-                new_name=single
-            )
+        new_opt = OptionNode(
+            name=name
+        )
+        self._nodes.append(new_opt)
 
-            new_opt = OptionNode(
-                name=single
-            )
-            self._nodes.append(new_opt)
-
-        return self._nodes
+        return new_opt
 
     @staticmethod
     def _parse_dict(
@@ -237,7 +234,7 @@ class OptionNode(Node):
             options: Union[str, List[str]] = None
     ):
         """
-        Add an `AttrNode` to the attributes of an `OptionNode`.
+        Add an `AttrNode` object to the attributes of an `OptionNode` object.
 
         Parameters
         ----------
@@ -321,7 +318,7 @@ class RootNode(Node):
             options: Union[str, List[str]] = None
     ):
         """
-        Add an `AttrNode` to the attributes of an `RootNode`.
+        Add an `AttrNode` object to the attributes of an `RootNode` object.
 
         Parameters
         ----------

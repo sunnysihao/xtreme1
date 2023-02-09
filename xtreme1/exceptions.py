@@ -19,6 +19,10 @@ class DatasetIdException(SDKException):
     code = 'DATASET_NOT_FOUND'
 
 
+class DataIdException(SDKException):
+    code = 'DATA_NOT_FOUND'
+
+
 class NameDuplicatedException(SDKException):
     code = 'NAME_DUPLICATED'
 
@@ -38,6 +42,7 @@ class NoPermissionException(SDKException):
 EXCEPTIONS = {
     ParamException.code: ParamException,
     DatasetIdException.code: DatasetIdException,
+    DataIdException.code: DataIdException,
     NameDuplicatedException.code: NameDuplicatedException,
     ConverterException.code: ConverterException
 }

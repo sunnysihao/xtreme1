@@ -97,7 +97,7 @@ class Api:
             files: Optional[Dict] = None,
             headers: bool = True,
             full_url: Optional[str] = None
-    ) -> Union[str, Dict, None]:
+    ) -> Union[str, Dict, None, bool]:
         """
         An encapsulated 'POST' method.
 

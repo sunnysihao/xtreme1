@@ -8,7 +8,7 @@ from rich.progress import track
 
 from .api import Api
 from .dataset import Dataset
-from .exceptions import SDKException, ParamException
+from .exceptions import SDKException, ParamException, DatasetIdException, DataIdException
 from .exporter.annotation import Annotation
 from .models import ImageModel, PointCloudModel
 from .ontology.ontology import Ontology
@@ -74,6 +74,7 @@ class Client:
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
         new_name: str
             New name of the dataset.
         new_description: Optional[str], default None
@@ -98,7 +99,7 @@ class Client:
             self,
             dataset_id: str,
             is_sure: bool = False
-    ) -> str:
+    ) -> bool:
         """
         Delete a dataset.
 
@@ -107,24 +108,31 @@ class Client:
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
         is_sure: bool, default False
-            Set it to 'True' to delete the dataset.
+            Sure or not sure to delete this dataset.
 
         Returns
         -------
-        str
-            'Unsure' if 'is_sure' is not set to 'True'.
-            'Success' if the dataset is deleted.
+        bool
+            True: delete complete.
+            False: user is not sure to delete the dataset or the dataset is already deleted.
         """
         if not is_sure:
-            return 'Unsure'
+            return False
 
-        endpoint = f'dataset/delete/{dataset_id}'
-        self.api.post_request(endpoint=endpoint, payload=None)
+        try:
+            endpoint = f'dataset/delete/{dataset_id}'
+            self.api.post_request(
+                endpoint=endpoint,
+                payload=None
+            )
+        except DatasetIdException:
+            return False
 
-        return 'Success'
+        return True
 
-    def _query_a_single_dataset(
+    def _query_dataset_info(
             self,
             dataset_id: str
     ) -> Dict:
@@ -184,6 +192,7 @@ class Client:
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of datasets and only want to check them part by part.
@@ -216,7 +225,7 @@ class Client:
             Notice that this function only returns one dataset at a time unless you change the 'page_size' parameter.
         """
         if dataset_id:
-            dataset_name = self._query_a_single_dataset(dataset_id)['name']
+            dataset_name = self._query_dataset_info(dataset_id)['name']
 
         resp = self._query_the_list_of_datasets(
             page_no=page_no,
@@ -232,7 +241,7 @@ class Client:
         datasets = [Dataset(d, self) for d in resp['list']]
         total = resp['total']
 
-        return _to_single((datasets, total))
+        return _to_single(datasets, total)
 
     def query_data_under_dataset(
             self,
@@ -257,6 +266,7 @@ class Client:
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
         page_no: int, default 1
             Page number of the total result.
             This is used when you have lots of data and only want to check them part by part.
@@ -320,7 +330,7 @@ class Client:
             dataset_id: int,
             data_id: Union[int, List[int]],
             is_sure: bool = False
-    ) -> str:
+    ) -> bool:
         """
         Delete one specific data or a list of data from a specific dataset.
         Notice that 'data' ≠ 'file'. For example:
@@ -332,35 +342,39 @@ class Client:
         dataset_id: int
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
         data_id: Union[int, List[int]]
             An id or list of ids of the data you want to delete.
         is_sure: bool, default False
-            Set it to 'True' to delete the data.
+            Sure or not sure to delete this dataset.
 
         Returns
         -------
-        str
-            'Unsure' if 'is_sure' is not set to 'True'.
-            'Success' if the data is deleted.
+        bool
+            True: delete complete.
+            False: user is not sure to delete the data or the data is already deleted.
         """
         if not is_sure:
-            return 'Unsure'
+            return False
 
         if type(data_id) == str:
             data_id = int(data_id)
         if not isinstance(data_id, list):
             data_id = [data_id]
 
-        endpoint = 'data/deleteBatch'
+        try:
+            endpoint = 'data/deleteBatch'
 
-        payload = {
-            'datasetId': dataset_id,
-            'ids': data_id
-        }
+            payload = {
+                'datasetId': dataset_id,
+                'ids': data_id
+            }
 
-        self.api.post_request(endpoint=endpoint, payload=payload)
+            self.api.post_request(endpoint=endpoint, payload=payload)
+        except DataIdException:
+            return False
 
-        return 'Success'
+        return True
 
     def query_data(
             self,
@@ -453,6 +467,7 @@ class Client:
         dataset_id: str
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
         is_local: bool, default True
             Whether the data is local or not.
 
@@ -533,7 +548,7 @@ class Client:
     def download_data(
             self,
             output_folder: str,
-            data_id: Union[str, List[str], None] = None,
+            data_id: Union[int, List[int], None] = None,
             dataset_id: Optional[str] = None,
             remain_directory_structure: bool = True
     ) -> Union[str, List[Dict]]:
@@ -550,6 +565,7 @@ class Client:
         dataset_id: Optional[str], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
+            Also, the id can be found in the attributes of an `Dataset` object.
             Pass this parameter to download all data from a given dataset.
         remain_directory_structure: bool, default True
             If this parameter is set to True, the folder structure of the data
@@ -762,7 +778,7 @@ class Client:
         if 'dataset' in des_type:
             endpoint1 = 'datasetClass/findByPage'
             endpoint2 = 'datasetClassification/findByPage'
-            dataset_type = self._query_a_single_dataset(des_id)['type']
+            dataset_type = self._query_dataset_info(des_id)['type']
         else:
             endpoint1 = 'class/findByPage'
             endpoint2 = 'classification/findByPage'
@@ -790,7 +806,7 @@ class Client:
 
     def query_ontology(
             self,
-            des_id: Optional[str] = None,
+            des_id: Optional[int] = None,
             name: Optional[str] = None,
             des_type='ontology_center',
             page_no: int = 1,
@@ -815,7 +831,7 @@ class Client:
                 )
                 result.append(onto)
 
-            return _to_single((result, total))
+            return _to_single(result, total)
 
         return self._query_a_single_ontology(
             des_id=des_id,
@@ -853,8 +869,31 @@ class Client:
 
     def delete_ontology(
             self,
-            des_id
-    ):
+            des_id: Union[int, str],
+            is_sure=False
+    ) -> bool:
+        """
+        Delete the ontology in your online 'ontology center'.
+        Notice that an ontology attached to a dataset can not be deleted.
+
+        Parameters
+        ----------
+        des_id: Union[int, str]:
+            An ontology id. You can find this in the last part of the ontology url, for example:
+            ``https://x1-community.alidev.beisai.com/#/ontology/class?id=480002``.
+            Also, the id can be found in the attributes of an `Ontology` object.
+        is_sure: bool, default False
+            Sure or not sure to delete this ontology.
+
+        Returns
+        -------
+        bool
+            True: delete complete.
+            False: user is not sure to delete the ontology or the ontology is already deleted.
+        """
+        if not is_sure:
+            return False
+
         endpoint = f'ontology/delete/{des_id}'
 
         resp = self.api.post_request(

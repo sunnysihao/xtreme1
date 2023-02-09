@@ -103,10 +103,10 @@ from functools import reduce
 #     return tb
 
 
-def _to_single(query_result):
-    if query_result[1] == 1:
-        return query_result[0][0]
-    return query_result
+def _to_single(query_result, total):
+    if total == 1:
+        return query_result[0]
+    return query_result, total
 
 
 def _parse_data_info(data_content: list):
