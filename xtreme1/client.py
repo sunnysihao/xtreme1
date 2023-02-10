@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from typing import List, Dict, Optional, Union, Iterable, Tuple
 from datetime import datetime
-from uuid import uuid1
 
 import requests
 from rich.progress import track
