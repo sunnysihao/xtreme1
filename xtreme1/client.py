@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import List, Dict, Optional, Union, Iterable, Tuple
 from datetime import datetime
+from uuid import uuid1
 
 import requests
 from rich.progress import track
@@ -408,7 +409,7 @@ class Client:
 
         resp = self.api.get_request(endpoint=endpoint, params=params)
 
-        return _parse_data_info(resp)
+        return resp
 
     def _generate_data_direct_upload_address(
             self,

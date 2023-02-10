@@ -58,11 +58,11 @@ class Model:
     def _predict(
             self,
             endpoint: str,
-            min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
-            max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
+            min_confidence: Union[int, float] = 0.5,
+            max_confidence: Union[int, float] = 1,
             data_id: Optional[Union[str, List[str]]] = None,
             dataset_id: Optional[str] = None,
-            **params
+            **kwargs
     ) -> List[Dict]:
         if data_id:
             if type(data_id) == str:
@@ -76,20 +76,14 @@ class Model:
 
         n = len(data_id)
 
-        if type(min_confidence) in [int, float]:
-            min_confidence = [min_confidence] * n
-
-        if type(max_confidence) in [int, float]:
-            max_confidence = [max_confidence] * n
-
         total = []
         for i in range(n):
             payload = {
                 'dataId': data_id[i],
-                'minConfidence': min_confidence[i],
-                'maxConfidence': max_confidence[i],
+                'minConfidence': min_confidence,
+                'maxConfidence': max_confidence,
             }
-            payload.update(params)
+            payload.update(kwargs)
 
             total.append(self._client.api.post_request(endpoint, payload=payload))
 
@@ -107,8 +101,8 @@ class ImageModel(Model):
 
     def predict(
             self,
-            min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
-            max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
+            min_confidence: Union[int, float] = 0.5,
+            max_confidence: Union[int, float] = 1,
             classes: Optional[Union[str, List[str]]] = None,
             data_id: Optional[Union[int, List[int]]] = None,
             dataset_id: Optional[int] = None
@@ -123,10 +117,10 @@ class ImageModel(Model):
             If this parameter is `None`, all the classes will be predicted.
             If you pass a 'str', the model will predict the given object in each data.
             If you pass a list of 'str', the model will predict all the given objects in each data.
-        min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5
+        min_confidence: Union[int, float], default 0.5
             Filter out all the results that has a lower confidence than 'min_confidence'.
             Range from [0.5, 1].
-        max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1
+        max_confidence: Union[int, float], default 1
             Filter out all the results that has a higher confidence than 'max_confidence'.
             Range from [0.5, 1].
         data_id: Optional[Union[int, List[int]]], default None
@@ -185,8 +179,8 @@ class PointCloudModel(Model):
     def predict(
             self,
             classes: Optional[Union[str, List[str]]],
-            min_confidence: Union[Union[int, float], List[Union[int, float]]] = 0.5,
-            max_confidence: Union[Union[int, float], List[Union[int, float]]] = 1,
+            min_confidence: Union[int, float] = 0.5,
+            max_confidence: Union[int, float] = 1,
             data_id: Optional[Union[str, List[str]]] = None,
             dataset_id: Optional[str] = None
     ):
@@ -200,10 +194,10 @@ class PointCloudModel(Model):
             If this parameter is `None`, all the classes will be predicted.
             If you pass a 'str', the model will predict the given object in each data.
             If you pass a list of 'str', the model will predict all the given objects in each data.
-        min_confidence: Union[Union[int, float], List[Union[int, float]]], default 0.5
+        min_confidence: Union[int, float], default 0.5
             Filter out all the results that has a lower confidence than 'min_confidence'.
             Range from [0.5, 1].
-        max_confidence: Union[Union[int, float], List[Union[int, float]]], default 1
+        max_confidence: Union[int, float], default 1
             Filter out all the results that has a higher confidence than 'max_confidence'.
             Range from [0.5, 1].
         data_id: Optional[Union[str, List[str]]], default None

@@ -1,9 +1,10 @@
 import json
 from io import BytesIO
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 from copy import deepcopy
 
 from .node import _check_dup, RootNode, ImageRootNode, LidarBasicRootNode, LidarFusionRootNode, INDENT
+from ..exceptions import NodeIdException, ParamException
 
 
 class Ontology:
@@ -114,6 +115,20 @@ class Ontology:
 
         return new_class
 
+    def get(
+            self,
+            node_id: int,
+            node_type: str = 'class'
+    ) -> Union[RootNode, None]:
+        if node_type == 'class':
+            for c in self.classes:
+                if c.id == node_id:
+                    return c
+        else:
+            for cf in self.classifications:
+                if cf.id == node_id:
+                    return cf
+
     def copy(
             self
     ):
@@ -160,7 +175,8 @@ class Ontology:
 
     def delete_online_rootnode(
             self,
-            root_node: RootNode,
+            node_id: int,
+            node_type: str = 'class',
             is_sure: bool = False
     ):
         """
@@ -168,8 +184,10 @@ class Ontology:
 
         Parameters
         ----------
-        root_node: RootNode
-            A `RootNode` object.
+        node_id: int
+            `RootNode.id`.
+        node_type: str, default `class`
+            `class` or `classification`.
         is_sure: bool, default False
             Sure or not sure to delete this dataset.
 
@@ -179,52 +197,72 @@ class Ontology:
             True: delete complete.
             False: user is not sure to delete the `RootNode` or the `RootNode` is already deleted.
         """
+        if node_type not in ['class', 'classification']:
+            raise ParamException(message="Node type can only be 'class' or 'classification'")
+
         if is_sure:
-            try:
-                if root_node.onto_type == 'class':
-                    self.classes.remove(root_node)
-                    part1 = 'datasetClass' if 'dataset' in self._des_type else 'class'
-                else:
-                    self.classifications.remove(root_node)
-                    part1 = 'datasetClassification' if 'dataset' in self._des_type else 'classification'
-            except ValueError:
-                return False
-
-            endpoint = f'{part1}/delete/{root_node.id}'
-            resp = self._client.api.post_request(
-                endpoint=endpoint
+            node = self.get(
+                node_id=node_id,
+                node_type=node_type
             )
+            if not node:
+                raise NodeIdException(message=f"Can't find this node: id-{node_id}!")
 
-            return resp
+            if node_type == 'class':
+                part1 = 'datasetClass' if 'dataset' in self._des_type else 'class'
+                endpoint = f'{part1}/delete/{node_id}'
+                resp = self._client.api.post_request(
+                    endpoint=endpoint
+                )
+                self.classes.remove(node)
+                return resp
+
+            else:
+                part1 = 'datasetClassification' if 'dataset' in self._des_type else 'classification'
+                endpoint = f'{part1}/delete/{node_id}'
+                resp = self._client.api.post_request(
+                    endpoint=endpoint
+                )
+                self.classifications.remove(node)
+                return resp
 
         return False
 
     def update_online_rootnode(
             self,
-            root_node: RootNode
+            node_id: int,
+            node_type: str = 'class'
     ) -> True:
         """
         Overwrite an online class/classification.
 
         Parameters
         ----------
-        root_node: RootNode
-            A `RootNode` object.
+        node_id: int
+            `RootNode.id`.
+        node_type: str, default `class`
+            `class` or `classification`.
 
         Returns
         -------
         True
             True: update complete.
         """
-        onto_dict = root_node.to_dict()
-        onto_type = root_node.onto_type
-        node_id = root_node.id
+        node_type = 'class' if node_type == 'class' else 'classification'
+        node = self.get(
+            node_id=node_id,
+            node_type=node_type
+        )
+        if not node:
+            raise NodeIdException(message=f"Can't find this node: id-{node_id}!")
+
+        onto_dict = node.to_dict()
 
         if 'ontology' in self._des_type:
-            endpoint = f'{onto_type}/update/{node_id}'
+            endpoint = f'{node_type}/update/{node_id}'
             onto_dict['ontologyId'] = self._des_id
         else:
-            endpoint = f'dataset{onto_type.capitalize()}/update/{node_id}'
+            endpoint = f'dataset{node_type.capitalize()}/update/{node_id}'
             onto_dict['datasetId'] = self._des_id
 
         self._client.api.post_request(
@@ -316,9 +354,15 @@ class Ontology:
 
         if replace:
             for c in dup_classes:
-                cur_onto.update_online_rootnode(c)
+                cur_onto.update_online_rootnode(
+                    node_id=c.id,
+                    node_type='class'
+                )
             for cf in dup_classifications:
-                cur_onto.update_online_rootnode(cf)
+                cur_onto.update_online_rootnode(
+                    node_id=cf.id,
+                    node_type='classification'
+                )
 
         return True
 

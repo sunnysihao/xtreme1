@@ -27,6 +27,10 @@ class NameDuplicatedException(SDKException):
     code = 'NAME_DUPLICATED'
 
 
+class DataUnlockedException(SDKException):
+    code = 'DATASET__DATA__DATA_HAS_BEEN_UNLOCKED'
+
+
 class ConverterException(SDKException):
     code = 'NOT_SUPPORT'
 
@@ -39,10 +43,15 @@ class NoPermissionException(SDKException):
     code = 'NO_PERMISSION'
 
 
+class NodeIdException(SDKException):
+    code = 'NODE_NOT_FOUND'
+
+
 EXCEPTIONS = {
     ParamException.code: ParamException,
     DatasetIdException.code: DatasetIdException,
     DataIdException.code: DataIdException,
     NameDuplicatedException.code: NameDuplicatedException,
-    ConverterException.code: ConverterException
+    ConverterException.code: ConverterException,
+    DataUnlockedException.code: DataUnlockedException
 }

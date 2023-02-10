@@ -283,21 +283,21 @@ class OptionNode(Node):
 
 
 class RootNode(Node):
-    __slots__ = ['__id', 'name', '_nodes', 'onto_type']
+    __slots__ = ['__id', 'name', '_nodes', 'node_type']
 
     def __init__(
             self,
             name,
             attrs,
-            onto_type: str = 'class',
-            id_: Optional[int] = None,
+            node_type: str = 'class',
+            id_: Optional[int] = None
     ):
         super().__init__(
             name=name,
             nodes=attrs
         )
-        onto_type = onto_type.lower()
-        self.onto_type = onto_type
+        node_type = node_type.lower()
+        self.node_type = node_type
         self.__id = id_
 
     @property
@@ -372,7 +372,7 @@ class RootNode(Node):
 
 class ImageRootNode(RootNode):
     __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
-                 '_nodes', 'onto_type']
+                 '_nodes', 'node_type']
 
     total_attrs = ['name', 'tool_type', 'tool_type_options', '_nodes', 'color']
     total_keys = ['name', 'toolType', 'toolTypeOptions', 'attributes', 'color']
@@ -388,7 +388,7 @@ class ImageRootNode(RootNode):
         super().__init__(
             name=name,
             attrs=attrs,
-            onto_type='class',
+            node_type='class',
             id_=id_
         )
         self.tool_type = tool_type.upper()
@@ -437,7 +437,7 @@ class ImageRootNode(RootNode):
 
 class LidarBasicRootNode(RootNode):
     __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
-                 '_nodes', 'onto_type']
+                 '_nodes', 'node_type']
 
     total_attrs = ['name', 'tool_type', 'tool_type_options', '_nodes', 'color']
     total_keys = ['name', 'toolType', 'toolTypeOptions', 'attributes', 'color']
@@ -454,7 +454,7 @@ class LidarBasicRootNode(RootNode):
         super().__init__(
             name=name,
             attrs=attrs,
-            onto_type='class',
+            node_type='class',
             id_=id_
         )
         self.tool_type = tool_type.upper()
@@ -515,7 +515,7 @@ class LidarBasicRootNode(RootNode):
 
 class LidarFusionRootNode(RootNode):
     __slots__ = ['__id', 'name', 'color', 'tool_type', 'tool_type_options',
-                 '_nodes', 'onto_type']
+                 '_nodes', 'node_type']
 
     total_attrs = ['name', 'tool_type', 'tool_type_options', '_nodes', 'color']
     total_keys = ['name', 'toolType', 'toolTypeOptions', 'attributes', 'color']
@@ -532,7 +532,7 @@ class LidarFusionRootNode(RootNode):
         super().__init__(
             name=name,
             attrs=attrs,
-            onto_type='class',
+            node_type='class',
             id_=id_
         )
         self.tool_type = tool_type.upper()
