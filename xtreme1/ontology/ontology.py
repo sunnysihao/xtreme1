@@ -1,4 +1,5 @@
 import json
+import warnings
 from io import BytesIO
 from typing import List, Dict, Optional, Union
 from copy import deepcopy
@@ -318,6 +319,32 @@ class Ontology:
 
         return cur_classes, cur_classifications, dup_classes, dup_classifications
 
+    def _compare_dup_nodes(
+            self,
+    ):
+        existing_onto = self._client.query_ontology(
+            des_id=self._des_id,
+            des_type=self._des_type
+        )
+
+        existing_classes = {x.name: getattr(x, 'tool_type', None) for x in existing_onto.classes}
+        existing_classification_names = [x.name for x in existing_onto.classifications]
+
+        dup_classes = []
+        cur_classes = deepcopy(self.classes)
+        for i in range(-len(cur_classes), 0):
+            if cur_classes[i].name in existing_classes:
+                if getattr(cur_classes[i], 'tool_type', None) == existing_classes[cur_classes[i].name]:
+                    dup_classes.append(cur_classes.pop(i))
+
+        dup_classifications = []
+        cur_classifications = deepcopy(self.classifications)
+        for i in range(-len(cur_classifications), 0):
+            if cur_classifications[i].id in existing_classification_names:
+                dup_classifications.append(cur_classifications.pop(i))
+
+        return cur_classes, cur_classifications, dup_classes, dup_classifications
+
     def import_ontology(
             self,
             ontology=None,
@@ -338,15 +365,19 @@ class Ontology:
             True: import complete.
         """
         if ontology:
+            if replace:
+                warnings.warn(message="The 'replace' parameter only works when the ontology is importing itself.")
+                replace = False
             ontology._des_id = self._des_id
             ontology._des_type = self._des_type
             ontology._dataset_type = self._dataset_type
             ontology._client = self._client
             cur_onto = ontology
+            no_dup_classes, no_dup_classifications, dup_classes, dup_classifications = cur_onto._compare_dup_nodes()
         else:
             cur_onto = self
+            no_dup_classes, no_dup_classifications, dup_classes, dup_classifications = cur_onto._split_dup_nodes()
 
-        no_dup_classes, no_dup_classifications, dup_classes, dup_classifications = cur_onto._split_dup_nodes()
         new_onto = deepcopy(cur_onto)
         new_onto.classes = no_dup_classes
         new_onto.classifications = no_dup_classifications
