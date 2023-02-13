@@ -349,7 +349,7 @@ class Ontology:
             self,
             ontology=None,
             replace=False
-    ):
+    ) -> Dict:
         """
         Import this `Ontology` object to your online dataset or ontology center.
 
@@ -361,8 +361,8 @@ class Ontology:
             Whether overwrite the online class/classification if `id` is duplicate.
         Returns
         -------
-        bool
-            True: import complete.
+        Dict
+            The information about which class/classification is appended into current ontology and which is updated.
         """
         if ontology:
             if replace:
@@ -395,7 +395,14 @@ class Ontology:
                     node_type='classification'
                 )
 
-        return True
+        message = {
+            'update_classes': [{'id': x.id, 'name': x.name} for x in dup_classes],
+            'update_classifications': [{'id': x.id, 'name': x.name} for x in dup_classifications],
+            'append_classes': [{'id': x.id, 'name': x.name} for x in no_dup_classes],
+            'append_classifications': [{'id': x.id, 'name': x.name} for x in no_dup_classifications],
+        }
+
+        return message
 
 
 class SampleOntology(Ontology):

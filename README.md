@@ -244,3 +244,132 @@ A class contains all methods that convert json format to other widely used forma
 An instance of this class will be automatically generated after using the 'query_data_and_result' method.
 
 It's not recommended to instantiate this class by yourself, because the annotation result needed is a list of dict in a specific format. 
+
+---
+
+### Ontology
+
+An ontology encompasses a representation, formal naming, and definition of the categories, properties, and relations between the concepts, data, and entities.
+
+#### Query ontology
+
+You can query an ontology from a dataset or from the ontology center.
+
+This function returns an `Ontology` object.
+
+~~~python
+# Query the ontology of a dataset
+my_dataset = x1_client.query_dataset(
+    dataset_id='888888'
+)
+onto = my_dataset.query_ontology()
+
+# Query the ontology from your ontology center
+onto = x1_client.query_ontology(
+    des_id='11111', 
+    des_type='ontology_center'
+)
+~~~
+
+#### Create ontology
+
+This function creates an ontology in your ontology center.
+
+Notice that there is **no need** to create an ontology of a dataset.
+
+~~~python
+new_onto = x1_client.create_ontology(
+    ontology_name='my_onto',
+    dataset_type='IMAGE'
+)
+~~~
+
+#### Add a new class/classification
+
+Once having an ontology, add classes/classifications to it.
+
+Class is the attribute of your annotation entities.
+
+Classification is the attribute of your `data`.
+
+~~~python
+# Create a new class
+car = onto.add_class(
+	name='car'
+)
+
+# Add attributes to this class
+trunc = car.add_attribute(
+    name='truncation',
+    input_type='RADIO',
+    required=True,
+    options=['0', '1', '2', '3']
+)
+
+# Edit a class
+car.name = 'Car'
+~~~
+
+#### Import ontology
+
+Import ontology to your online dataset or ontology center.
+
+Notice that this function will not delete the old classes/classifications, but may update them if you have edited them. 
+
+In my case, I changed the name of the 'car' class. Therefore, this class will be updated once I use the 'import_ontology' function.
+
+~~~python
+# Import the current ontology
+onto.import_ontology()
+
+# Import another existing ontology to current empty ontology
+onto2 = my_client.query_ontology(
+    des_id='22222', 
+    des_type='ontology_center'
+)
+# Create a copy of ontology
+# .copy() function clears the ids of ontology and classes/classifications
+onto2_copy = onto2.copy()
+onto.import_ontology(
+	ontology=onto2
+)
+~~~
+
+#### Update a class/classification
+
+Once you finish editing a class/ classification, use this function to update it.
+
+Notice that this class/classification must exist in your online ontology first.
+
+~~~python
+# Check the id your class
+print(car.id) # 200
+
+onto.update_online_rootnode(
+    node_id=200,
+    node_type='class'
+)
+~~~
+
+#### Delete an online class/classification
+
+~~~python
+onto.delete_online_rootnode(
+    node_id=200,
+    node_type='class',
+    is_sure=True
+)
+~~~
+
+#### Delete an ontology
+
+Delete an ontology from the ontology center.
+
+Notice that the ontology of a dataset can't be deleted.
+
+~~~python
+onto.delete_online_ontology(
+    is_sure=True
+)
+~~~
+
