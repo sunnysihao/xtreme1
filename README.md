@@ -16,13 +16,18 @@ from xtreme1.client import Client
 BASE_URL = 'https://x1-community.alidev.beisai.com'
 ACCESS_TOKEN = '...jDC9Pfk9Xstt9vaanXkh8...'
 
-client = Client(base_url=BASE_URL, access_token=ACCESS_TOKEN)
+x1_client = Client(
+    base_url=BASE_URL, 
+    access_token=ACCESS_TOKEN
+)
 ```
 ---
 
 ### Datasets
 
-暂空
+A dataset contains a group of data and an ontology.
+
+You can upload/query the data or annotation result here.
 
 #### Create a dataset
 
@@ -31,15 +36,21 @@ You can use this method to create a dataset.
 For now, supported annotation types are: **['LIDAR_FUSION', 'LIDAR_BASIC', 'IMAGE']**.
 
 ```python
-car_dataset = client.create_dataset(name='test', annotation_type='IMAGE', description='A test dataset.')
+car_dataset = x1_client.create_dataset(
+    name='test', 
+    annotation_type='IMAGE', 
+    description='A test dataset.'
+)
 ```
 #### Edit a dataset
 
 You can use this method to change the information of your dataset.
 
 ```python
-info = client.edit_dataset(dataset_id='999999', new_name='cars')
-print(info) # Success
+x1_client.edit_dataset(
+    dataset_id='999999', 
+    new_name='cars'
+)
 
 # Or use 'dataset.edit()'
 car_dataset.edit(new_name='cars')
@@ -51,8 +62,10 @@ You can use this method to delete your dataset.
 Notice that if you are really sure to do this, change the 'is_sure' parameter to **True**.
 
 ```python
-info = client.delete_dataset(dataset_id='999999', is_sure=True)
-print(info) # Success
+x1_client.delete_dataset(
+    dataset_id='999999', 
+    is_sure=True
+)
 
 # or use 'dataset.delete()'
 car_dataset.delete(is_sure=True)
@@ -67,11 +80,11 @@ There are two important parameters: 'page_no' and 'page_size'. The queried resul
 
 ```python 
 # Query one single dataset by passing a dataset id
-dataset_list = client.query_dataset(dataset_id='888888')
-print(dataset_list) # [BFDataset(id=888888, name=driver_dataset)]
+dataset_list = x1_client.query_dataset(dataset_id='888888')
+print(dataset_list) # [Dataset(id=888888, name=driver_dataset)]
 
 # Query a list of datasets with some filters
-dataset_list = client.query_dataset(
+dataset_list = x1_client.query_dataset(
     page_no = 1, # default 1
     page_size = 3, # default 1
     dataset_name = 'car', # fuzzy query
@@ -83,9 +96,9 @@ dataset_list = client.query_dataset(
 )
 print(dataset_list)
 """
-[BFDataset(id=888000, name=car_dataset1),
- BFDataset(id=888001, name=car_dataset2),
- BFDataset(id=888002, name=car_dataset3)]
+[Dataset(id=888000, name=car_dataset1),
+ Dataset(id=888001, name=car_dataset2),
+ Dataset(id=888002, name=car_dataset3)]
 """
 ```
 #### Query data under the dataset
@@ -98,7 +111,7 @@ It returns a long dict. If you want to simplify this dict, use 'get_values()' to
 from xtreme1._others import get_values, as_table
 from rich import print as rprint
 
-data_dict = client.query_data_under_dataset(
+data_dict = x1_client.query_data_under_dataset(
 	dataset_id = '888888',
     page_no = 1, # default 1
     page_size = 10, # default 10
@@ -150,14 +163,20 @@ A method for querying specific data by passing a 'data_id' parameter.
 Unlike the 'query_data_under_dataset()' method, this method returns all queried data at a time.
 
 ```python
-data_list = client.query_data(data_id=['111110', '111111'])
+data_list = x1_client.query_data(
+    data_id=['111110', '111111']
+)
 ```
 #### Delete data
 
 You can use this method to delete data. It's similar to the 'delete_dataset()' method.
 
 ~~~python
-client.delete_data(dataset_id='888888', data_id=['111110', '111111'], is_sure=True)
+x1_client.delete_data(
+    dataset_id='888888', 
+    data_id=['111110', '111111'], 
+    is_sure=True
+)
 ~~~
 
 #### Upload data
@@ -167,10 +186,13 @@ A method for pushing data to a dataset by using a local path or URL.
 This method always returns a serial number, which is used to query the upload status.
 
 ~~~python
-serial_number = client.upload_data('test.zip', '888888')
+serial_number = x1_client.upload_data(
+    'test.zip', 
+    '888888'
+)
 print(serial_number) # 16134xxxxx836416
 
-status = client.query_upload_status('16134xxxxx836416')
+status = x1_client.query_upload_status('16134xxxxx836416')
 print(status)
 """
 [{'id': 888,
@@ -192,7 +214,10 @@ Notice that the directory of your data will remain the same as they were uploade
 
 ~~~python
 # Download '777777' to the given folder 'my_dataset'
-x1_client.download_data(output_folder='my_dataset', dataset_id='777777')
+x1_client.download_data(
+    output_folder='my_dataset', 
+    dataset_id='777777'
+)
 ~~~
 
 #### Query annotation result
@@ -215,7 +240,9 @@ my_annotation.annotation
 my_annotation.head()
 
 # Convert raw annotation results to BasicAI standard json
-my_annotation.to_standard_json(export_folder='my_annotation_result')
+my_annotation.to_standard_json(
+    export_folder='my_annotation_result'
+)
 ~~~
 
 Notice that this method only returns limited annotation results. If you want to download all annotation results, try this:
@@ -232,7 +259,9 @@ while True:
     my_annotation = x1_client.query_data_and_result(dataset_id='766402', data_ids=data_ids)
     
     # Any further actions
-    my_annotation.to_standard_json(export_folder='my_annotation_result')
+    my_annotation.to_standard_json(
+        export_folder='my_annotation_result'
+    )
 ~~~
 
 ---
