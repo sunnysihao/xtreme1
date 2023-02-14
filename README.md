@@ -411,7 +411,7 @@ Use them properly to decrease your annotating time.
 ~~~python
 img_model = x1_client.image_model
 model_result = img_model.predict(
-    min_confidence=0.7
+    min_confidence=0.7,
     dataset_id=777777
 )
 ~~~

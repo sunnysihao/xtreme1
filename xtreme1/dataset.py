@@ -1,8 +1,5 @@
 from typing import List, Dict, Optional, Union
 
-from pyecharts import options as opts
-from pyecharts.charts import Pie
-
 from .exporter.annotation import Annotation
 from .ontology.ontology import Ontology
 
@@ -227,45 +224,6 @@ class Dataset:
             limit=limit,
             dropna=dropna
         )
-
-    def show_progress(
-            self
-    ) -> Pie:
-        """
-        Show an interacting progress 'echarts'.
-
-        Returns
-        -------
-        Pie
-            A pie chart, which can be saved as a html file or rendered on your jupyter notebook.
-            Use pie.render(YOUR HTML PATH) to save the progress.
-            Use pie.render_notebook() to show the progress on your jupyter notebook.
-            If `render_notebook()` doesn't work, add these codes::
-
-                from pyecharts.globals import CurrentConfig, NotebookType
-                CurrentConfig.NOTEBOOK_TYPE=NotebookType.JUPYTER_LAB
-        """
-        progress_cnt = [
-            ['Annotated', self.annotated_count],
-            ['Not Annotated', self.unannotated_count],
-            ['Invalid', self.invalid_count],
-        ]
-        progress_pie = Pie()
-        progress_pie.add(
-            "",
-            progress_cnt,
-            radius=["50%", "70%"],
-            center=["30%", "50%"]
-        )
-
-        progress_pie.set_global_opts(
-            title_opts=opts.TitleOpts(title="Progress"),
-            legend_opts=opts.LegendOpts(orient="vertical", pos_top="50%", pos_right="20%"),
-        )
-
-        progress_pie.set_colors(['rgb(104,173,254)', 'rgb(170,170,170)', 'rgb(252,177,122)'])
-
-        return progress_pie
 
     def query_classes_stat(
             self

@@ -62,16 +62,16 @@ class Client:
 
     def edit_dataset(
             self,
-            dataset_id: str,
+            dataset_id: Union[int, str],
             new_name: str,
             new_description: Optional[str] = None
-    ) -> str:
+    ) -> bool:
         """
         Change the name or description of a dataset.
 
         Parameters
         ----------
-        dataset_id: str
+        dataset_id: Union[int, str]
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -82,8 +82,8 @@ class Client:
 
         Returns
         -------
-        str
-            'Success'.
+        bool
+            True: edit complete.
         """
         endpoint = f'dataset/update/{dataset_id}'
         payload = {
@@ -93,11 +93,11 @@ class Client:
 
         self.api.post_request(endpoint, payload=payload)
 
-        return 'Success'
+        return True
 
     def delete_dataset(
             self,
-            dataset_id: str,
+            dataset_id: Union[int, str],
             is_sure: bool = False
     ) -> bool:
         """
@@ -105,7 +105,7 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: Optional[str], default None
+        dataset_id: Union[int, str]
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -134,7 +134,7 @@ class Client:
 
     def _query_dataset_info(
             self,
-            dataset_id: str
+            dataset_id: Union[int, str]
     ) -> Dict:
         endpoint = f'dataset/info/{dataset_id}'
         resp = self.api.get_request(endpoint=endpoint, params=None)
@@ -174,7 +174,7 @@ class Client:
 
     def query_dataset(
             self,
-            dataset_id: Optional[str] = None,
+            dataset_id: Union[int, str, None] = None,
             page_no: int = 1,
             page_size: int = 10,
             dataset_name: Optional[str] = None,
@@ -189,7 +189,7 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: Optional[str], default None
+        dataset_id: Union[int, str, None], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -245,7 +245,7 @@ class Client:
 
     def query_data_under_dataset(
             self,
-            dataset_id: str,
+            dataset_id: Union[int, str],
             page_no: int = 1,
             page_size: int = 10,
             name: Optional[str] = None,
@@ -263,7 +263,7 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: Optional[str], default None
+        dataset_id: Union[int, str]
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -327,7 +327,7 @@ class Client:
 
     def delete_data(
             self,
-            dataset_id: int,
+            dataset_id: Union[int, str],
             data_id: Union[int, List[int]],
             is_sure: bool = False
     ) -> bool:
@@ -339,7 +339,7 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: int
+        dataset_id: Union[int, str]
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -413,7 +413,7 @@ class Client:
     def _generate_data_direct_upload_address(
             self,
             data_name: str,
-            dataset_id: str
+            dataset_id: Union[int, str]
     ) -> Dict:
         endpoint = 'data/generatePresignedUrl'
 
@@ -429,7 +429,7 @@ class Client:
     def _upload(
             self,
             url: str,
-            dataset_id: str,
+            dataset_id: Union[int, str],
             source: str
     ) -> str:
         endpoint = 'data/upload'
@@ -447,7 +447,7 @@ class Client:
     def upload_data(
             self,
             data_path: str,
-            dataset_id: str,
+            dataset_id: Union[int, str],
             is_local: bool = True
     ) -> str:
         """
@@ -464,7 +464,7 @@ class Client:
         ----------
         data_path: str
             A local path or URL.
-        dataset_id: str
+        dataset_id: Union[int, str]
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -549,7 +549,7 @@ class Client:
             self,
             output_folder: str,
             data_id: Union[int, List[int], None] = None,
-            dataset_id: Optional[str] = None,
+            dataset_id: Union[int, str, None] = None,
             remain_directory_structure: bool = True
     ) -> Union[str, List[Dict]]:
         """
@@ -562,7 +562,7 @@ class Client:
         data_id: Union[str, List[str], None], default None
             A data id or a list or data ids.
             Pass this parameter to download given data.
-        dataset_id: Optional[str], default None
+        dataset_id: Union[int, str, None], default None
             A dataset id. You can find this in the last part of the dataset url, for example:
             ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.
             Also, the id can be found in the attributes of an `Dataset` object.
@@ -619,7 +619,7 @@ class Client:
 
     def _get_data_and_result_info(
             self,
-            dataset_id: int,
+            dataset_id: Union[int, str],
             data_ids: Union[int, List[int], None] = None
     ) -> Dict:
         endpoint = 'data/getDataAndResult'
@@ -635,7 +635,7 @@ class Client:
 
     def query_data_and_result(
             self,
-            dataset_id: int,
+            dataset_id: Union[int, str],
             data_ids: Union[int, List[int], None] = None,
             limit: int = 5000,
             dropna: bool = False
@@ -646,7 +646,7 @@ class Client:
 
         Parameters
         ----------
-        dataset_id: int
+        dataset_id: Union[int, str]
             The id of the dataset you want to query.
         data_ids: Union[int, List[int], None], default None
             The id or ids of the data you want to query.
@@ -686,14 +686,14 @@ class Client:
 
     def query_classes_stat(
             self,
-            dataset_id: str
+            dataset_id: Union[int, str]
     ) -> Dict:
         """
         Query the distribution of annotated classes.
 
         Parameters
         ----------
-        dataset_id: str
+        dataset_id: Union[int, str]
             The id of the dataset you want to query.
 
         Returns
