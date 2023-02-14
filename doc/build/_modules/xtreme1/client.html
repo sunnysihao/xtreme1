@@ -38,7 +38,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../md/README.html">README</a></li>
 </ul>
 
         </div>
@@ -67,8 +66,6 @@
              
   <h1>Source code for xtreme1.client</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -78,11 +75,11 @@
 
 <span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">Api</span>
 <span class="kn">from</span> <span class="nn">.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">SDKException</span><span class="p">,</span> <span class="n">ParamException</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">SDKException</span><span class="p">,</span> <span class="n">ParamException</span><span class="p">,</span> <span class="n">DatasetIdException</span><span class="p">,</span> <span class="n">DataIdException</span>
 <span class="kn">from</span> <span class="nn">.exporter.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
 <span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">ImageModel</span><span class="p">,</span> <span class="n">PointCloudModel</span>
-<span class="kn">from</span> <span class="nn">.ontology</span> <span class="kn">import</span> <span class="n">Ontology</span>
-<span class="kn">from</span> <span class="nn">._others</span> <span class="kn">import</span> <span class="n">_to_single</span>
+<span class="kn">from</span> <span class="nn">.ontology.ontology</span> <span class="kn">import</span> <span class="n">Ontology</span>
+<span class="kn">from</span> <span class="nn">._others</span> <span class="kn">import</span> <span class="n">_to_single</span><span class="p">,</span> <span class="n">_parse_data_info</span>
 
 
 <div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
@@ -122,7 +119,7 @@
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;dataset/create&#39;</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">annotation_type</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">annotation_type</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
             <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">description</span>
         <span class="p">}</span>
 
@@ -132,18 +129,19 @@
 
 <div class="viewcode-block" id="Client.edit_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.edit_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">edit_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
             <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">new_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the name or description of a dataset.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: str</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
 <span class="sd">        new_name: str</span>
 <span class="sd">            New name of the dataset.</span>
 <span class="sd">        new_description: Optional[str], default None</span>
@@ -151,8 +149,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            &#39;Success&#39;.</span>
+<span class="sd">        bool</span>
+<span class="sd">            True: edit complete.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/update/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -162,41 +160,48 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="s1">&#39;Success&#39;</span></div>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Client.delete_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.delete_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">delete_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
             <span class="n">is_sure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete a dataset.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
 <span class="sd">        is_sure: bool, default False</span>
-<span class="sd">            Set it to &#39;True&#39; to delete the dataset.</span>
+<span class="sd">            Sure or not sure to delete this dataset.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            &#39;Unsure&#39; if &#39;is_sure&#39; is not set to &#39;True&#39;.</span>
-<span class="sd">            &#39;Success&#39; if the dataset is deleted.</span>
+<span class="sd">        bool</span>
+<span class="sd">            True: delete complete.</span>
+<span class="sd">            False: user is not sure to delete the dataset or the dataset is already deleted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sure</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;Unsure&#39;</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/delete/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/delete/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span>
+                <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">DatasetIdException</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="s1">&#39;Success&#39;</span></div>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="k">def</span> <span class="nf">_query_a_single_dataset</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_query_dataset_info</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;dataset/info/</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -236,7 +241,7 @@
 
 <div class="viewcode-block" id="Client.query_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">query_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
             <span class="n">dataset_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -251,9 +256,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">        dataset_id: Union[int, str, None], default None</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
 <span class="sd">        page_no: int, default 1</span>
 <span class="sd">            Page number of the total result.</span>
 <span class="sd">            This is used when you have lots of datasets and only want to check them part by part.</span>
@@ -286,7 +292,7 @@
 <span class="sd">            Notice that this function only returns one dataset at a time unless you change the &#39;page_size&#39; parameter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">dataset_id</span><span class="p">:</span>
-            <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_a_single_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="n">dataset_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_dataset_info</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
 
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_the_list_of_datasets</span><span class="p">(</span>
             <span class="n">page_no</span><span class="o">=</span><span class="n">page_no</span><span class="p">,</span>
@@ -302,11 +308,11 @@
         <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]]</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">_to_single</span><span class="p">((</span><span class="n">datasets</span><span class="p">,</span> <span class="n">total</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">_to_single</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Client.query_data_under_dataset"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data_under_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_under_dataset</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
             <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
             <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -324,9 +330,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
 <span class="sd">        page_no: int, default 1</span>
 <span class="sd">            Page number of the total result.</span>
 <span class="sd">            This is used when you have lots of data and only want to check them part by part.</span>
@@ -376,14 +383,21 @@
 
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">resp</span></div>
+        <span class="n">rps_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;pageSize&quot;</span><span class="p">:</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pageSize&#39;</span><span class="p">),</span>
+            <span class="s2">&quot;pageNo&quot;</span><span class="p">:</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pageNo&#39;</span><span class="p">),</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">),</span>
+            <span class="s2">&quot;datas&quot;</span><span class="p">:</span> <span class="n">_parse_data_info</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">rps_dict</span></div>
 
 <div class="viewcode-block" id="Client.delete_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.delete_data">[docs]</a>    <span class="k">def</span> <span class="nf">delete_data</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
             <span class="n">is_sure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete one specific data or a list of data from a specific dataset.</span>
 <span class="sd">        Notice that &#39;data&#39; ≠ &#39;file&#39;. For example:</span>
@@ -392,40 +406,46 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: str</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
-<span class="sd">        data_id: Union[str, List[str]]</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
+<span class="sd">        data_id: Union[int, List[int]]</span>
 <span class="sd">            An id or list of ids of the data you want to delete.</span>
 <span class="sd">        is_sure: bool, default False</span>
-<span class="sd">            Set it to &#39;True&#39; to delete the data.</span>
+<span class="sd">            Sure or not sure to delete this dataset.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        str</span>
-<span class="sd">            &#39;Unsure&#39; if &#39;is_sure&#39; is not set to &#39;True&#39;.</span>
-<span class="sd">            &#39;Success&#39; if the data is deleted.</span>
+<span class="sd">        bool</span>
+<span class="sd">            True: delete complete.</span>
+<span class="sd">            False: user is not sure to delete the data or the data is already deleted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sure</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;Unsure&#39;</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">data_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
 
-        <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/deleteBatch&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/deleteBatch&#39;</span>
 
-        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
-            <span class="s1">&#39;ids&#39;</span><span class="p">:</span> <span class="n">data_id</span>
-        <span class="p">}</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
+                <span class="s1">&#39;ids&#39;</span><span class="p">:</span> <span class="n">data_id</span>
+            <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">DataIdException</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="s1">&#39;Success&#39;</span></div>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Client.query_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data">[docs]</a>    <span class="k">def</span> <span class="nf">query_data</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use a specific id or a list of ids to delete data.</span>
@@ -446,6 +466,8 @@
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/listByIds&#39;</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">data_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">data_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_id</span><span class="p">]</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;dataIds&#39;</span><span class="p">:</span> <span class="n">data_id</span>
@@ -458,7 +480,7 @@
     <span class="k">def</span> <span class="nf">_generate_data_direct_upload_address</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">data_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/generatePresignedUrl&#39;</span>
 
@@ -474,15 +496,15 @@
     <span class="k">def</span> <span class="nf">_upload</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">des_type</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">source</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/upload&#39;</span>
 
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;fileUrl&#39;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
             <span class="s1">&#39;datasetId&#39;</span><span class="p">:</span> <span class="n">dataset_id</span><span class="p">,</span>
-            <span class="s1">&#39;des_type&#39;</span><span class="p">:</span> <span class="n">des_type</span>
+            <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="n">source</span>
         <span class="p">}</span>
 
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
@@ -492,7 +514,7 @@
 <div class="viewcode-block" id="Client.upload_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.upload_data">[docs]</a>    <span class="k">def</span> <span class="nf">upload_data</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
             <span class="n">is_local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -509,9 +531,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        data_path: str</span>
 <span class="sd">            A local path or URL.</span>
-<span class="sd">        dataset_id: str</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
 <span class="sd">        is_local: bool, default True</span>
 <span class="sd">            Whether the data is local or not.</span>
 
@@ -592,8 +615,8 @@
 <div class="viewcode-block" id="Client.download_data"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.download_data">[docs]</a>    <span class="k">def</span> <span class="nf">download_data</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">data_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">remain_directory_structure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -606,9 +629,10 @@
 <span class="sd">        data_id: Union[str, List[str], None], default None</span>
 <span class="sd">            A data id or a list or data ids.</span>
 <span class="sd">            Pass this parameter to download given data.</span>
-<span class="sd">        dataset_id: Optional[str], default None</span>
+<span class="sd">        dataset_id: Union[int, str, None], default None</span>
 <span class="sd">            A dataset id. You can find this in the last part of the dataset url, for example:</span>
 <span class="sd">            ``https://x1-community.alidev.beisai.com/#/datasets/overview?id=766416``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Dataset` object.</span>
 <span class="sd">            Pass this parameter to download all data from a given dataset.</span>
 <span class="sd">        remain_directory_structure: bool, default True</span>
 <span class="sd">            If this parameter is set to True, the folder structure of the data</span>
@@ -662,8 +686,8 @@
 
     <span class="k">def</span> <span class="nf">_get_data_and_result_info</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;data/getDataAndResult&#39;</span>
 
@@ -678,8 +702,8 @@
 
 <div class="viewcode-block" id="Client.query_data_and_result"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_data_and_result">[docs]</a>    <span class="k">def</span> <span class="nf">query_data_and_result</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">data_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
             <span class="n">dropna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Annotation</span><span class="p">:</span>
@@ -689,9 +713,9 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: str</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            The id of the dataset you want to query.</span>
-<span class="sd">        data_ids: Union[str, List[str], None], default None</span>
+<span class="sd">        data_ids: Union[int, List[int], None], default None</span>
 <span class="sd">            The id or ids of the data you want to query.</span>
 <span class="sd">        limit: int, default 5000</span>
 <span class="sd">            The max number of returned annotation results.</span>
@@ -729,14 +753,14 @@
 
 <div class="viewcode-block" id="Client.query_classes_stat"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_classes_stat">[docs]</a>    <span class="k">def</span> <span class="nf">query_classes_stat</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span>
+            <span class="n">dataset_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Query the distribution of annotated classes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset_id: str</span>
+<span class="sd">        dataset_id: Union[int, str]</span>
 <span class="sd">            The id of the dataset you want to query.</span>
 
 <span class="sd">        Returns</span>
@@ -801,18 +825,36 @@
 
         <span class="k">return</span> <span class="n">resp</span>
 
+    <span class="k">def</span> <span class="nf">_query_ontology_info</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">des_id</span>
+    <span class="p">):</span>
+        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ontology/info/</span><span class="si">{</span><span class="n">des_id</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_request</span><span class="p">(</span>
+            <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resp</span>
+
     <span class="k">def</span> <span class="nf">_query_a_single_ontology</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">des_id</span><span class="p">,</span>
             <span class="n">des_type</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">endpoint1</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;class&#39;</span> <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">des_type</span> <span class="k">else</span> <span class="s1">&#39;datasetClass&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/findByPage&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">in</span> <span class="n">des_type</span><span class="p">:</span>
+            <span class="n">endpoint1</span> <span class="o">=</span> <span class="s1">&#39;datasetClass/findByPage&#39;</span>
+            <span class="n">endpoint2</span> <span class="o">=</span> <span class="s1">&#39;datasetClassification/findByPage&#39;</span>
+            <span class="n">dataset_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_dataset_info</span><span class="p">(</span><span class="n">des_id</span><span class="p">)[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">endpoint1</span> <span class="o">=</span> <span class="s1">&#39;class/findByPage&#39;</span>
+            <span class="n">endpoint2</span> <span class="o">=</span> <span class="s1">&#39;classification/findByPage&#39;</span>
+            <span class="n">dataset_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_ontology_info</span><span class="p">(</span><span class="n">des_id</span><span class="p">)[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+
         <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_complete_ontology</span><span class="p">(</span>
             <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint1</span><span class="p">,</span>
             <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
         <span class="p">)</span>
-
-        <span class="n">endpoint2</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;classification&#39;</span> <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">des_type</span> <span class="k">else</span> <span class="s1">&#39;datasetClassification&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/findByPage&#39;</span>
         <span class="n">classifications</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_complete_ontology</span><span class="p">(</span>
             <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint2</span><span class="p">,</span>
             <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
@@ -825,17 +867,40 @@
             <span class="n">des_type</span><span class="o">=</span><span class="n">des_type</span><span class="p">,</span>
             <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">,</span>
             <span class="n">classifications</span><span class="o">=</span><span class="n">classifications</span><span class="p">,</span>
-            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span><span class="p">,</span>
+            <span class="n">dataset_type</span><span class="o">=</span><span class="n">dataset_type</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="Client.query_ontology"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.query_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">query_ontology</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">des_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">des_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">des_type</span><span class="o">=</span><span class="s1">&#39;ontology_center&#39;</span><span class="p">,</span>
+            <span class="n">des_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ontology_center&#39;</span><span class="p">,</span>
             <span class="n">page_no</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ontology</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Query the ontology from the given dataset or ontology center.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        des_id: Optional[int], default None</span>
+<span class="sd">            A dataset id or ontology id.</span>
+<span class="sd">            Ontology id is the id of ontology from ontology center.</span>
+<span class="sd">        name: Optional[str], default None</span>
+<span class="sd">            The name of ontology from ontology center.</span>
+<span class="sd">        des_type: str, default &#39;ontology_center&#39;</span>
+<span class="sd">            The source of ontology: &#39;ontology_center&#39; or &#39;dataset&#39;.</span>
+<span class="sd">        page_no: int</span>
+<span class="sd">            Current page number.</span>
+<span class="sd">        page_size: int</span>
+<span class="sd">            The max number of ontologies displayed in one query.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Ontology</span>
+<span class="sd">            An `Ontology` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">des_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParamException</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Can&#39;t miss both des_id and name!&quot;</span><span class="p">)</span>
 
@@ -855,7 +920,7 @@
                 <span class="p">)</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">onto</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">_to_single</span><span class="p">((</span><span class="n">result</span><span class="p">,</span> <span class="n">total</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">_to_single</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_a_single_ontology</span><span class="p">(</span>
             <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span><span class="p">,</span>
@@ -867,6 +932,23 @@
             <span class="n">ontology_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">dataset_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ontology</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an empty ontology in ontology center.</span>
+<span class="sd">        Notice that every dataset has an empty ontology when it&#39;s created.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ontology_name: str</span>
+<span class="sd">            The name of the ontology.</span>
+<span class="sd">        dataset_type: str</span>
+<span class="sd">            An annotation type that can only choose from this list:</span>
+<span class="sd">            [&#39;LIDAR_FUSION&#39;, &#39;LIDAR_BASIC&#39;, &#39;IMAGE&#39;]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Ontology</span>
+<span class="sd">            An `Ontology` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="s1">&#39;ontology/create&#39;</span>
 
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
@@ -887,13 +969,37 @@
             <span class="n">des_type</span><span class="o">=</span><span class="n">des_type</span><span class="p">,</span>
             <span class="n">classes</span><span class="o">=</span><span class="p">[],</span>
             <span class="n">classifications</span><span class="o">=</span><span class="p">[],</span>
-            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span>
+            <span class="n">des_id</span><span class="o">=</span><span class="n">des_id</span><span class="p">,</span>
+            <span class="n">dataset_type</span><span class="o">=</span><span class="n">dataset_type</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Client.delete_ontology"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.client.Client.delete_ontology">[docs]</a>    <span class="k">def</span> <span class="nf">delete_ontology</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">des_id</span>
-    <span class="p">):</span>
+            <span class="n">des_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">is_sure</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete the ontology in your online &#39;ontology center&#39;.</span>
+<span class="sd">        Notice that an ontology attached to a dataset can not be deleted.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        des_id: Union[int, str]:</span>
+<span class="sd">            An ontology id. You can find this in the last part of the ontology url, for example:</span>
+<span class="sd">            ``https://x1-community.alidev.beisai.com/#/ontology/class?id=480002``.</span>
+<span class="sd">            Also, the id can be found in the attributes of an `Ontology` object.</span>
+<span class="sd">        is_sure: bool, default False</span>
+<span class="sd">            Sure or not sure to delete this ontology.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True: delete complete.</span>
+<span class="sd">            False: user is not sure to delete the ontology or the ontology is already deleted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
         <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;ontology/delete/</span><span class="si">{</span><span class="n">des_id</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">post_request</span><span class="p">(</span>

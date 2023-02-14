@@ -38,7 +38,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../rst/modules.html">xtreme1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../md/README.html">README</a></li>
 </ul>
 
         </div>
@@ -87,26 +86,41 @@
     <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;DATASET_NOT_FOUND&#39;</span></div>
 
 
+<div class="viewcode-block" id="DataIdException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.DataIdException">[docs]</a><span class="k">class</span> <span class="nc">DataIdException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;DATA_NOT_FOUND&#39;</span></div>
+
+
 <div class="viewcode-block" id="NameDuplicatedException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.NameDuplicatedException">[docs]</a><span class="k">class</span> <span class="nc">NameDuplicatedException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
     <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;NAME_DUPLICATED&#39;</span></div>
 
 
+<div class="viewcode-block" id="DataUnlockedException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.DataUnlockedException">[docs]</a><span class="k">class</span> <span class="nc">DataUnlockedException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;DATASET__DATA__DATA_HAS_BEEN_UNLOCKED&#39;</span></div>
+
+
 <div class="viewcode-block" id="ConverterException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.ConverterException">[docs]</a><span class="k">class</span> <span class="nc">ConverterException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;ANNOTATIONS_DO_NOT_SUPPORT_THIS_FORMAT&#39;</span></div>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;NOT_SUPPORT&#39;</span></div>
 
 
 <div class="viewcode-block" id="SourceException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.SourceException">[docs]</a><span class="k">class</span> <span class="nc">SourceException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></div>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;UNPARSEABLE&#39;</span></div>
 
 
 <div class="viewcode-block" id="NoPermissionException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.NoPermissionException">[docs]</a><span class="k">class</span> <span class="nc">NoPermissionException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
     <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;NO_PERMISSION&#39;</span></div>
 
 
+<div class="viewcode-block" id="NodeIdException"><a class="viewcode-back" href="../../rst/xtreme1.html#xtreme1.exceptions.NodeIdException">[docs]</a><span class="k">class</span> <span class="nc">NodeIdException</span><span class="p">(</span><span class="n">SDKException</span><span class="p">):</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="s1">&#39;NODE_NOT_FOUND&#39;</span></div>
+
+
 <span class="n">EXCEPTIONS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">ParamException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">ParamException</span><span class="p">,</span>
     <span class="n">DatasetIdException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">DatasetIdException</span><span class="p">,</span>
-    <span class="n">NameDuplicatedException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">NameDuplicatedException</span>
+    <span class="n">DataIdException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">DataIdException</span><span class="p">,</span>
+    <span class="n">NameDuplicatedException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">NameDuplicatedException</span><span class="p">,</span>
+    <span class="n">ConverterException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">ConverterException</span><span class="p">,</span>
+    <span class="n">DataUnlockedException</span><span class="o">.</span><span class="n">code</span><span class="p">:</span> <span class="n">DataUnlockedException</span>
 <span class="p">}</span>
 </pre></div>
 
