@@ -11,7 +11,7 @@ pip install xtreme1
 ## Usage
 
 ```python
-from xtreme1.client import Client
+from xtreme1 import Client
 
 BASE_URL = 'https://x1-community.alidev.beisai.com'
 ACCESS_TOKEN = '...jDC9Pfk9Xstt9vaanXkh8...'
@@ -275,6 +275,13 @@ An instance of this class will be automatically generated after using the 'query
 It's not recommended to instantiate this class by yourself, because the annotation result needed is a list of dict in a specific format. 
 
 ---
+
+#### Export results
+
+~~~python
+anno = x1_client.query_data_and_result(dataset_id=888888)
+anno.to_json(export_folder='D:\Desktop\export folder')
+~~~
 
 ### Ontology
 
